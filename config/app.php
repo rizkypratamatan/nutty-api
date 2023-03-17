@@ -234,6 +234,7 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         // 'ExampleClass' => App\Example\ExampleClass::class,
+        'AuthValidation' => App\Helpers\Authentication::class
     ])->toArray(),
 
 ];

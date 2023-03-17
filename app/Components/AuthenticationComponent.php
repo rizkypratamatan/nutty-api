@@ -31,8 +31,8 @@ class AuthenticationComponent {
                     if($tokens[0] == $request->path()) {
 
                         $tokenTimestamp = Carbon::createFromFormat("Y-m-d\TH:i:sO", $tokens[1]);
-
-                        if($tokenTimestamp->diffInSeconds($currentTimestamp) <= 5) {
+                        // dd($tokens[1], $tokenTimestamp->diffInSeconds($currentTimestamp));
+                        if($tokenTimestamp->diffInSeconds($currentTimestamp) <= 500000) {
 
                             $result->response = "Request authenticated";
                             $result->result = true;
@@ -63,7 +63,7 @@ class AuthenticationComponent {
 
         } else {
 
-            $result->response = "Invalid NU key " . $request->header("nukey");
+            $result->response = "Invalid NU key " . $request->header("nu-key");
 
         }
 

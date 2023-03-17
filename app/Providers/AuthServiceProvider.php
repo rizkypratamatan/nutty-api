@@ -16,6 +16,11 @@ class AuthServiceProvider extends ServiceProvider
         // 'App\Models\Model' => 'App\Policies\ModelPolicy',
     ];
 
+    public function register()
+    {
+        require_once app_path() . '/Helpers/Authentication.php';
+    }
+
     /**
      * Register any authentication / authorization services.
      *

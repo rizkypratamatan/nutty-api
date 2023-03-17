@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Components\AuthenticationComponent;
 use App\Components\LogComponent;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Storage;
 
 class IndexController extends Controller {
 
