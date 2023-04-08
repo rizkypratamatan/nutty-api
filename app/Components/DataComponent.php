@@ -15,8 +15,6 @@ class DataComponent {
         if(Storage::exists("clients/" . $nukey . ".nu")) {
 
             $result = json_decode(Storage::get("clients/" . $nukey . ".nu"));
-            $result->encryption->privateKey = Storage::get("clients/" . $nukey . "-private.nu");
-            $result->encryption->publicKey = Storage::get("clients/" . $nukey . "-public.nu");
 
         }
 
