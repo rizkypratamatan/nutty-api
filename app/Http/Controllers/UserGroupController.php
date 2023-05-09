@@ -10,8 +10,10 @@ class UserGroupController extends Controller
 {
     public function getUserGroup(Request $request)
     {
-        $checkToken = Authentication::validate($request);
-        if ($checkToken->original->result) {
+        $validation = AuthenticationComponent::validate($request);
+        LogComponent::response($request, $validation);
+
+        if ($validation->result) {
             $userModel =  new UserGroupModel();
             $user = $userModel->getAllUserGroup();
 
@@ -21,7 +23,7 @@ class UserGroupController extends Controller
                 'dataUser' => $user
             ];
         } else {
-            $response = $checkToken->original;
+            $response = $validation;
         }
 
         return response()->json($response, 200);
@@ -29,9 +31,10 @@ class UserGroupController extends Controller
 
     public function addUserGroup(Request $request)
     {
-        $checkToken = Authentication::validate($request);
+        $validation = AuthenticationComponent::validate($request);
+        LogComponent::response($request, $validation);
 
-        if ($checkToken->original->result) {
+        if ($validation->result) {
             $userModel =  new UserGroupModel();
             $user = $userModel->addUserGroup($request);
 
@@ -47,7 +50,7 @@ class UserGroupController extends Controller
                 ];
             }
         } else {
-            $response = $checkToken->original;
+            $response = $validation;
         }
 
         return response()->json($response, 200);
@@ -55,9 +58,10 @@ class UserGroupController extends Controller
     }
     public function updateUserGroupById(Request $request)
     {
-        $checkToken = Authentication::validate($request);
+        $validation = AuthenticationComponent::validate($request);
+        LogComponent::response($request, $validation);
 
-        if ($checkToken->original->result) {
+        if ($validation->result) {
             $userModel =  new UserGroupModel();
             $user = $userModel->updateUserGroupById($request);
 
@@ -73,7 +77,7 @@ class UserGroupController extends Controller
                 ];
             }
         } else {
-            $response = $checkToken->original;
+            $response = $validation;
         }
 
         return response()->json($response, 200);
@@ -81,9 +85,10 @@ class UserGroupController extends Controller
 
     public function deleteUserGroup(Request $request)
     {
-        $checkToken = Authentication::validate($request);
+        $validation = AuthenticationComponent::validate($request);
+        LogComponent::response($request, $validation);
         
-        if ($checkToken->original->result) {
+        if ($validation->result) {
             $userModel =  new UserGroupModel();
             $user = $userModel->deleteUserGroup($request->id);
 
@@ -99,7 +104,7 @@ class UserGroupController extends Controller
                 ];
             }
         } else {
-            $response = $checkToken->original;
+            $response = $validation;
         }
 
         return response()->json($response, 200);
@@ -107,8 +112,10 @@ class UserGroupController extends Controller
 
     public function getUserGroupById(Request $request)
     {
-        $checkToken = Authentication::validate($request);
-        if ($checkToken->original->result) {
+        $validation = AuthenticationComponent::validate($request);
+        LogComponent::response($request, $validation);
+
+        if ($validation->result) {
             $userModel =  new UserGroupModel();
             $user = $userModel->getUserGroupById($request->id);
 
@@ -125,7 +132,7 @@ class UserGroupController extends Controller
                 ];
             }
         } else {
-            $response = $checkToken->original;
+            $response = $validation;
         }
 
         return response()->json($response, 200);

@@ -32,8 +32,8 @@ class LoginController extends Controller
                     'type' => $user['type'],
                 ];
 
-                $userLog = new UserLogModel();
-                $userLog->insertToLog($user);
+                // $userLog = new UserLogModel();
+                // $userLog->insertToLog($pass);
 
                 $response = [
                     'result' => 'true',
