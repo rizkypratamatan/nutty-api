@@ -16,14 +16,15 @@ class LoginController extends Controller
 {
     public function userLogin(LoginRequest $request)
     {
-        $checkToken = Authentication::validate($request);        
-        if ($checkToken->original->result) {
+        $validation = AuthenticationComponent::validate($request);
+        LogComponent::response($request, $validation);
+
+        if ($validation->result) {
             $userModel =  new UserModel;
             $user = $userModel->getUserByUsername($request->username);            
-            echo json_encode($checkToken); die();
             $pass =  Crypt::decryptString($user['password']['main']);
             
-            if (Authentication::DecryptionPassword($request) == $pass) {
+            if ($request->password == $pass) {
                 $data = [
                     'id' => (string)$user['_id'],
                     'name' => $user['name'],
@@ -32,7 +33,7 @@ class LoginController extends Controller
                 ];
 
                 $userLog = new UserLogModel();
-                $userLog->insertToLog($pass);
+                $userLog->insertToLog($user);
 
                 $response = [
                     'result' => 'true',
@@ -46,8 +47,9 @@ class LoginController extends Controller
                 ];
             }
         } else {
-            $response = $checkToken->original;
+            $response = $validation;
         }
+        
         return response()->json($response, 200);
     }
 }
