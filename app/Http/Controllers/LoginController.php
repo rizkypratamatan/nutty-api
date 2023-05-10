@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Components\AuthenticationComponent;
+use App\Components\LogComponent;
 use App\Helpers\Authentication;
 use App\Http\Requests\Login\LoginRequest;
 use App\Repository\UserLogModel;
@@ -34,9 +36,9 @@ class LoginController extends Controller
                 ];
 
                 $userLog = new UserLogModel();
-                $tokenAuth = $userLog->insertToLog($user);
+                $tokenAuth = $userLog->insertToLog($user, "Login", null);
 
-                $data["token_auth"] = $tokenAuth;
+                $data["token-auth"] = $tokenAuth;
 
                 $response = [
                     'result' => 'true',
@@ -53,6 +55,27 @@ class LoginController extends Controller
             $response = $validation;
         }
         
+        return response()->json($response, 200);
+    }
+
+    public function userLogout(Request $request)
+    {
+        
+        $authentication = !empty($request->header('token-auth'))?$request->header('token-auth'):null;
+        $userLogByAuthenticationInType = UserLogModel::findOneByAuthentication($authentication);
+
+        if(!empty($userLogByAuthenticationInType)) {
+            $type = "Logout";
+            $userModel =  new UserModel;
+            $user = $userModel->getUserByUsername($userLogByAuthenticationInType->user['username']);
+            $userLog = new UserLogModel();
+            $tokenAuth = $userLog->insertToLog($user, $type, $authentication);    
+        }
+
+        $response = [
+            "result" => true
+        ];
+
         return response()->json($response, 200);
     }
 }

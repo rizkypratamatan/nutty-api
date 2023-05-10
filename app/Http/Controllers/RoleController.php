@@ -3,19 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Components\AuthenticationComponent;
-use App\Components\LogComponent;
-use App\Helpers\Authentication;
-use App\Repository\UserGroupModel;
 use Illuminate\Http\Request;
 
-class UserGroupController extends Controller
+class RoleController extends Controller
 {
-    public function getUserGroup(Request $request)
+    public function getUserRole(Request $request)
     {
         $validation = AuthenticationComponent::validate($request);
         LogComponent::response($request, $validation);
 
-        if ($validation->result) {
+        if ($checkToken->original->result) {
             $userModel =  new UserGroupModel();
             $user = $userModel->getAllUserGroup();
 
@@ -25,18 +22,17 @@ class UserGroupController extends Controller
                 'dataUser' => $user
             ];
         } else {
-            $response = $validation;
+            $response = $checkToken->original;
         }
 
         return response()->json($response, 200);
     }
 
-    public function addUserGroup(Request $request)
+    public function addUserRole(Request $request)
     {
-        $validation = AuthenticationComponent::validate($request);
-        LogComponent::response($request, $validation);
+        $checkToken = Authentication::validate($request);
 
-        if ($validation->result) {
+        if ($checkToken->original->result) {
             $userModel =  new UserGroupModel();
             $user = $userModel->addUserGroup($request);
 
@@ -52,18 +48,17 @@ class UserGroupController extends Controller
                 ];
             }
         } else {
-            $response = $validation;
+            $response = $checkToken->original;
         }
 
         return response()->json($response, 200);
     
     }
-    public function updateUserGroupById(Request $request)
+    public function updateUserRoleById(Request $request)
     {
-        $validation = AuthenticationComponent::validate($request);
-        LogComponent::response($request, $validation);
+        $checkToken = Authentication::validate($request);
 
-        if ($validation->result) {
+        if ($checkToken->original->result) {
             $userModel =  new UserGroupModel();
             $user = $userModel->updateUserGroupById($request);
 
@@ -79,18 +74,17 @@ class UserGroupController extends Controller
                 ];
             }
         } else {
-            $response = $validation;
+            $response = $checkToken->original;
         }
 
         return response()->json($response, 200);
     }
 
-    public function deleteUserGroup(Request $request)
+    public function deleteUserRole(Request $request)
     {
-        $validation = AuthenticationComponent::validate($request);
-        LogComponent::response($request, $validation);
+        $checkToken = Authentication::validate($request);
         
-        if ($validation->result) {
+        if ($checkToken->original->result) {
             $userModel =  new UserGroupModel();
             $user = $userModel->deleteUserGroup($request->id);
 
@@ -106,18 +100,16 @@ class UserGroupController extends Controller
                 ];
             }
         } else {
-            $response = $validation;
+            $response = $checkToken->original;
         }
 
         return response()->json($response, 200);
     }
 
-    public function getUserGroupById(Request $request)
+    public function getUserRoleById(Request $request)
     {
-        $validation = AuthenticationComponent::validate($request);
-        LogComponent::response($request, $validation);
-
-        if ($validation->result) {
+        $checkToken = Authentication::validate($request);
+        if ($checkToken->original->result) {
             $userModel =  new UserGroupModel();
             $user = $userModel->getUserGroupById($request->id);
 
@@ -134,7 +126,7 @@ class UserGroupController extends Controller
                 ];
             }
         } else {
-            $response = $validation;
+            $response = $checkToken->original;
         }
 
         return response()->json($response, 200);

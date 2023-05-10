@@ -103,4 +103,13 @@ class UserModel
         return DB::table('user')
             ->where('_id', $data->id)->update($arr);
     }
+
+    public static function findOneByIdStatus($id, $status) {
+
+        return User::where([
+            ["_id", "=", $id],
+            ["status", "=", $status]
+        ])->first();
+
+    }
 }

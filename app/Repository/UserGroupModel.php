@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 class UserGroupModel
 {
     public function getAllUserGroup()
-    {
+    {   
         return UserGroup::get();
     }
 

@@ -8,7 +8,7 @@ use Jenssegers\Mongodb\Eloquent\Model;
 class UserLog extends Model
 {
     use HasFactory;
-    
+
     protected $attributes = [
         "authentication" => "",
         "agent" => [
@@ -64,6 +64,7 @@ class UserLog extends Model
         "agent->ip",
         "description",
         "nucode",
+        "status",
         "target->_id",
         "target->name",
         "type",
@@ -74,7 +75,7 @@ class UserLog extends Model
         "created->user->username",
         "modified->timestamp",
         "modified->user->_id",
-        "modified->user->username"
+        "modified->user->username",
     ];
 
     protected $table = "userLog";

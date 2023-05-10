@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Models\UserLog;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,12 +12,14 @@ use Illuminate\Support\Facades\Hash;
 class UserLogModel
 {
 
-    public function insertToLog($data)
+    public function insertToLog($data, $type, $authentication=null)
     {
         $mytime = Carbon::now();
 
-        $authentication = Hash::make($data . $mytime->format("Y-m-dTH:i:s.u"));
-
+        if($authentication == null){
+            $authentication = base64_encode(Hash::make($data['_id'] . $data['username'] . $mytime->format("Y-m-dTH:i:s.u")));
+        }
+        
         $dataLog = [
             "authentication" => $authentication,
             // "agent" => [
@@ -39,7 +42,7 @@ class UserLogModel
             //     "_id" => "0",
             //     "name" => "System"
             // ],
-            "type" => $data["type"],
+            "type" => $type,
             "user" => [
                 "_id" => $data["id"],
                 "username" => $data["username"]
@@ -61,7 +64,7 @@ class UserLogModel
         ];
 
         DB::table('userLog')->insert($dataLog);
-        
+
         return $authentication;
     }
 
@@ -69,7 +72,7 @@ class UserLogModel
 
         return UserLog::where([
             ["authentication", "=", $authentication]
-        ])->orderBy("created.timestamp", "DESC")->first();
+        ])->where("status", "active")->orderBy("created.timestamp", "DESC")->first();
 
     }
 
@@ -78,7 +81,11 @@ class UserLogModel
 
         return UserLog::where([
             ["authentication", "=", $authentication]
-        ])->whereIn("type", $types)->orderBy("created.timestamp", "DESC")->first();
+        ])
+        ->whereIn("type", $types)
+        ->where("status", "active")
+        ->orderBy("created.timestamp", "DESC")
+        ->first();
 
     }
 
@@ -87,7 +94,7 @@ class UserLogModel
 
         return UserLog::where([
             ["user._id", "=", $userId]
-        ])->whereIn("type", $types)->orderBy("created.timestamp", "DESC")->first();
+        ])->where("status", "active")->whereIn("type", $types)->orderBy("created.timestamp", "DESC")->first();
 
     }
 }
