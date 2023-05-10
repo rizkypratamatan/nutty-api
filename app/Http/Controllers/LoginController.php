@@ -28,12 +28,15 @@ class LoginController extends Controller
                 $data = [
                     'id' => (string)$user['_id'],
                     'name' => $user['name'],
+                    'username' => $user['username'],
                     'role' => $user['role']['name'],
                     'type' => $user['type'],
                 ];
 
-                // $userLog = new UserLogModel();
-                // $userLog->insertToLog($pass);
+                $userLog = new UserLogModel();
+                $tokenAuth = $userLog->insertToLog($user);
+
+                $data["token_auth"] = $tokenAuth;
 
                 $response = [
                     'result' => 'true',
