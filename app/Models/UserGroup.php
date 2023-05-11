@@ -59,4 +59,9 @@ class UserGroup extends Model
     public $timestamps = false;
 
     protected $casts = ['created.timestamp' => 'datetime:d.m.Y'];
+
+    public function createdDate()
+    {
+        return $this->embedsOne(Address::class);
+    }
 }

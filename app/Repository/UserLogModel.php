@@ -72,7 +72,7 @@ class UserLogModel
 
         return UserLog::where([
             ["authentication", "=", $authentication]
-        ])->where("status", "active")->orderBy("created.timestamp", "DESC")->first();
+        ])->orderBy("created.timestamp", "DESC")->first();
 
     }
 

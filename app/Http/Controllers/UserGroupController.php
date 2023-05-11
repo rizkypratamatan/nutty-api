@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Components\AuthenticationComponent;
+use App\Components\DataComponent;
 use App\Components\LogComponent;
 use App\Helpers\Authentication;
 use App\Repository\UserGroupModel;
@@ -16,6 +17,9 @@ class UserGroupController extends Controller
         LogComponent::response($request, $validation);
 
         if ($validation->result) {
+            //check privilege
+            DataComponent::checkPrivilege($request, "userGroup", "view");
+        
             $userModel =  new UserGroupModel();
             $user = $userModel->getAllUserGroup();
 
@@ -24,6 +28,8 @@ class UserGroupController extends Controller
                 'response' => 'Get All User Group',
                 'dataUser' => $user
             ];
+           
+            
         } else {
             $response = $validation;
         }
@@ -37,6 +43,9 @@ class UserGroupController extends Controller
         LogComponent::response($request, $validation);
 
         if ($validation->result) {
+            //check privilege
+            DataComponent::checkPrivilege($request, "userGroup", "add");
+
             $userModel =  new UserGroupModel();
             $user = $userModel->addUserGroup($request);
 
@@ -58,12 +67,16 @@ class UserGroupController extends Controller
         return response()->json($response, 200);
     
     }
+
     public function updateUserGroupById(Request $request)
     {
         $validation = AuthenticationComponent::validate($request);
         LogComponent::response($request, $validation);
 
         if ($validation->result) {
+            //check privilege
+            DataComponent::checkPrivilege($request, "userGroup", "edit");
+
             $userModel =  new UserGroupModel();
             $user = $userModel->updateUserGroupById($request);
 
@@ -91,6 +104,10 @@ class UserGroupController extends Controller
         LogComponent::response($request, $validation);
         
         if ($validation->result) {
+
+            //check privilege
+            DataComponent::checkPrivilege($request, "userGroup", "delete");
+
             $userModel =  new UserGroupModel();
             $user = $userModel->deleteUserGroup($request->id);
 
@@ -118,6 +135,10 @@ class UserGroupController extends Controller
         LogComponent::response($request, $validation);
 
         if ($validation->result) {
+
+            //check privilege
+            DataComponent::checkPrivilege($request, "userGroup", "view");
+
             $userModel =  new UserGroupModel();
             $user = $userModel->getUserGroupById($request->id);
 

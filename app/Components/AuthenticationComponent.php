@@ -2,6 +2,8 @@
 
 namespace App\Components;
 
+use App\Repository\UserLogModel;
+use App\Repository\UserModel;
 use Carbon\Carbon;
 
 
@@ -69,6 +71,14 @@ class AuthenticationComponent {
 
         return $result;
 
+    }
+
+    public static function toUser($request) {
+
+        $auth = UserLogModel::findOneByAuthentication($request->header('token-auth'));
+        $user = new UserModel();
+
+        return $user->getUserById($auth->user['_id']);
     }
 
 
