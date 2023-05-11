@@ -4,7 +4,6 @@ namespace App\Components;
 
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Storage;
-use Throwable;
 
 class DataComponent {
 
@@ -65,7 +64,7 @@ class DataComponent {
             }
 
             if(substr($user->privilege[$privilege], $start, 1) == "7") {
-                $result["message"] = "Authorized";
+                $result["message"] = strtoupper($user->username)." Authorized to ".strtoupper($action)." ".strtoupper($privilege);
                 $result["code"] = 200;
                 LogComponent::response($request, $result);
             }
@@ -76,8 +75,5 @@ class DataComponent {
             LogComponent::response($request, $result);
             throw new AuthorizationException("Unauthorized", 403);
         }
-
     }
-
-
 }
