@@ -19,9 +19,11 @@ class UserGroupController extends Controller
         if ($validation->result) {
             //check privilege
             DataComponent::checkPrivilege($request, "userGroup", "view");
-        
+            
+            $limit = !empty($request->limit)?$request->limit:10;
+            $offset = !empty($request->offset)?$request->offset:0;
             $userModel =  new UserGroupModel();
-            $user = $userModel->getAllUserGroup();
+            $user = $userModel->getAllUserGroup($limit, $offset);
 
             $response = [
                 'result' => true,

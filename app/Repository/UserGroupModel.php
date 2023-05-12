@@ -8,9 +8,9 @@ use Illuminate\Support\Facades\DB;
 
 class UserGroupModel
 {
-    public function getAllUserGroup()
+    public function getAllUserGroup($limit=10, $offset=0)
     {   
-        return UserGroup::get();
+        return UserGroup::get()->take($limit)->skip($offset);
     }
 
     public function addUserGroup($data)
