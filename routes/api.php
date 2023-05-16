@@ -6,6 +6,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserGroupController;
+use App\Http\Controllers\WebsiteController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -31,6 +32,13 @@ Route::post('/logout', [LoginController::class, 'userLogout'])->name('logout');
 
 
 Route::group(["middleware" => ["authentication"]], function() {
+    //website
+    Route::post('/get-websites', [WebsiteController::class, 'getWebsites'])->name('get-websites');
+    Route::post('/add-website', [WebsiteController::class, 'addWebsite'])->name('add-website');
+    Route::post('/delete-website', [WebsiteController::class, 'deleteWebsite'])->name('delete-website');
+    Route::post('/get-website-by-id', [WebsiteController::class, 'getWebsiteById'])->name('get-website-by-id');
+    Route::post('/update-website', [WebsiteController::class, 'updateWebsiteById'])->name('update-website');
+
     //user-group
     Route::post('/get-user-group', [UserGroupController::class, 'getUserGroup'])->name('get-user-group');
     Route::post('/add-user-group', [UserGroupController::class, 'addUserGroup'])->name('add-user-group');
