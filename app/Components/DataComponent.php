@@ -76,4 +76,187 @@ class DataComponent {
             throw new AuthorizationException("Unauthorized", 403);
         }
     }
+
+    public static function initializeCollectionByWebsite($websiteId) {
+
+        if(!Schema::hasTable("database_" . $websiteId)) {
+
+            Schema::create("database_" . $websiteId, function(Blueprint $table) {
+
+                self::createDatabaseIndex($table);
+
+            });
+
+        } else {
+
+            Schema::table("database_" . $websiteId, function(Blueprint $table) {
+
+                self::createDatabaseIndex($table);
+
+            });
+
+        }
+        
+        if(!Schema::hasTable("databaseAccount_" . $websiteId)) {
+
+            Schema::create("databaseAccount_" . $websiteId, function(Blueprint $table) {
+
+                self::createDatabaseAccountIndex($table);
+
+            });
+
+        } else {
+
+            Schema::table("databaseAccount_" . $websiteId, function(Blueprint $table) {
+
+                self::createDatabaseAccountIndex($table);
+
+            });
+
+        }
+
+        if(!Schema::hasTable("databaseLog_" . $websiteId)) {
+
+            Schema::create("databaseLog_" . $websiteId, function(Blueprint $table) {
+
+                self::createDatabaseLogIndex($table);
+
+            });
+
+        } else {
+
+            Schema::table("databaseLog_" . $websiteId, function(Blueprint $table) {
+
+                self::createDatabaseLogIndex($table);
+
+            });
+
+        }
+
+        if(!Schema::hasTable("nexusPlayerTransaction_" . $websiteId)) {
+
+            Schema::create("nexusPlayerTransaction_" . $websiteId, function(Blueprint $table) {
+
+                self::createNexusPlayerTransactionIndex($table);
+
+            });
+
+        } else {
+
+            Schema::table("nexusPlayerTransaction_" . $websiteId, function(Blueprint $table) {
+
+                self::createNexusPlayerTransactionIndex($table);
+
+            });
+
+        }
+
+    }
+
+    public static function createDatabaseIndex($table) {
+
+        $table->string("city")->index();
+        $table->string("contact.email")->index();
+        $table->string("contact.line")->index();
+        $table->string("contact.michat")->index();
+        $table->string("contact.phone")->unique();
+        $table->string("contact.telegram")->index();
+        $table->string("contact.wechat")->index();
+        $table->string("contact.whatsapp")->index();
+        $table->string("country")->index();
+        $table->string("crm._id")->index();
+        $table->string("crm.avatar")->index();
+        $table->string("crm.name")->index();
+        $table->string("crm.username")->index();
+        $table->string("gender")->index();
+        $table->string("group._id")->index();
+        $table->string("group.name")->index();
+        $table->string("import._id")->index();
+        $table->string("import.file")->index();
+        $table->string("language")->index();
+        $table->string("name")->index();
+        $table->string("reference")->index();
+        $table->string("state")->index();
+        $table->string("status")->index();
+        $table->string("street")->index();
+        $table->string("telemarketer._id")->index();
+        $table->string("telemarketer.avatar")->index();
+        $table->string("telemarketer.name")->index();
+        $table->string("telemarketer.username")->index();
+        $table->string("zip")->index();
+        $table->date("created.timestamp")->index();
+        $table->date("modified.timestamp")->index();
+
+    }
+
+    public static function createDatabaseAccountIndex($table) {
+
+        $table->string("database._id")->unique();
+        $table->string("database.name")->index();
+        $table->string("deposit.average.amount")->index();
+        $table->string("deposit.first.amount")->index();
+        $table->date("deposit.first.timestamp")->index();
+        $table->string("deposit.last.amount")->index();
+        $table->date("deposit.last.timestamp")->index();
+        $table->string("deposit.total.amount")->index();
+        $table->integer("login.average.daily")->index();
+        $table->integer("login.average.monthly")->index();
+        $table->integer("login.average.weekly")->index();
+        $table->integer("login.average.yearly")->index();
+        $table->date("login.first.timestamp")->index();
+        $table->date("login.last.timestamp")->index();
+        $table->string("login.total.amount")->index();
+        $table->string("reference")->index();
+        $table->date("register.timestamp")->index();
+        $table->string("username")->unique();
+        $table->string("withdrawal.average.amount")->index();
+        $table->string("withdrawal.first.amount")->index();
+        $table->date("withdrawal.first.timestamp")->index();
+        $table->string("withdrawal.last.amount")->index();
+        $table->date("withdrawal.last.timestamp")->index();
+        $table->string("withdrawal.total.amount")->index();
+        $table->date("created.timestamp")->index();
+        $table->date("modified.timestamp")->index();
+
+    }
+
+    public static function createDatabaseLogIndex($table) {
+
+        $table->string("database._id")->index();
+        $table->string("database.name")->index();
+        $table->string("reference")->index();
+        $table->string("status")->index();
+        $table->string("user._id")->index();
+        $table->string("user.avatar")->index();
+        $table->string("user.name")->index();
+        $table->string("user.username")->index();
+        $table->date("created.timestamp")->index();
+        $table->date("modified.timestamp")->index();
+
+    }
+
+    public static function createNexusPlayerTransactionIndex($table) {
+
+        $table->string("adjustment.reference")->index();
+        $table->decimal("amount.final")->index();
+        $table->decimal("amount.request")->index();
+        $table->date("approved.timestamp")->index();
+        $table->string("approved.user._id")->index();
+        $table->string("approved.user.username")->index();
+        $table->string("bank.account.from.name")->index();
+        $table->string("bank.account.from.number")->index();
+        $table->string("bank.account.to.name")->index();
+        $table->string("bank.account.to.number")->index();
+        $table->string("bank.from")->index();
+        $table->string("bank.to")->index();
+        $table->decimal("fee.admin")->index();
+        $table->string("reference")->unique();
+        $table->date("requested.timestamp")->index();
+        $table->string("requested.user._id")->index();
+        $table->string("requested.user.username")->index();
+        $table->string("transaction.code")->index();
+        $table->string("transaction.type")->index();
+        $table->string("username")->index();
+
+    }
 }
