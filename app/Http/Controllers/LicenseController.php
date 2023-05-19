@@ -72,4 +72,95 @@ class LicenseController extends Controller
 
         return response()->json($response, 200);
     }
+
+    public function addLicense(Request $request)
+    {
+        $validation = AuthenticationComponent::validate($request);
+        LogComponent::response($request, $validation);
+
+        if ($validation->result) {
+            //check privilege
+            DataComponent::checkPrivilege($request, "license", "add");
+
+            $userModel =  new LicenseModel();
+            $user = $userModel->addLicense($request);
+
+            if ($user) {
+                $response = [
+                    'result' => true,
+                    'response' => 'success add license',
+                ];
+            } else {
+                $response = [
+                    'result' => false,
+                    'response' => 'failed add license',
+                ];
+            }
+        } else {
+            $response = $validation;
+        }
+
+        return response()->json($response, 200);
+    
+    }
+
+    public function getLicense(Request $request)
+    {
+        $validation = AuthenticationComponent::validate($request);
+        LogComponent::response($request, $validation);
+
+        if ($validation->result) {
+            //check privilege
+            DataComponent::checkPrivilege($request, "license", "view");
+            
+            $limit = !empty($request->limit)?$request->limit:10;
+            $offset = !empty($request->offset)?$request->offset:0;
+            $userModel =  new LicenseModel();
+            $user = $userModel->getLicense($limit, $offset);
+
+            $response = [
+                'result' => true,
+                'response' => 'Get All License',
+                'dataUser' => $user
+            ];
+           
+            
+        } else {
+            $response = $validation;
+        }
+
+        return response()->json($response, 200);
+    }
+
+    public function getLicenseById(Request $request)
+    {
+        $validation = AuthenticationComponent::validate($request);
+        LogComponent::response($request, $validation);
+
+        if ($validation->result) {
+
+            //check privilege
+            DataComponent::checkPrivilege($request, "license", "view");
+
+            $userModel =  new LicenseModel();
+            $user = $userModel->getLicenseById($request->id);
+
+            if ($user) {
+                $response = [
+                    'result' => true,
+                    'response' => 'success get license by id',
+                    'dataUser' => $user
+                ];
+            } else {
+                $response = [
+                    'result' => false,
+                    'response' => 'failed get license by id',
+                ];
+            }
+        } else {
+            $response = $validation;
+        }
+
+        return response()->json($response, 200);
+    }
 }

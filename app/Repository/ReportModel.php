@@ -30,12 +30,11 @@ class ReportModel
     // }
 
 
-    // public static function delete($id) 
-    // {
+    public static function deleteReport($id)
+    {
 
-    //     Report::find($id)->delete();
-
-    // }
+        return Report::where('_id', $id)->delete();
+    }
 
 
     // public static function findOneByDateUserId($date, $nucode, $userId) 
@@ -242,6 +241,54 @@ class ReportModel
 
         return DB::table('report')
             ->insert($arr);
+    }
+
+    public function updateReport($data)
+    {
+        $mytime = Carbon::now();
+
+        $arr = [
+            'date' => $mytime->toDateTimeString(),
+            'status' => [
+                'names' => $data->names,
+                'totals' => $data->totals
+            ],
+            // 'total' => 0,
+            'user' => [
+                // '_id' => '0',
+                'avatar' => '',
+                // 'name' => 'System',
+                // 'username' => 'system'
+            ],
+            'website' => [
+                'ids' => $data->ids,
+                'names' => $data->names,
+                'totals' => $data->totals
+            ],
+            'created' => [
+                'timestamp' => $mytime->toDateTimeString(),
+                // 'user' => [
+                //     '_id' => '0',
+                //     'username' => 'System'
+                // ]
+            ],
+            'modified' => [
+                'timestamp' => $mytime->toDateTimeString(),
+                // 'user' => [
+                //     '_id' => '0',
+                //     'username' => 'System'
+                // ]
+            ]
+        ];
+
+        return DB::table('report')
+            ->where('_id', $data->id)->update($arr);
+    }
+
+    public function getReportById($id)
+    {
+
+        return Report::where('_id', $id)->first();
     }
 
 

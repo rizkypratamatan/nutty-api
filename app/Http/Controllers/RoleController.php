@@ -3,130 +3,160 @@
 namespace App\Http\Controllers;
 
 use App\Components\AuthenticationComponent;
+use App\Components\DataComponent;
+use App\Components\LogComponent;
+use App\Repository\UserRoleModel;
 use Illuminate\Http\Request;
 
 class RoleController extends Controller
 {
-    public function getUserRole(Request $request)
+    public function getRole(Request $request)
     {
         $validation = AuthenticationComponent::validate($request);
         LogComponent::response($request, $validation);
 
-        if ($checkToken->original->result) {
-            $userModel =  new UserGroupModel();
-            $user = $userModel->getAllUserGroup();
+        if ($validation->result) {
+            //check privilege
+            DataComponent::checkPrivilege($request, "userRole", "view");
+            
+            $limit = !empty($request->limit)?$request->limit:10;
+            $offset = !empty($request->offset)?$request->offset:0;
+            $userModel =  new UserRoleModel();
+            $user = $userModel->getRole($limit, $offset);
 
             $response = [
                 'result' => true,
-                'response' => 'Get All User Group',
+                'response' => 'Get All User Role',
                 'dataUser' => $user
             ];
+           
+            
         } else {
-            $response = $checkToken->original;
+            $response = $validation;
         }
 
         return response()->json($response, 200);
     }
 
-    public function addUserRole(Request $request)
+    public function addRole(Request $request)
     {
-        $checkToken = Authentication::validate($request);
+        $validation = AuthenticationComponent::validate($request);
+        LogComponent::response($request, $validation);
 
-        if ($checkToken->original->result) {
-            $userModel =  new UserGroupModel();
-            $user = $userModel->addUserGroup($request);
+        if ($validation->result) {
+            //check privilege
+            DataComponent::checkPrivilege($request, "userRole", "add");
+
+            $userModel =  new UserRoleModel();
+            $user = $userModel->addRole($request);
 
             if ($user) {
                 $response = [
                     'result' => true,
-                    'response' => 'success add user group',
+                    'response' => 'success add user role',
                 ];
             } else {
                 $response = [
                     'result' => false,
-                    'response' => 'failed add user group',
+                    'response' => 'failed add user role',
                 ];
             }
         } else {
-            $response = $checkToken->original;
+            $response = $validation;
         }
 
         return response()->json($response, 200);
     
     }
-    public function updateUserRoleById(Request $request)
-    {
-        $checkToken = Authentication::validate($request);
 
-        if ($checkToken->original->result) {
-            $userModel =  new UserGroupModel();
-            $user = $userModel->updateUserGroupById($request);
+    public function updateRoleById(Request $request)
+    {
+        $validation = AuthenticationComponent::validate($request);
+        LogComponent::response($request, $validation);
+
+        if ($validation->result) {
+            //check privilege
+            DataComponent::checkPrivilege($request, "userRole", "edit");
+
+            $userModel =  new UserRoleModel();
+            $user = $userModel->updateRoleById($request);
 
             if ($user) {
                 $response = [
                     'result' => true,
-                    'response' => 'success update user group',
+                    'response' => 'success update role',
                 ];
             } else {
                 $response = [
                     'result' => false,
-                    'response' => 'failed update user group',
+                    'response' => 'failed update role',
                 ];
             }
         } else {
-            $response = $checkToken->original;
+            $response = $validation;
         }
 
         return response()->json($response, 200);
     }
 
-    public function deleteUserRole(Request $request)
+    public function deleteRole(Request $request)
     {
-        $checkToken = Authentication::validate($request);
+        $validation = AuthenticationComponent::validate($request);
+        LogComponent::response($request, $validation);
         
-        if ($checkToken->original->result) {
-            $userModel =  new UserGroupModel();
-            $user = $userModel->deleteUserGroup($request->id);
+        if ($validation->result) {
+
+            //check privilege
+            DataComponent::checkPrivilege($request, "userRole", "delete");
+
+            $userModel =  new UserRoleModel();
+            $user = $userModel->deleteRole($request->id);
 
             if ($user) {
                 $response = [
                     'result' => true,
-                    'response' => 'success delete user group',
+                    'response' => 'success delete role',
                 ];
             } else {
                 $response = [
                     'result' => false,
-                    'response' => 'failed delete user group',
+                    'response' => 'failed delete role',
                 ];
             }
         } else {
-            $response = $checkToken->original;
+            $response = $validation;
         }
 
         return response()->json($response, 200);
     }
 
-    public function getUserRoleById(Request $request)
+    public function getRoleById(Request $request)
     {
-        $checkToken = Authentication::validate($request);
-        if ($checkToken->original->result) {
-            $userModel =  new UserGroupModel();
-            $user = $userModel->getUserGroupById($request->id);
+        $validation = AuthenticationComponent::validate($request);
+        LogComponent::response($request, $validation);
+
+        if ($validation->result) {
+
+            //check privilege
+            DataComponent::checkPrivilege($request, "userRole", "view");
+
+            $userModel =  new UserRoleModel();
+            $user = $userModel->getRoleById($request->id);
 
             if ($user) {
                 $response = [
                     'result' => true,
-                    'response' => 'success get user group',
+                    'response' => 'success get role',
                     'dataUser' => $user
                 ];
             } else {
                 $response = [
                     'result' => false,
-                    'response' => 'failed get user group',
+                    'response' => 'failed get role',
                 ];
             }
         } else {
-            $response = $checkToken->original;
+            $response = $validation;
         }
 
         return response()->json($response, 200);

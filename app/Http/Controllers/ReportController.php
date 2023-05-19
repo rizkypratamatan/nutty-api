@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Components\AuthenticationComponent;
 use App\Components\DataComponent;
 use App\Components\LogComponent;
+use App\Models\Report;
 use App\Models\User;
 use App\Repository\ReportModel;
 use App\Repository\UserModel;
@@ -78,6 +79,99 @@ class ReportController extends Controller {
 
         return response()->json($response, 200);
     
+    }
+
+    public function deleteReport(Request $request)
+    {
+        $validation = AuthenticationComponent::validate($request);
+        LogComponent::response($request, $validation);
+        
+        if ($validation->result) {
+
+            //check privilege
+            DataComponent::checkPrivilege($request, "report", "delete");
+
+            $userModel =  new ReportModel();
+            $user = $userModel->deleteReport($request->id);
+
+            if ($user) {
+                $response = [
+                    'result' => true,
+                    'response' => 'success delete report',
+                ];
+            } else {
+                $response = [
+                    'result' => false,
+                    'response' => 'failed delete report',
+                ];
+            }
+        } else {
+            $response = $validation;
+        }
+
+        return response()->json($response, 200);
+    }
+
+    public function updateReport(Request $request)
+    {
+        $validation = AuthenticationComponent::validate($request);
+        LogComponent::response($request, $validation);
+
+        if ($validation->result) {
+            //check privilege
+            DataComponent::checkPrivilege($request, "report", "edit");
+
+            $userModel =  new ReportModel();
+            $user = $userModel->updateReport($request);
+
+            if ($user) {
+                $response = [
+                    'result' => true,
+                    'response' => 'success update report',
+                ];
+            } else {
+                $response = [
+                    'result' => false,
+                    'response' => 'failed update report',
+                ];
+            }
+        } else {
+            $response = $validation;
+        }
+
+        return response()->json($response, 200);
+    }
+
+    public function getReportById(Request $request)
+    {
+        $validation = AuthenticationComponent::validate($request);
+        LogComponent::response($request, $validation);
+
+        if ($validation->result) {
+
+            //check privilege
+            DataComponent::checkPrivilege($request, "report", "view");
+
+            $userModel =  new ReportModel();
+            $user = $userModel->getReportById($request->id);
+
+            if ($user) {
+                $response = [
+                    'result' => true,
+                    'response' => 'success get report',
+                    'dataUser' => $user
+                ];
+            } else {
+                $response = [
+                    'result' => false,
+                    'response' => 'failed get report',
+                ];
+            }
+        } else {
+            $response = $validation;
+        }
+
+        return response()->json($response, 200);
     }
 
     // public function index(Request $request) 

@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\DatabaseController;
+use App\Http\Controllers\DatabaseImportController;
 use App\Http\Controllers\LicenseController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ReportController;
@@ -56,10 +58,16 @@ Route::group(["middleware" => ["authentication"]], function() {
     //license
     Route::post('/delete-license', [LicenseController::class, 'deleteLicense'])->name('delete-license');
     Route::post('/update-license', [LicenseController::class, 'updateLicense'])->name('update-license');
+    Route::post('/add-license', [LicenseController::class, 'addLicense'])->name('add-license');
+    Route::post('/get-license', [LicenseController::class, 'getLicense'])->name('get-license');
+    Route::post('/get-license-by-id', [LicenseController::class, 'getLicenseById'])->name('get-license-by-id');
     
     //report
     Route::post('/report', [ReportController::class, 'userReport'])->name('report');
     Route::post('/add-report', [ReportController::class, 'addReport'])->name('add-report');
+    Route::post('/delete-report', [ReportController::class, 'deleteReport'])->name('delete-report');
+    Route::post('/update-report', [ReportController::class, 'updateReport'])->name('update-report');
+    Route::post('/get-report-by-id', [ReportController::class, 'getReportById'])->name('get-report-by-id');
     
     //role
     Route::post('/get-all-role', [RoleController::class, 'getRole'])->name('get-all-role');
@@ -67,4 +75,15 @@ Route::group(["middleware" => ["authentication"]], function() {
     Route::post('/delete-role', [RoleController::class, 'deleteRole'])->name('delete-role');
     Route::post('/get-role-by-id', [RoleController::class, 'getRoleById'])->name('get-role-by-id');
     Route::post('/update-role', [RoleController::class, 'updateRoleById'])->name('update-role');
+
+    //database
+    Route::post('/add-database', [DatabaseController::class, 'addDatabase'])->name('add-database');
+    Route::post('/delete-database', [DatabaseController::class, 'deleteDatabase'])->name('delete-database');
+    Route::post('/get-database', [DatabaseController::class, 'getDatabase'])->name('get-database');
+    Route::post('/get-database-by-id', [DatabaseController::class, 'getDatabaseById'])->name('get-database-by-id');
+    Route::post('/update-database', [DatabaseController::class, 'updateDatabaseById'])->name('update-database');
+
+    // database import
+    Route::post('/import-database', [DatabaseImportController::class, 'importDatabase'])->name('import-database');
+
 });
