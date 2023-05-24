@@ -8,12 +8,12 @@ use Illuminate\Support\Facades\DB;
 
 class UserRoleModel
 {
-    public function getAllUserRole()
+    public function getRole()
     {
         return UserRole::get();
     }
 
-    public function addUserRole($data)
+    public function addRole($data)
     {
 
         $mytime = Carbon::now();
@@ -57,19 +57,19 @@ class UserRoleModel
             ->insert($arr);
     }
 
-    public static function deleteUserGroup($id)
+    public static function deleteRole($id)
     {
 
         return UserRole::where('_id', $id)->delete();
     }
 
-    public function getUserRoleById($id)
+    public function getRoleById($id)
     {
 
         return UserRole::where('_id', $id)->first();
     }
 
-    public function updateUserRoleById($data)
+    public function updateRoleById($data)
     {
         $mytime = Carbon::now();
 
