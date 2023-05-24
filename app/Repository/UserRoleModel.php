@@ -32,6 +32,9 @@ class UserRoleModel
                 "userRole" => $data->privilege->userRole,
                 "website" => $data->privilege->website,
                 "worksheet" => $data->privilege->worksheet,
+                "whatsapp" => $data->privilege->whatsapp,
+                "sms" =>  $data->privilege->sms,
+                "email" =>  $data->privilege->email
             ],
             "status" => $data->status,
             "created" => [
@@ -84,6 +87,9 @@ class UserRoleModel
                 "userRole" => $data->privilege->userRole,
                 "website" => $data->privilege->website,
                 "worksheet" => $data->privilege->worksheet,
+                "whatsapp" => $data->privilege->whatsapp,
+                "sms" =>  $data->privilege->sms,
+                "email" =>  $data->privilege->email
             ],
             "status" => $data->status,
             "modified" => [

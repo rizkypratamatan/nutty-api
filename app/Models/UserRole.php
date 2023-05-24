@@ -23,6 +23,9 @@ class UserRole extends Model
             "userRole" => "0000",
             "website" => "0000",
             "worksheet" => "0000",
+            "whatsapp" => "0000",
+            "sms" => "0000",
+            "email" => "0000",
         ],
         "status" => "",
         "created" => [
