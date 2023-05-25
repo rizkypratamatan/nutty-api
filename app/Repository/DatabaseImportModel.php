@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Models\Database;
+use App\Models\DatabaseImport;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -21,8 +22,8 @@ class DatabaseImportModel
         $arr = [
             "file" => $data->file,
             "group" => [
-                "_id" => "",
-                "name" => ""
+                "_id" => $auth->_id,
+                "name" => $auth->name
             ],
             "row" => 0,
             "status" => $data->status,
@@ -49,6 +50,15 @@ class DatabaseImportModel
 
         return DB::table('databaseImport')
             ->insert($arr);
+    }
+
+    public static function initializeData($id) 
+    {
+
+        return DatabaseImport::where([
+            ["_id", "=", $id]
+        ])->first();
+
     }
 
     

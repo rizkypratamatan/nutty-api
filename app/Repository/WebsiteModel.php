@@ -117,7 +117,8 @@ class WebsiteModel
         return DB::table('website')->where('_id', $data->id)->update($arr);
     }
 
-    public static function findOneById($id) {
+    public static function findOneById($id) 
+    {
 
         return Website::where([
             ["_id", "=", $id]
@@ -125,12 +126,21 @@ class WebsiteModel
 
     }
 
-    public static function findOneByNameNucode($name, $nucode) {
+    public static function findOneByNameNucode($name, $nucode) 
+    {
 
         return Website::where([
             ["name", "=", $name],
             ["nucode", "=", $nucode]
         ])->first();
+
+    }
+
+    public static function findByStatus($status) 
+    {
+        return Website::where([
+            ["status", "=", $status]
+        ])->get();
 
     }
 

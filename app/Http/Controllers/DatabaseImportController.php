@@ -6,6 +6,8 @@ use App\Components\AuthenticationComponent;
 use App\Components\DataComponent;
 use App\Components\LogComponent;
 use App\Repository\DatabaseImportModel;
+use App\Repository\UserGroupModel;
+use App\Repository\WebsiteModel;
 use Illuminate\Http\Request;
 
 class DatabaseImportController extends Controller
@@ -42,4 +44,40 @@ class DatabaseImportController extends Controller
         return response()->json($response, 200);
     
     }
+
+    public function initializeData(Request $request)
+    {
+        $validation = AuthenticationComponent::validate($request);
+        LogComponent::response($request, $validation);
+
+        if ($validation->result) {
+            //check privilege
+            DataComponent::checkPrivilege($request, "database", "view");
+            $auth = AuthenticationComponent::toUser($request);
+
+            $model =  new DatabaseImportModel();
+            $data = $model->initializeData($request, $auth);
+            $data->userGroup = UserGroupModel::findByStatus("Active");
+            $data->websites = WebsiteModel::findByStatus("Active");
+
+            if ($data) {
+                // DataComponent::initializeCollectionByWebsite($data->_id);
+                $response = [
+                    'result' => true,
+                    'response' => 'Database import data initialized',
+                ];
+            } else {
+                $response = [
+                    'result' => false,
+                    'response' => 'Failed to initialize database import data',
+                ];
+            }
+        } else {
+            $response = $validation;
+        }
+
+        return response()->json($response, 200);
+    
+    }
+
 }

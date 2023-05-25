@@ -85,5 +85,6 @@ Route::group(["middleware" => ["authentication"]], function() {
 
     // database import
     Route::post('/import-database', [DatabaseImportController::class, 'importDatabase'])->name('import-database');
+    Route::post('/import-initialize-data', [DatabaseImportController::class, 'initializeData'])->name('import-initialize-data');
 
 });

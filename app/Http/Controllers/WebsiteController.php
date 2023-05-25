@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Components\AuthenticationComponent;
+use App\Components\DataComponent;
+use App\Components\LogComponent;
+use App\Repository\WebsiteModel;
 use Illuminate\Http\Request;
 
 class WebsiteController extends Controller
@@ -45,11 +48,11 @@ class WebsiteController extends Controller
             DataComponent::checkPrivilege($request, "website", "add");
             $auth = AuthenticationComponent::toUser($request);
 
-            $model =  new WebsitepModel();
+            $model =  new WebsiteModel();
             $data = $model->addWebsite($request, $auth);
 
             if ($data) {
-                DataComponent::initializeCollectionByWebsite($data->_id);
+                DataComponent::initializeCollectionByWebsite($auth->_id);
                 $response = [
                     'result' => true,
                     'response' => 'success add website',
@@ -68,7 +71,7 @@ class WebsiteController extends Controller
     
     }
 
-    public function updateWebsiteId(Request $request)
+    public function updateWebsiteById(Request $request)
     {
         $validation = AuthenticationComponent::validate($request);
         LogComponent::response($request, $validation);
@@ -78,8 +81,8 @@ class WebsiteController extends Controller
             DataComponent::checkPrivilege($request, "website", "edit");
             $auth = AuthenticationComponent::toUser($request);
 
-            $model =  new UserGroupModel();
-            $data = $model->updateUserGroupById($request, $auth);
+            $model =  new WebsiteModel();
+            $data = $model->updateWebsiteById($request, $auth);
 
             if ($data) {
                 $response = [
@@ -109,18 +112,18 @@ class WebsiteController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "website", "delete");
 
-            $model =  new UserGroupModel();
-            $data = $model->deleteUserGroup($request->id);
+            $model =  new WebsiteModel();
+            $data = $model->deleteWebsite($request->id);
 
             if ($data) {
                 $response = [
                     'result' => true,
-                    'response' => 'success delete user group',
+                    'response' => 'success delete website',
                 ];
             } else {
                 $response = [
                     'result' => false,
-                    'response' => 'failed delete user group',
+                    'response' => 'failed delete website',
                 ];
             }
         } else {
@@ -140,19 +143,19 @@ class WebsiteController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "website", "view");
 
-            $model =  new UserGroupModel();
-            $data = $model->getUserGroupById($request->id);
+            $model =  new WebsiteModel();
+            $data = $model->getWebsiteById($request->id);
 
             if ($data) {
                 $response = [
                     'result' => true,
-                    'response' => 'success get user group',
+                    'response' => 'success get website',
                     'data' => $data
                 ];
             } else {
                 $response = [
                     'result' => false,
-                    'response' => 'failed get user group',
+                    'response' => 'failed get website',
                 ];
             }
         } else {
