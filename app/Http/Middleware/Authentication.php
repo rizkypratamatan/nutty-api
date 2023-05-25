@@ -20,6 +20,7 @@ class Authentication {
         $authentication = !empty($request->header('token-auth'))?$request->header('token-auth'):null;
          
         if ($authentication == null) {
+            
             return response([
                 "status" => 403,
                 "message" => "Unauthenticated"
@@ -48,7 +49,7 @@ class Authentication {
                 }
 
             } else {
-
+                
                 return response([
                     "status" => 403,
                     "message" => "Unauthenticated"
@@ -56,6 +57,11 @@ class Authentication {
 
             }
 
+        }else{
+            return response([
+                "status" => 403,
+                "message" => "Unauthenticated"
+            ], 403);
         }
 
         return $next($request);

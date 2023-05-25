@@ -83,7 +83,6 @@ class UserLogModel
             ["authentication", "=", $authentication]
         ])
         ->whereIn("type", $types)
-        ->where("status", "active")
         ->orderBy("created.timestamp", "DESC")
         ->first();
 

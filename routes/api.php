@@ -9,6 +9,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserGroupController;
 use App\Http\Controllers\WebsiteController;
+use App\Http\Controllers\WhatsappController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -34,6 +35,12 @@ Route::post('/logout', [LoginController::class, 'userLogout'])->name('logout');
 
 
 Route::group(["middleware" => ["authentication"]], function() {
+    //worksheet
+    Route::post("/worksheet", [WorksheetController::class, "index"]);
+    Route::post("/worksheet/call", [WorksheetController::class, "call"]);
+    Route::post("/worksheet/result", [WorksheetController::class, "result"]);
+    Route::post("/worksheet/result-user", [WorksheetController::class, "resultUser"]);
+
     //website
     Route::post('/get-websites', [WebsiteController::class, 'getWebsites'])->name('get-websites');
     Route::post('/add-website', [WebsiteController::class, 'addWebsite'])->name('add-website');
@@ -76,6 +83,29 @@ Route::group(["middleware" => ["authentication"]], function() {
     Route::post('/get-role-by-id', [RoleController::class, 'getRoleById'])->name('get-role-by-id');
     Route::post('/update-role', [RoleController::class, 'updateRoleById'])->name('update-role');
 
+    //whatsapp
+    Route::group(['prefix' => 'whatsapp'], function(){
+        // Route::post('delete-received-chat', [WhatsappController::class, 'deleteReceivedChat'])->name('delete-received-chat');
+        // Route::post('delete-sent-chat', [WhatsappController::class, 'deleteSentChat'])->name('delete-sent-chat');
+        // Route::post('delete-campaign', [WhatsappController::class, 'deleteCampaign'])->name('delete-campaign');
+        // Route::post('get-accounts', [WhatsappController::class, 'getAccounts'])->name('getAccounts');
+        // Route::post('get-pending-chats', [WhatsappController::class, 'getPendingChats'])->name('get-pending-chats');
+        // Route::post('get-received-chats', [WhatsappController::class, 'getReceivedChats'])->name('get-received-chats');
+        // Route::post('get-sent-chats', [WhatsappController::class, 'getSentChats'])->name('get-sent-chats');
+        // Route::post('get-campaigns', [WhatsappController::class, 'getCampaigns'])->name('get-campaigns');
+        // Route::post('get-qrimage', [WhatsappController::class, 'getQRImage'])->name('get-qrimage');
+        // Route::post('start-campaign', [WhatsappController::class, 'startCampaign'])->name('start-campaign');
+        // Route::post('stop-campaign', [WhatsappController::class, 'stopCampaign'])->name('stop-campaign');
+
+        Route::post('get-chats', [WhatsappController::class, 'getChats'])->name('get-chats');
+        Route::post('delete-chat', [WhatsappController::class, 'deleteChat'])->name('delete-chat');
+        Route::post('get-chat-by-id', [WhatsappController::class, 'getChatById'])->name('get-chat-by-id');
+        Route::post('send-bulk-chat', [WhatsappController::class, 'sendBulkChat'])->name('send-bulk-chat');
+        Route::post('send-single-chat', [WhatsappController::class, 'sendSingleChat'])->name('send-single-chat');
+
+        
+    });
+    
     //database
     Route::post('/add-database', [DatabaseController::class, 'addDatabase'])->name('add-database');
     Route::post('/delete-database', [DatabaseController::class, 'deleteDatabase'])->name('delete-database');
