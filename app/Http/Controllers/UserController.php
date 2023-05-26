@@ -39,9 +39,11 @@ class UserController extends Controller
         if ($validation->result) {
             //check privilege
             DataComponent::checkPrivilege($request, "user", "view");
-        
+
+            $limit = !empty($request->limit)?$request->limit:10;
+            $offset = !empty($request->offset)?$request->offset:0;
             $userModel =  new UserModel();
-            $user = $userModel->getAllUser();
+            $user = $userModel->getAllUser($limit, $offset);
 
             $response = [
                 'result' => true,

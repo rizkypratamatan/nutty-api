@@ -61,4 +61,12 @@ class UserGroupModel
         return DB::table('userGroup')
             ->where('_id', $data->id)->update($arr);
     }
+
+    public static function findByStatus($status) 
+    {
+        return UserGroup::where([
+            ["status", "=", $status]
+        ])->get();
+
+    }
 }

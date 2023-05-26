@@ -17,9 +17,9 @@ class UserModel
             ->first();
     }
     
-    public function getAllUser()
+    public function getAllUser($limit=10, $offset=0)
     {
-        return User::get();
+        return User::get()->take($limit)->skip($offset);
     }
 
     public function addUser($data)
