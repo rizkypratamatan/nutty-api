@@ -23,7 +23,7 @@ class WhatsappController extends Controller
 
             $auth = AuthenticationComponent::toUser($request);
 
-            $model =  new WhatsappModel();
+            $model =  new WhatsappModel($request);
             $data = $model->getAllChat($limit, $offset, $auth);
 
             $response = [
@@ -52,7 +52,7 @@ class WhatsappController extends Controller
 
             $auth = AuthenticationComponent::toUser($request);
 
-            $model =  new WhatsappModel();
+            $model =  new WhatsappModel($request);
             $data = $model->deleteChat($request->id, $auth);
 
             if ($data) {
@@ -84,7 +84,7 @@ class WhatsappController extends Controller
 
             $auth = AuthenticationComponent::toUser($request);
 
-            $model =  new WhatsappModel();
+            $model =  new WhatsappModel($request);
             $data = $model->getChatById($request->id, $auth);
 
             if ($data) {
@@ -117,11 +117,14 @@ class WhatsappController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "whatsapp", "add");
 
-                $response = [
-                    'result' => true,
-                    'response' => "WhatsApp bulk chats has been queued!",
-                    'data' => false
-                ];
+            $model = new WhatsappModel($request);
+            $resp = $model->sendBulkChat();
+
+            $response = [
+                'result' => true,
+                'response' => "WhatsApp bulk chats has been queued!",
+                'data' => false
+            ];
             
         } else {
             $response = $validation;
@@ -140,8 +143,8 @@ class WhatsappController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "whatsapp", "add");
 
-            $model = new WhatsappModel();
-            $resp = $model->sendSingleChat($request);
+            $model = new WhatsappModel($request);
+            $resp = $model->sendSingleChat();
 
             $response = $resp;
             
