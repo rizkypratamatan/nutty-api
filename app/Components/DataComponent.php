@@ -6,6 +6,9 @@ use Carbon\Carbon;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
+use MongoDB\BSON\ObjectId;
+use MongoDB\BSON\UTCDateTime;
+use stdClass;
 
 class DataComponent {
 
@@ -260,6 +263,49 @@ class DataComponent {
         $table->string("transaction.code")->index();
         $table->string("transaction.type")->index();
         $table->string("username")->index();
+
+    }
+
+    public static function initializeTimestamp($account) {
+
+        $mytime = Carbon::now();
+        return [
+            "timestamp" => $mytime->toDateTimeString(),
+            "user" => [
+                "_id" => self::initializeObjectId($account->_id),
+                "avatar" => $account->avatar,
+                "name" => $account->name,
+                "username" => $account->username
+            ]
+        ];
+
+    }
+
+    public static function initializeObjectId($id) {
+
+        $result = "0";
+
+        if($id != "0") {
+
+            $result = new ObjectId($id);
+
+        }
+
+        return $result;
+
+    }
+
+    public static function initializeSystemAccount() {
+
+        $result = new stdClass();
+        $result->_id = "0";
+        $result->avatar = "";
+        $result->group["_id"] = "0";
+        $result->group["name"] = "System";
+        $result->name = "System";
+        $result->username = "System";
+
+        return $result;
 
     }
 }
