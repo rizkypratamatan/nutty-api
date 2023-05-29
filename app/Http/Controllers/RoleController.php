@@ -12,6 +12,7 @@ class RoleController extends Controller
 {
     public function getRole(Request $request)
     {
+        
         $validation = AuthenticationComponent::validate($request);
         LogComponent::response($request, $validation);
 
@@ -21,13 +22,14 @@ class RoleController extends Controller
             
             $limit = !empty($request->limit)?$request->limit:10;
             $offset = !empty($request->offset)?$request->offset:0;
-            $userModel =  new UserRoleModel();
-            $user = $userModel->getRole($limit, $offset);
+
+            $model =  new UserRoleModel();
+            $data = $model->getRole($limit, $offset);
 
             $response = [
                 'result' => true,
                 'response' => 'Get All User Role',
-                'dataUser' => $user
+                'data' => $data
             ];
            
             
@@ -47,10 +49,10 @@ class RoleController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "userRole", "add");
 
-            $userModel =  new UserRoleModel();
-            $user = $userModel->addRole($request);
+            $model =  new UserRoleModel();
+            $data = $model->addRole($request);
 
-            if ($user) {
+            if ($data) {
                 $response = [
                     'result' => true,
                     'response' => 'success add user role',
@@ -78,10 +80,10 @@ class RoleController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "userRole", "edit");
 
-            $userModel =  new UserRoleModel();
-            $user = $userModel->updateRoleById($request);
+            $model =  new UserRoleModel();
+            $data = $model->updateRoleById($request);
 
-            if ($user) {
+            if ($data) {
                 $response = [
                     'result' => true,
                     'response' => 'success update role',
@@ -109,10 +111,10 @@ class RoleController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "userRole", "delete");
 
-            $userModel =  new UserRoleModel();
-            $user = $userModel->deleteRole($request->id);
+            $model =  new UserRoleModel();
+            $data = $model->deleteRole($request->id);
 
-            if ($user) {
+            if ($data) {
                 $response = [
                     'result' => true,
                     'response' => 'success delete role',
@@ -140,14 +142,14 @@ class RoleController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "userRole", "view");
 
-            $userModel =  new UserRoleModel();
-            $user = $userModel->getRoleById($request->id);
+            $model =  new UserRoleModel();
+            $data = $model->getRoleById($request->id);
 
-            if ($user) {
+            if ($data) {
                 $response = [
                     'result' => true,
                     'response' => 'success get role',
-                    'dataUser' => $user
+                    'data' => $data
                 ];
             } else {
                 $response = [
