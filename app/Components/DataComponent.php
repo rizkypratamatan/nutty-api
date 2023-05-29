@@ -192,7 +192,6 @@ class DataComponent {
         $table->string("zip")->index();
         $table->date("created.timestamp")->index();
         $table->date("modified.timestamp")->index();
-
     }
 
     public static function createDatabaseAccountIndex($table) {
