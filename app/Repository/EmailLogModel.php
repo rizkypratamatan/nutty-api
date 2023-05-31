@@ -19,26 +19,26 @@ class EmailLogModel
         $this->service = new EmailService();
     }
 
-    public function getAll($limit=10, $offset=0)
+    public function getAll($limit=10, $offset=0, $auth)
     {   
-        return DB::table("emailLogs_".$this->user->_id)
+        return DB::table("emailLogs_".$auth->_id)
                             ->take($limit)
                             ->skip($offset)
                             ->get();
         
     }
 
-    public function delete($id)
+    public function delete($id, $auth)
     {
-        return DB::table("emailLogs_".$this->user->_id)
+        return DB::table("emailLogs_".$auth->_id)
                     ->where('_id', $id)
                     ->delete();
     }
 
-    public function getById($id, $auth=null)
+    public function getById($id, $auth)
     {
         
-        return DB::table("emailLogs_".$this->user->_id)
+        return DB::table("emailLogs_".$auth->_id)
                     ->where('_id', $id)
                     ->first();
     }

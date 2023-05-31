@@ -23,8 +23,9 @@ class EmailLogController extends Controller
             $limit = !empty($request->limit)?$request->limit:10;
             $offset = !empty($request->offset)?$request->offset:0;
 
-            $model =  new EmailLogModel($request);
-            $data = $model->getAll($limit, $offset);
+            $auth = AuthenticationComponent::toUser($request);
+            $model =  new EmailLogModel();
+            $data = $model->getAll($limit, $offset, $auth);
 
             $response = [
                 'result' => true,
@@ -50,8 +51,10 @@ class EmailLogController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "email", "delete");
 
-            $model =  new EmailLogModel($request);
-            $data = $model->deleteChat($request->id);
+            $auth = AuthenticationComponent::toUser($request);
+
+            $model =  new EmailLogModel();
+            $data = $model->delete($request->id, $auth);
 
             if ($data) {
                 $response = [
@@ -79,9 +82,10 @@ class EmailLogController extends Controller
 
             //check privilege
             DataComponent::checkPrivilege($request, "email", "view");
-
+            $auth = AuthenticationComponent::toUser($request);
+            
             $model =  new EmailLogModel($request);
-            $data = $model->getById($request->id);
+            $data = $model->getById($request->id, $auth);
 
             if ($data) {
                 $response = [
