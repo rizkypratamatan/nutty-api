@@ -105,32 +105,32 @@ class EmailLogController extends Controller
 
     public function sendBulkMessage(Request $request){
 
-        // $validation = AuthenticationComponent::validate($request);
-        // LogComponent::response($request, $validation);
+        $validation = AuthenticationComponent::validate($request);
+        LogComponent::response($request, $validation);
 
-        // if ($validation->result){
+        if ($validation->result){
 
             // check privilege
-            // DataComponent::checkPrivilege($request, "email", "add");
+            DataComponent::checkPrivilege($request, "email", "add");
             $model = new EmailLogModel();
             $response = $model->sendBulk($request);
 
-        // } else {
-        //     $response = $validation;
-        // }
+        } else {
+            $response = $validation;
+        }
 
         return response()->json($response, 200);
     }
 
     public function sendSingleMessage(Request $request){
         
-        // $validation = AuthenticationComponent::validate($request);
-        // LogComponent::response($request, $validation);
+        $validation = AuthenticationComponent::validate($request);
+        LogComponent::response($request, $validation);
 
-        // if ($validation->result){
+        if ($validation->result){
 
             //check privilege
-            // DataComponent::checkPrivilege($request, "email", "add");
+            DataComponent::checkPrivilege($request, "email", "add");
             
 
             $model = new EmailLogModel();
@@ -138,9 +138,9 @@ class EmailLogController extends Controller
 
             $response = $resp;
             
-        // } else {
-        //     $response = $validation;
-        // }
+        } else {
+            $response = $validation;
+        }
 
         return response()->json($response, 200);
     }

@@ -316,52 +316,6 @@ class DataComponent {
 
     }
 
-    public static function initializeSystemAccount() 
-    {
-
-        $result = new UserModel();
-        $result->_id = "0";
-        $result->avatar = "";
-        $result->group["_id"] = "0";
-        $result->group["name"] = "System";
-        $result->name = "System";
-        $result->username = "System";
-
-        return $result;
-
-    }
-
-    public static function initializeTimestamp($account) 
-    {
-        $mytime = Carbon::now();
-
-        return [
-            "timestamp" => $mytime->toDateTimeString(),
-            "user" => [
-                "_id" => self::initializeObjectId($account->_id),
-                "avatar" => $account->avatar,
-                "name" => $account->name,
-                "username" => $account->username
-            ]
-        ];
-
-    }
-
-    public static function initializeObjectId($id) 
-    {
-
-        $result = "0";
-
-        if($id != "0") {
-
-            $result = new User($id);
-
-        }
-
-        return $result;
-
-    }
-
     public static function initializeAccount($request) 
     {
 
