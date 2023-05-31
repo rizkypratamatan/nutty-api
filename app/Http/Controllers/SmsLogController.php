@@ -2,33 +2,30 @@
 
 namespace App\Http\Controllers;
 
-use App\Components\AuthenticationComponent;
-use App\Components\DataComponent;
-use App\Repository\WhatsappModel;
+use App\Repository\SmsLogModel;
+use App\Repository\SMSModel;
 use Illuminate\Http\Request;
 
-class WhatsappController extends Controller
+class SmsLogController extends Controller
 {
-    public function getChats(Request $request)
+    public function getMessages(Request $request)
     {
         $validation = AuthenticationComponent::validate($request);
         LogComponent::response($request, $validation);
 
         if ($validation->result) {
             //check privilege
-            DataComponent::checkPrivilege($request, "whatsapp", "view");
+            DataComponent::checkPrivilege($request, "sms", "view");
             
             $limit = !empty($request->limit)?$request->limit:10;
             $offset = !empty($request->offset)?$request->offset:0;
 
-            $auth = AuthenticationComponent::toUser($request);
-
-            $model =  new WhatsappModel($request);
-            $data = $model->getAllChat($limit, $offset, $auth);
+            $model =  new SmsLogModel($request);
+            $data = $model->getAll($limit, $offset);
 
             $response = [
                 'result' => true,
-                'response' => 'Get All Whatsapp Chat',
+                'response' => 'Get All Message Chat',
                 'data' => $data
             ];
            
@@ -40,7 +37,7 @@ class WhatsappController extends Controller
         return response()->json($response, 200);
     }
 
-    public function deleteChat(Request $request)
+    public function deleteMessage(Request $request)
     {
         $validation = AuthenticationComponent::validate($request);
         LogComponent::response($request, $validation);
@@ -48,22 +45,20 @@ class WhatsappController extends Controller
         if ($validation->result) {
 
             //check privilege
-            DataComponent::checkPrivilege($request, "whatsapp", "delete");
+            DataComponent::checkPrivilege($request, "sms", "delete");
 
-            $auth = AuthenticationComponent::toUser($request);
-
-            $model =  new WhatsappModel($request);
-            $data = $model->deleteChat($request->id, $auth);
+            $model =  new SmsLogModel($request);
+            $data = $model->deleteChat($request->id);
 
             if ($data) {
                 $response = [
                     'result' => true,
-                    'response' => 'success delete Whatsapp Chat',
+                    'response' => 'success delete Message Chat',
                 ];
             } else {
                 $response = [
                     'result' => false,
-                    'response' => 'failed delete Whatsapp Chat',
+                    'response' => 'failed delete Message Chat',
                 ];
             }
         } else {
@@ -72,7 +67,7 @@ class WhatsappController extends Controller
         return response()->json($response, 200);
     }
 
-    public function getChatById(Request $request)
+    public function getMessageById(Request $request)
     {
         $validation = AuthenticationComponent::validate($request);
         LogComponent::response($request, $validation);
@@ -80,23 +75,21 @@ class WhatsappController extends Controller
         if ($validation->result) {
 
             //check privilege
-            DataComponent::checkPrivilege($request, "whatsapp", "view");
+            DataComponent::checkPrivilege($request, "sms", "view");
 
-            $auth = AuthenticationComponent::toUser($request);
-
-            $model =  new WhatsappModel($request);
-            $data = $model->getChatById($request->id, $auth);
+            $model =  new SmsLogModel($request);
+            $data = $model->getById($request->id);
 
             if ($data) {
                 $response = [
                     'result' => true,
-                    'response' => 'success get whatsapp',
+                    'response' => 'success get message',
                     'data' => $data
                 ];
             } else {
                 $response = [
                     'result' => false,
-                    'response' => 'failed get whatsapp',
+                    'response' => 'failed get message',
                     'data' => null
                 ];
             }
@@ -107,7 +100,7 @@ class WhatsappController extends Controller
         return response()->json($response, 200);
     }
 
-    public function sendBulkChat(Request $request){
+    public function sendBulkMessage(Request $request){
 
         $validation = AuthenticationComponent::validate($request);
         LogComponent::response($request, $validation);
@@ -115,17 +108,11 @@ class WhatsappController extends Controller
         if ($validation->result){
 
             //check privilege
-            DataComponent::checkPrivilege($request, "whatsapp", "add");
+            DataComponent::checkPrivilege($request, "sms", "add");
 
-            $model = new WhatsappModel($request);
-            $resp = $model->sendBulkChat();
+            $model = new SmsLogModel($request);
+            $response = $model->sendBulk();
 
-            $response = [
-                'result' => true,
-                'response' => "WhatsApp bulk chats has been queued!",
-                'data' => false
-            ];
-            
         } else {
             $response = $validation;
         }
@@ -133,7 +120,7 @@ class WhatsappController extends Controller
         return response()->json($response, 200);
     }
 
-    public function sendSingleChat(Request $request){
+    public function sendSingleMessage(Request $request){
 
         $validation = AuthenticationComponent::validate($request);
         LogComponent::response($request, $validation);
@@ -141,10 +128,10 @@ class WhatsappController extends Controller
         if ($validation->result){
 
             //check privilege
-            DataComponent::checkPrivilege($request, "whatsapp", "add");
+            DataComponent::checkPrivilege($request, "sms", "add");
 
-            $model = new WhatsappModel($request);
-            $resp = $model->sendSingleChat();
+            $model = new SmsLogModel($request);
+            $resp = $model->sendSingle();
 
             $response = $resp;
             
@@ -422,5 +409,4 @@ class WhatsappController extends Controller
 
     //     return response()->json($response, 200);
     // }
-
 }

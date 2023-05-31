@@ -3,12 +3,11 @@
 namespace App\Repository;
 
 use App\Components\AuthenticationComponent;
-use App\Models\Whatsapp;
+use App\Components\DataComponent;
 use App\Services\Gateway\WhatsappService;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class WhatsappModel
+class WhatsappLogModel
 {
     protected $service;
     protected $user;
@@ -21,39 +20,28 @@ class WhatsappModel
         $this->request = $request;
     }
 
-    public function getAllChat($limit=10, $offset=0, $auth=null)
+    public function getAllChat($limit=10, $offset=0)
     {   
-        if($auth){
-            return Whatsapp::where("created.user._id", $auth->id)
-                            ->take($limit)
-                            ->skip($offset)
-                            ->get();
-        }else{
-            return Whatsapp::take($limit)
-                            ->skip($offset)
-                            ->get();
-        }
-        
+        $data = DB::table("whatsappLogs_".$this->user->_id)
+                ->take($limit)
+                ->skip($offset)
+                ->get();
+
+        return $data;
     }
 
-    public static function deleteChat($id, $auth=null)
+    public function deleteChat($id)
     {
-        if($auth){
-            return Whatsapp::where('_id', $id)->where("created.user._id", $auth->id)->delete();
-        }else{
-            return Whatsapp::where('_id', $id)->delete();
-        }
-        
+        return DB::table("whatsappLogs_".$this->user->_id)
+                ->where('_id', $id)
+                ->delete();
     }
 
-    public function getChatById($id, $auth=null)
+    public function getChatById($id)
     {
-        if($auth){
-            return Whatsapp::where('_id', $id)->where("created.user._id", $auth->id)->first();
-        }else{
-            return Whatsapp::where('_id', $id)->first();
-        }
-        
+        return DB::table("whatsappLogs_".$this->user->_id)
+                        ->where('_id', $id)
+                        ->first();
     }
 
     public function sendSingleChat()
@@ -136,22 +124,11 @@ class WhatsappModel
         unset($data['group']);
         unset($data['secret']);
 
-        //save to db
-        $mytime = Carbon::now();
-            
         $data['status'] = "queued";
+        $data['created'] = DataComponent::initializeTimestamp($this->user);
+        $data['modified'] = DataComponent::initializeTimestamp($this->user);;
 
-        $data['created'] = [
-            "timestamp" => $mytime->toDateTimeString(),
-            "user" => ["_id"=>$this->user->_id],
-        ];
-
-        $data['modified'] = [
-            "timestamp" => $mytime->toDateTimeString(),
-            "user" => ["_id"=>$this->user->_id],
-        ];
-
-        return DB::table('whatsapp_chats')->insert($data);
+        return DB::table('whatsappLogs_'.$this->user->_id)->insert($data);
     }
 
     // public function deleteReceivedChat($id)

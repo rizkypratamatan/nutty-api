@@ -16,9 +16,9 @@ class Authentication {
 
 
     public function handle(Request $request, Closure $next) {
-
+        
         $authentication = !empty($request->header('token-auth'))?$request->header('token-auth'):null;
-         
+        
         if ($authentication == null) {
             
             return response([
@@ -34,13 +34,13 @@ class Authentication {
         ];
 
         $userLogByAuthenticationInType = UserLogModel::findOneByAuthenticationInType($authentication, $types);
-
+        
         if(!empty($userLogByAuthenticationInType)) {
 
             if($userLogByAuthenticationInType->type == "Login") {
 
                 $userByIdStatus = UserModel::findOneByIdStatus($userLogByAuthenticationInType->user["_id"], "Active");
-
+                
                 if(empty($userByIdStatus)) {
                     return response([
                         "status" => 401,

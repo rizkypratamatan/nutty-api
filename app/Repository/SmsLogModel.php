@@ -3,12 +3,11 @@
 namespace App\Repository;
 
 use App\Components\AuthenticationComponent;
-use App\Models\Sms;
+use App\Components\DataComponent;
 use App\Services\Gateway\SMSService;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class SMSModel
+class SmsLogModel
 {
     protected $service;
     protected $user;
@@ -21,39 +20,29 @@ class SMSModel
         $this->request = $request;
     }
 
-    public function getAll($limit=10, $offset=0, $auth=null)
+    public function getAll($limit=10, $offset=0)
     {   
-        if($auth){
-            return Sms::where("created.user._id", $auth->id)
-                            ->take($limit)
-                            ->skip($offset)
-                            ->get();
-        }else{
-            return Sms::take($limit)
-                            ->skip($offset)
-                            ->get();
-        }
+        return DB::table("smsLogs_".$this->user->_id)
+                        ->take($limit)
+                        ->skip($offset)
+                        ->get();
+    }
+
+    public function delete($id)
+    {
+        
+        return DB::table("smsLogs_".$this->user->_id)
+                    ->where('_id', $id)
+                    ->delete();
         
     }
 
-    public static function delete($id, $auth=null)
+    public function getById($id)
     {
-        if($auth){
-            return Sms::where('_id', $id)->where("created.user._id", $auth->id)->delete();
-        }else{
-            return Sms::where('_id', $id)->delete();
-        }
-        
-    }
-
-    public function getById($id, $auth=null)
-    {
-        if($auth){
-            return Sms::where('_id', $id)->where("created.user._id", $auth->id)->first();
-        }else{
-            return Sms::where('_id', $id)->first();
-        }
-        
+       
+        return DB::table("smsLogs_".$this->user->_id)
+                    ->where('_id', $id)
+                    ->first();
     }
 
     public function sendSingle()
@@ -133,23 +122,12 @@ class SMSModel
         unset($data['secret']);
         unset($data['campaign']);
         unset($data['numbers']);
-
-        //save to db
-        $mytime = Carbon::now();
             
         $data['status'] = "queued";
-
-        $data['created'] = [
-            "timestamp" => $mytime->toDateTimeString(),
-            "user" => ["_id" => $this->user->_id]
-        ];
-
-        $data['modified'] = [
-            "timestamp" => $mytime->toDateTimeString(),
-            "user" => ["_id" => $this->user->_id]
-        ];
-
-        return DB::table('sms_messages')->insert($data);
+        $data['created'] = DataComponent::initializeTimestamp($this->user);
+        $data['modified'] = DataComponent::initializeTimestamp($this->user);
+        
+        return DB::table('smsLogs_'.$this->user->_id)->insert($data);
     }
 
     // public function deleteReceivedChat($id)

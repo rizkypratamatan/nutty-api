@@ -2,12 +2,22 @@
 
 namespace App\Repository;
 
+use App\Components\DataComponent;
 use App\Models\UserGroup;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class UserGroupModel
 {
+    protected $user;
+    protected $request;
+
+    public function __construct($request)
+    {   
+        $this->user = AuthenticationComponent::toUser($request);
+        $this->request = $request;
+    }
+
     public function getAllUserGroup($limit=10, $offset=0)
     {   
         return UserGroup::get()->take($limit)->skip($offset);
@@ -16,20 +26,17 @@ class UserGroupModel
     public function addUserGroup($data)
     {
 
-        $mytime = Carbon::now();
+        $data = new UserGroup();
+        $data->description = $data->description;
+        $data->name = $data->name;
+        $data->status = $data->status;
+        $data->type = $data->type;
+        $data->created = DataComponent::initializeTimestamp($this->user);
+        $data->modified = DataComponent::initializeTimestamp($this->user);
 
-        $arr = [
-            'description' => $data->description,
-            'name' => $data->name,
-            'status' => $data->status,
-            'type' => $data->type,
-            'created' => [
-                'timestamp' => $mytime->toDateTimeString()
-            ]
-        ];
+        $data->save();
 
-        return DB::table('userGroup')
-            ->insert($arr);
+        return $data;
     }
 
     public static function deleteUserGroup($id)
@@ -46,20 +53,16 @@ class UserGroupModel
 
     public function updateUserGroupById($data)
     {
-        $mytime = Carbon::now();
+        $data = UserGroup::find($data->id);
+        $data->description = $data->description;
+        $data->name = $data->name;
+        $data->status = $data->status;
+        $data->type = $data->type;
+        $data->modified = DataComponent::initializeTimestamp($this->user);
 
-        $arr = [
-            'description' => $data->description,
-            'name' => $data->name,
-            'status' => $data->status,
-            'type' => $data->type,
-            'modified' => [
-                'timestamp' => $mytime->toDateTimeString()
-            ]
-        ];
+        $data->save();
 
-        return DB::table('userGroup')
-            ->where('_id', $data->id)->update($arr);
+        return $data;
     }
 
     public static function findByStatus($status) 

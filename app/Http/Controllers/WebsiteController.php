@@ -21,7 +21,7 @@ class WebsiteController extends Controller
             
             $limit = !empty($request->limit)?$request->limit:10;
             $offset = !empty($request->offset)?$request->offset:0;
-            $model =  new WebsiteModel();
+            $model =  new WebsiteModel($request);
             $data = $model->getAllWebsite($limit, $offset);
 
             $response = [
@@ -48,8 +48,8 @@ class WebsiteController extends Controller
             DataComponent::checkPrivilege($request, "website", "add");
             $auth = AuthenticationComponent::toUser($request);
 
-            $model =  new WebsiteModel();
-            $data = $model->addWebsite($request, $auth);
+            $model =  new WebsiteModel($request);
+            $data = $model->addWebsite($request);
 
             if ($data) {
                 DataComponent::initializeCollectionByWebsite($auth->_id);
@@ -81,8 +81,8 @@ class WebsiteController extends Controller
             DataComponent::checkPrivilege($request, "website", "edit");
             $auth = AuthenticationComponent::toUser($request);
 
-            $model =  new WebsiteModel();
-            $data = $model->updateWebsiteById($request, $auth);
+            $model =  new WebsiteModel($request);
+            $data = $model->updateWebsiteById($request);
 
             if ($data) {
                 $response = [
@@ -112,7 +112,7 @@ class WebsiteController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "website", "delete");
 
-            $model =  new WebsiteModel();
+            $model =  new WebsiteModel($request);
             $data = $model->deleteWebsite($request->id);
 
             if ($data) {
@@ -143,7 +143,7 @@ class WebsiteController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "website", "view");
 
-            $model =  new WebsiteModel();
+            $model =  new WebsiteModel($request);
             $data = $model->getWebsiteById($request->id);
 
             if ($data) {
