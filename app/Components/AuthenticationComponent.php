@@ -76,7 +76,8 @@ class AuthenticationComponent {
     public static function toUser($request) {
 
         $auth = UserLogModel::findOneByAuthentication($request->header('token-auth'));
-        $user = new UserModel();
+        $user = new UserModel($request);
+
 
         return $user->getUserById($auth->user['_id']);
     }

@@ -2,21 +2,30 @@
 
 namespace App\Repository;
 
+use App\Components\DataComponent;
 use App\Models\Website;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 class WebsiteModel
 {
+    protected $user;
+    protected $request;
+
+    public function __construct(Request $request)
+    {   
+        $this->user = AuthenticationComponent::toUser($request);
+        $this->request = $request;
+    }
+
     public function getAllWebsite($limit=10, $offset=0)
     {   
         return Website::get()->take($limit)->skip($offset);
     }
 
-    public function addWebsite($data, $auth)
+    public function addWebsite($data)
     {
-
-        $mytime = Carbon::now();
 
         $arr = [
             "api" => [
@@ -32,20 +41,8 @@ class WebsiteModel
             "start" => "",
             "status" => $data->status,
             "sync" => $data->sync,
-            "created" => [
-                "timestamp" => $mytime->toDateTimeString(),
-                "user" => [
-                    "_id" => $auth->_id,
-                    "username" => $auth->username
-                ]
-            ],
-            "modified" => [
-                "timestamp" => $mytime->toDateTimeString(),
-                "user" => [
-                    "_id" => $auth->_id,
-                    "username" => $auth->username
-                ]
-            ]
+            "created" => DataComponent::initializeTimestamp($this->user),
+            "modified" => DataComponent::initializeTimestamp($this->user)
         ];
 
         $websiteByNameNucode = self::findOneByNameNucode($data->name, $data->nucode);
@@ -80,7 +77,7 @@ class WebsiteModel
         return Website::where('_id', $id)->first();
     }
 
-    public function updateWebsiteById($data, $auth)
+    public function updateWebsiteById($data)
     {
         $mytime = Carbon::now();
 
@@ -98,20 +95,7 @@ class WebsiteModel
             "start" => "",
             "status" => $data->status,
             "sync" => $data->sync,
-            // "created" => [
-            //     "timestamp" => $mytime->toDateTimeString(),
-            //     "user" => [
-            //         "_id" => $auth->_id,
-            //         "username" => $auth->username
-            //     ]
-            // ],
-            "modified" => [
-                "timestamp" => $mytime->toDateTimeString(),
-                "user" => [
-                    "_id" => $auth->_id,
-                    "username" => $auth->username
-                ]
-            ]
+            "modified" => DataComponent::initializeTimestamp($this->user)
         ];
 
         return DB::table('website')->where('_id', $data->id)->update($arr);

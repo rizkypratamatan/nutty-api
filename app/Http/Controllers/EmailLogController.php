@@ -5,28 +5,31 @@ namespace App\Http\Controllers;
 use App\Components\AuthenticationComponent;
 use App\Components\DataComponent;
 use App\Components\LogComponent;
-use App\Repository\WebsiteModel;
+use App\Repository\EmailLogModel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
-class WebsiteController extends Controller
+class EmailLogController extends Controller
 {
-    public function getWebsites(Request $request)
+    public function getMessages(Request $request)
     {
         $validation = AuthenticationComponent::validate($request);
         LogComponent::response($request, $validation);
 
         if ($validation->result) {
             //check privilege
-            DataComponent::checkPrivilege($request, "website", "view");
+            DataComponent::checkPrivilege($request, "email", "view");
             
             $limit = !empty($request->limit)?$request->limit:10;
             $offset = !empty($request->offset)?$request->offset:0;
-            $model =  new WebsiteModel($request);
-            $data = $model->getAllWebsite($limit, $offset);
+
+            $auth = AuthenticationComponent::toUser($request);
+            $model =  new EmailLogModel();
+            $data = $model->getAll($limit, $offset, $auth);
 
             $response = [
                 'result' => true,
-                'response' => 'Get All Website',
+                'response' => 'Get All Message Chat',
                 'data' => $data
             ];
            
@@ -38,71 +41,7 @@ class WebsiteController extends Controller
         return response()->json($response, 200);
     }
 
-    public function addWebsite(Request $request)
-    {
-        $validation = AuthenticationComponent::validate($request);
-        LogComponent::response($request, $validation);
-
-        if ($validation->result) {
-            //check privilege
-            DataComponent::checkPrivilege($request, "website", "add");
-            $auth = AuthenticationComponent::toUser($request);
-
-            $model =  new WebsiteModel($request);
-            $data = $model->addWebsite($request);
-
-            if ($data) {
-                DataComponent::initializeCollectionByWebsite($auth->_id);
-                $response = [
-                    'result' => true,
-                    'response' => 'success add website',
-                ];
-            } else {
-                $response = [
-                    'result' => false,
-                    'response' => 'failed add website',
-                ];
-            }
-        } else {
-            $response = $validation;
-        }
-
-        return response()->json($response, 200);
-    
-    }
-
-    public function updateWebsiteById(Request $request)
-    {
-        $validation = AuthenticationComponent::validate($request);
-        LogComponent::response($request, $validation);
-
-        if ($validation->result) {
-            //check privilege
-            DataComponent::checkPrivilege($request, "website", "edit");
-            $auth = AuthenticationComponent::toUser($request);
-
-            $model =  new WebsiteModel($request);
-            $data = $model->updateWebsiteById($request);
-
-            if ($data) {
-                $response = [
-                    'result' => true,
-                    'response' => 'success update website',
-                ];
-            } else {
-                $response = [
-                    'result' => false,
-                    'response' => 'failed update website',
-                ];
-            }
-        } else {
-            $response = $validation;
-        }
-
-        return response()->json($response, 200);
-    }
-
-    public function deleteWebsite(Request $request)
+    public function deleteMessage(Request $request)
     {
         $validation = AuthenticationComponent::validate($request);
         LogComponent::response($request, $validation);
@@ -110,20 +49,55 @@ class WebsiteController extends Controller
         if ($validation->result) {
 
             //check privilege
-            DataComponent::checkPrivilege($request, "website", "delete");
+            DataComponent::checkPrivilege($request, "email", "delete");
 
-            $model =  new WebsiteModel($request);
-            $data = $model->deleteWebsite($request->id);
+            $auth = AuthenticationComponent::toUser($request);
+
+            $model =  new EmailLogModel();
+            $data = $model->delete($request->id, $auth);
 
             if ($data) {
                 $response = [
                     'result' => true,
-                    'response' => 'success delete website',
+                    'response' => 'success delete Message Chat',
                 ];
             } else {
                 $response = [
                     'result' => false,
-                    'response' => 'failed delete website',
+                    'response' => 'failed delete Message Chat',
+                ];
+            }
+        } else {
+            $response = $validation;
+        }
+        return response()->json($response, 200);
+    }
+
+    public function getMessageById(Request $request)
+    {
+        $validation = AuthenticationComponent::validate($request);
+        LogComponent::response($request, $validation);
+
+        if ($validation->result) {
+
+            //check privilege
+            DataComponent::checkPrivilege($request, "email", "view");
+            $auth = AuthenticationComponent::toUser($request);
+            
+            $model =  new EmailLogModel($request);
+            $data = $model->getById($request->id, $auth);
+
+            if ($data) {
+                $response = [
+                    'result' => true,
+                    'response' => 'success get message',
+                    'data' => $data
+                ];
+            } else {
+                $response = [
+                    'result' => false,
+                    'response' => 'failed get message',
+                    'data' => null
                 ];
             }
         } else {
@@ -133,31 +107,41 @@ class WebsiteController extends Controller
         return response()->json($response, 200);
     }
 
-    public function getWebsiteById(Request $request)
-    {
+    public function sendBulkMessage(Request $request){
+
         $validation = AuthenticationComponent::validate($request);
         LogComponent::response($request, $validation);
 
-        if ($validation->result) {
+        if ($validation->result){
+
+            // check privilege
+            DataComponent::checkPrivilege($request, "email", "add");
+            $model = new EmailLogModel();
+            $response = $model->sendBulk($request);
+
+        } else {
+            $response = $validation;
+        }
+
+        return response()->json($response, 200);
+    }
+
+    public function sendSingleMessage(Request $request){
+        
+        $validation = AuthenticationComponent::validate($request);
+        LogComponent::response($request, $validation);
+
+        if ($validation->result){
 
             //check privilege
-            DataComponent::checkPrivilege($request, "website", "view");
+            DataComponent::checkPrivilege($request, "email", "add");
+            
 
-            $model =  new WebsiteModel($request);
-            $data = $model->getWebsiteById($request->id);
+            $model = new EmailLogModel();
+            $resp = $model->sendSingle($request);
 
-            if ($data) {
-                $response = [
-                    'result' => true,
-                    'response' => 'success get website',
-                    'data' => $data
-                ];
-            } else {
-                $response = [
-                    'result' => false,
-                    'response' => 'failed get website',
-                ];
-            }
+            $response = $resp;
+            
         } else {
             $response = $validation;
         }

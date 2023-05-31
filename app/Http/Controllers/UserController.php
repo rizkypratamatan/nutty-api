@@ -25,7 +25,7 @@ class UserController extends Controller
 
             $limit = !empty($request->limit)?$request->limit:10;
             $offset = !empty($request->offset)?$request->offset:0;
-            $userModel =  new UserModel();
+            $userModel =  new UserModel($request);
             $user = $userModel->getAllUser($limit, $offset);
 
             $response = [
@@ -53,7 +53,7 @@ class UserController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "user", "add");
 
-            $userModel =  new UserModel();
+            $userModel =  new UserModel($request);
             $user = $userModel->addUser($request);
 
             if ($user) {
@@ -87,7 +87,7 @@ class UserController extends Controller
              //check privilege
              DataComponent::checkPrivilege($request, "user", "edit");
 
-            $userModel =  new UserModel();
+            $userModel =  new UserModel($request);
             $user = $userModel->updateUserById($request);
 
             if ($user) {
@@ -122,7 +122,7 @@ class UserController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "user", "delete");
 
-            $userModel =  new UserModel();
+            $userModel =  new UserModel($request);
             $user = $userModel->deleteUser($request->id);
 
             if ($user) {
@@ -156,7 +156,7 @@ class UserController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "user", "view");
 
-            $userModel =  new UserModel();
+            $userModel =  new UserModel($request);
             $user = $userModel->getUserById($request->id);
 
             if ($user) {

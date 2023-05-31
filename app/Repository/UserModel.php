@@ -2,14 +2,24 @@
 
 namespace App\Repository;
 
+use App\Components\AuthenticationComponent;
+use App\Components\DataComponent;
 use App\Models\User;
 use App\Models\UserGroup;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 class UserModel
 {
+    public $request;
+    public $account;
+
+    public function __construct(Request $request)
+    {   
+        $this->request = $request;
+    }
 
     public function getUserByUsername($username)
     {
@@ -24,37 +34,35 @@ class UserModel
 
     public function addUser($data)
     {
-
-        $mytime = Carbon::now();
-        $arr = [
-            'name' => $data->name,
-            'gender' => $data->gender,
-            'contact' => [
-                'email' => $data->email,
-                'fax' => $data->fax,
-                'line' => $data->line,
-                'michat' => $data->michat,
-                'phone' => $data->phone,
-                'wechat' => $data->wechat,
-                'whatsapp' => $data->whatsapp,
-                'telegram' => $data->telegram,
-            ],
-            'password' => [
-                'main' => Crypt::encryptString($data->password),
-                'recovery' => Crypt::encryptString($data->password)
-            ],
-            'username' => $data->username,
-            'country' => $data->country,
-            'city' => $data->city,
-            'street' => $data->street,
-            'zip' => $data->zip,
-            'created' => [
-                'timestamp' => $mytime->toDateTimeString()
-            ]
+        $user = new User();
+        $user->name = $data->name;
+        $user->gender = $data->gender;
+        $user->contact = [
+            'email' => $data->email,
+            'fax' => $data->fax,
+            'line' => $data->line,
+            'michat' => $data->michat,
+            'phone' => $data->phone,
+            'wechat' => $data->wechat,
+            'whatsapp' => $data->whatsapp,
+            'telegram' => $data->telegram,
         ];
+        $user->password = [
+            'main' => Crypt::encryptString($data->password),
+            'recovery' => Crypt::encryptString($data->password)
+        ];
+        $user->username = $data->username;
+        $user->country = $data->country;
+        $user->city = $data->city;
+        $user->street = $data->street;
+        $user->zip = $data->zip;
+        $user->created = DataComponent::initializeTimestamp(AuthenticationComponent::toUser($this->request));
+        $user->modified = DataComponent::initializeTimestamp(AuthenticationComponent::toUser($this->request));
+        $user->save();
 
-        return DB::table('user')
-            ->insert($arr);
+        DataComponent::initializeCollectionByAccount($user);
+
+        return $user;
     }
 
     public function deleteUser($id)
@@ -71,37 +79,32 @@ class UserModel
 
     public function updateUserById($data)
     {
-        $mytime = Carbon::now();
-
-        $arr = [
-            'name' => $data->name,
-            'gender' => $data->gender,
-            'contact' => [
-                'email' => $data->email,
-                'fax' => $data->fax,
-                'line' => $data->line,
-                'michat' => $data->michat,
-                'phone' => $data->phone,
-                'wechat' => $data->wechat,
-                'whatsapp' => $data->whatsapp,
-                'telegram' => $data->telegram,
-            ],
-            'password' => [
-                'main' => Crypt::encryptString($data->password),
-                'recovery' => Crypt::encryptString($data->password)
-            ],
-            'username' => $data->username,
-            'country' => $data->country,
-            'city' => $data->city,
-            'street' => $data->street,
-            'zip' => $data->zip,
-            'modified' => [
-                'timestamp' => $mytime->toDateTimeString()
-            ]
+        $user = User::find($data->id);
+        $user->name = $data->name;
+        $user->gender = $data->gender;
+        $user->contact = [
+            'email' => $data->email,
+            'fax' => $data->fax,
+            'line' => $data->line,
+            'michat' => $data->michat,
+            'phone' => $data->phone,
+            'wechat' => $data->wechat,
+            'whatsapp' => $data->whatsapp,
+            'telegram' => $data->telegram,
         ];
+        $user->password = [
+            'main' => Crypt::encryptString($data->password),
+            'recovery' => Crypt::encryptString($data->password)
+        ];
+        $user->username = $data->username;
+        $user->country = $data->country;
+        $user->city = $data->city;
+        $user->street = $data->street;
+        $user->zip = $data->zip;
+        $user->modified = DataComponent::initializeTimestamp($this->account);
+        $user->save();
 
-        return DB::table('user')
-            ->where('_id', $data->id)->update($arr);
+        return $user;
     }
 
     public static function findOneByIdStatus($id, $status) {

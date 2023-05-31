@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
+use Jenssegers\Mongodb\Schema\Blueprint;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 use stdClass;
@@ -84,8 +85,162 @@ class DataComponent {
         }
     }
 
-    public static function initializeCollectionByWebsite($websiteId) 
-    {
+    public static function initializeCollectionByNucode($nucode) {
+
+        if(!Schema::hasTable("databaseAttempt_" . $nucode)) {
+
+            Schema::create("databaseAttempt_" . $nucode, function(Blueprint $table) {
+
+                self::createDatabaseAttemptIndex($table);
+
+            });
+
+        } else {
+
+            Schema::table("databaseAttempt_" . $nucode, function(Blueprint $table) {
+
+                self::createDatabaseAttemptIndex($table);
+
+            });
+
+        }
+
+        if(!Schema::hasTable("databaseImport_" . $nucode)) {
+
+            Schema::create("databaseImport_" . $nucode, function(Blueprint $table) {
+
+                self::createDatabaseImportIndex($table);
+
+            });
+
+        } else {
+
+            Schema::table("databaseImport_" . $nucode, function(Blueprint $table) {
+
+                self::createDatabaseImportIndex($table);
+
+            });
+
+        }
+
+        if(!Schema::hasTable("databaseImportAction_" . $nucode)) {
+
+            Schema::create("databaseImportAction_" . $nucode, function(Blueprint $table) {
+
+                self::createDatabaseImportActionIndex($table);
+
+            });
+
+        } else {
+
+            Schema::table("databaseImportAction_" . $nucode, function(Blueprint $table) {
+
+                self::createDatabaseImportActionIndex($table);
+
+            });
+
+        }
+
+        if(!Schema::hasTable("playerAttempt_" . $nucode)) {
+
+            Schema::create("playerAttempt_" . $nucode, function(Blueprint $table) {
+
+                self::createPlayerAttemptIndex($table);
+
+            });
+
+        } else {
+
+            Schema::table("playerAttempt_" . $nucode, function(Blueprint $table) {
+
+                self::createPlayerAttemptIndex($table);
+
+            });
+
+        }
+
+        if(!Schema::hasTable("report_" . $nucode)) {
+
+            Schema::create("report_" . $nucode, function(Blueprint $table) {
+
+                self::createReportIndex($table);
+
+            });
+
+        } else {
+
+            Schema::table("report_" . $nucode, function(Blueprint $table) {
+
+                self::createReportIndex($table);
+
+            });
+
+        }
+
+    }
+
+    public static function createReportIndex($table) {
+
+        $table->date("date")->index();
+        $table->integer("total")->index();
+        $table->string("user._id")->index();
+        $table->string("user.avatar")->index();
+        $table->string("user.name")->index();
+        $table->string("user.username")->index();
+        $table->date("created.timestamp")->index();
+        $table->date("modified.timestamp")->index();
+
+    }
+
+    public static function createPlayerAttemptIndex($table) {
+
+        $table->integer("total")->index();
+        $table->string("username")->index();
+        $table->date("created.timestamp")->index();
+        $table->date("modified.timestamp")->index();
+
+    }
+
+    public static function createDatabaseImportActionIndex($table) {
+
+        $table->string("databaseImport._id")->unique();
+        $table->string("databaseImport.file")->index();
+        $table->date("created.timestamp")->index();
+        $table->date("modified.timestamp")->index();
+
+    }
+
+    public static function createDatabaseAttemptIndex($table) {
+
+        $table->string("contact.email")->index();
+        $table->string("contact.line")->index();
+        $table->string("contact.michat")->index();
+        $table->string("contact.phone")->unique();
+        $table->string("contact.telegram")->index();
+        $table->string("contact.wechat")->index();
+        $table->string("contact.whatsapp")->index();
+        $table->integer("total")->index();
+        $table->date("created.timestamp")->index();
+        $table->date("modified.timestamp")->index();
+
+    }
+
+    public static function createDatabaseImportIndex($table) {
+
+        $table->string("file")->index();
+        $table->string("group._id")->index();
+        $table->string("group.name")->index();
+        $table->integer("row")->index();
+        $table->string("status")->index();
+        $table->string("website._id")->index();
+        $table->string("website.name")->index();
+        $table->date("created.timestamp")->index();
+        $table->date("modified.timestamp")->index();
+
+    }
+
+
+    public static function initializeCollectionByWebsite($websiteId) {
 
         if(!Schema::hasTable("database_" . $websiteId)) {
 
@@ -158,52 +313,6 @@ class DataComponent {
             });
 
         }
-
-    }
-
-    public static function initializeSystemAccount() 
-    {
-
-        $result = new UserModel();
-        $result->_id = "0";
-        $result->avatar = "";
-        $result->group["_id"] = "0";
-        $result->group["name"] = "System";
-        $result->name = "System";
-        $result->username = "System";
-
-        return $result;
-
-    }
-
-    public static function initializeTimestamp($account) 
-    {
-        $mytime = Carbon::now();
-
-        return [
-            "timestamp" => $mytime->toDateTimeString(),
-            "user" => [
-                "_id" => self::initializeObjectId($account->_id),
-                "avatar" => $account->avatar,
-                "name" => $account->name,
-                "username" => $account->username
-            ]
-        ];
-
-    }
-
-    public static function initializeObjectId($id) 
-    {
-
-        $result = "0";
-
-        if($id != "0") {
-
-            $result = new User($id);
-
-        }
-
-        return $result;
 
     }
 
@@ -370,5 +479,142 @@ class DataComponent {
 
         return $result;
 
+    }
+
+    public static function initializeCollectionByAccount($accountId) {
+
+        if(!Schema::hasTable("whatsappLogs_" . $accountId)) {
+
+            Schema::create("whatsappLogs_" . $accountId, function(Blueprint $table) {
+
+                self::createWhatsappLogsIndex($table);
+
+            });
+
+        } else {
+
+            Schema::table("whatsappLogs_" . $accountId, function(Blueprint $table) {
+
+                self::createWhatsappLogsIndex($table);
+
+            });
+
+        }
+        
+        if(!Schema::hasTable("smsLogs_" . $accountId)) {
+
+            Schema::create("smsLogs_" . $accountId, function(Blueprint $table) {
+
+                self::createSmsLogsIndex($table);
+
+            });
+
+        } else {
+
+            Schema::table("smsLogs_" . $accountId, function(Blueprint $table) {
+
+                self::createSmsLogsIndex($table);
+
+            });
+
+        }
+
+        if(!Schema::hasTable("emailLogs_" . $accountId)) {
+
+            Schema::create("emailLogs_" . $accountId, function(Blueprint $table) {
+
+                self::createEmailLogsIndex($table);
+
+            });
+
+        } else {
+
+            Schema::table("emailLogs_" . $accountId, function(Blueprint $table) {
+
+                self::createEmailLogsIndex($table);
+
+            });
+
+        }
+
+    }
+
+    public static function createWhatsappLogsIndex($table) {
+
+        $table->integer("account")->index();
+        $table->string("campaign")->index();
+        $table->string("recipient")->index();
+        $table->string("type")->index();
+        $table->string("message")->index();
+        $table->string("media_file")->index();
+        $table->string("media_url")->index();
+        $table->string("media_type")->index();
+        $table->string("document_file")->index();
+        $table->string("document_url")->index();
+        $table->string("document_type")->index();
+        $table->string("button_1")->index();
+        $table->string("button_2")->index();
+        $table->string("button_3")->index();
+        $table->string("list_title")->index();
+        $table->string("menu_title")->index();
+        $table->string("footer")->index();
+        $table->string("format")->index();
+        $table->string("shortener")->index();
+        $table->date("created.timestamp")->index();
+        $table->string("created.user._id")->index();
+        $table->string("created.user.avatar")->index();
+        $table->string("created.user.name")->index();
+        $table->string("created.user.username")->index();
+        $table->date("modified.timestamp")->index();
+        $table->string("modified.user._id")->index();
+        $table->string("modified.user.avatar")->index();
+        $table->string("modified.user.name")->index();
+        $table->string("modified.user.username")->index();
+    }
+
+    public static function createSmsLogsIndex($table) {
+
+        $table->string("mode")->index();
+        $table->string("phone")->index();
+        $table->string("message")->index();
+        $table->string("device")->index();
+        $table->integer("sim")->index();
+        $table->integer("priority")->index();
+        $table->string("shortener")->index();
+        $table->date("created.timestamp")->index();
+        $table->string("created.user._id")->index();
+        $table->string("created.user.avatar")->index();
+        $table->string("created.user.name")->index();
+        $table->string("created.user.username")->index();
+        $table->date("modified.timestamp")->index();
+        $table->string("modified.user._id")->index();
+        $table->string("modified.user.avatar")->index();
+        $table->string("modified.user.name")->index();
+        $table->string("modified.user.username")->index();
+    }
+
+    public static function createEmailLogsIndex($table) {
+        $table->string("from_name")->index();
+        $table->string("from_email")->index();
+        $table->string("to_email")->index();
+        $table->string("subject")->index();
+        $table->string("cc")->index();
+        $table->string("bcc")->index();
+        $table->text("message")->index();
+        $table->text("attachment")->index();
+        $table->string("status")->index();
+        $table->string("initiated_time")->index();
+        $table->string("status")->index();
+        $table->string("schedule_status")->index();
+        $table->date("created.timestamp")->index();
+        $table->string("created.user._id")->index();
+        $table->string("created.user.avatar")->index();
+        $table->string("created.user.name")->index();
+        $table->string("created.user.username")->index();
+        $table->date("modified.timestamp")->index();
+        $table->string("modified.user._id")->index();
+        $table->string("modified.user.avatar")->index();
+        $table->string("modified.user.name")->index();
+        $table->string("modified.user.username")->index();
     }
 }

@@ -2,15 +2,16 @@
 
 use App\Http\Controllers\DatabaseController;
 use App\Http\Controllers\DatabaseImportController;
+use App\Http\Controllers\EmailLogController;
 use App\Http\Controllers\LicenseController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RoleController;
-use App\Http\Controllers\SmsController;
+use App\Http\Controllers\SmsLogController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserGroupController;
 use App\Http\Controllers\WebsiteController;
-use App\Http\Controllers\WhatsappController;
+use App\Http\Controllers\WhatsappLogController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -86,22 +87,31 @@ Route::group(["middleware" => ["authentication"]], function() {
 
     //whatsapp
     Route::group(['prefix' => 'whatsapp'], function(){
-        Route::post('get-chats', [WhatsappController::class, 'getChats'])->name('get-chats');
-        Route::post('delete-chat', [WhatsappController::class, 'deleteChat'])->name('delete-chat');
-        Route::post('get-chat-by-id', [WhatsappController::class, 'getChatById'])->name('get-chat-by-id');
-        Route::post('send-bulk-chat', [WhatsappController::class, 'sendBulkChat'])->name('send-bulk-chat');
-        Route::post('send-single-chat', [WhatsappController::class, 'sendSingleChat'])->name('send-single-chat');
+        Route::post('get-chats', [WhatsappLogController::class, 'getChats'])->name('get-chats');
+        Route::post('delete-chat', [WhatsappLogController::class, 'deleteChat'])->name('delete-chat');
+        Route::post('get-chat-by-id', [WhatsappLogController::class, 'getChatById'])->name('get-chat-by-id');
+        Route::post('send-bulk-chat', [WhatsappLogController::class, 'sendBulkChat'])->name('send-bulk-chat');
+        Route::post('send-single-chat', [WhatsappLogController::class, 'sendSingleChat'])->name('send-single-chat');
 
         
     });
 
     Route::group(['prefix' => 'sms'], function(){
-        Route::post('get-messages', [SmsController::class, 'getMessages'])->name('get-messages');
-        Route::post('delete-message', [SmsController::class, 'deleteMessage'])->name('delete-message');
-        Route::post('get-message-by-id', [SmsController::class, 'getMessageById'])->name('get-message-by-id');
-        Route::post('send-bulk-message', [SmsController::class, 'sendBulkMessage'])->name('send-bulk-message');
-        Route::post('send-single-message', [SmsController::class, 'sendSingleMessage'])->name('send-single-message');
+        Route::post('get-messages', [SmsLogController::class, 'getMessages'])->name('get-messages');
+        Route::post('delete-message', [SmsLogController::class, 'deleteMessage'])->name('delete-message');
+        Route::post('get-message-by-id', [SmsLogController::class, 'getMessageById'])->name('get-message-by-id');
+        Route::post('send-bulk-message', [SmsLogController::class, 'sendBulkMessage'])->name('send-bulk-message');
+        Route::post('send-single-message', [SmsLogController::class, 'sendSingleMessage'])->name('send-single-message');
     });
+
+    Route::group(['prefix' => 'email'], function(){
+        Route::post('get-emails', [EmailLogController::class, 'getMessages'])->name('get-email');
+        Route::post('delete-email', [EmailLogController::class, 'deleteMessage'])->name('delete-email');
+        Route::post('get-email-by-id', [EmailLogController::class, 'getMessageById'])->name('get-email-by-id');
+        Route::post('send-bulk-email', [EmailLogController::class, 'sendBulkMessage'])->name('send-bulk-email');
+        Route::post('send-single-email', [EmailLogController::class, 'sendSingleMessage'])->name('send-single-email');
+    });
+
 
     //database
     Route::post('/add-database', [DatabaseController::class, 'addDatabase'])->name('add-database');
