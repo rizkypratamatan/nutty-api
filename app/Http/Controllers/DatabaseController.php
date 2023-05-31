@@ -24,7 +24,7 @@ class DatabaseController extends Controller
             $data = $model->addDatabase($request, $auth);
 
             if ($data) {
-                // DataComponent::initializeCollectionByWebsite($data->_id);
+                DataComponent::initializeCollectionByWebsite($auth->_id);
                 $response = [
                     'result' => true,
                     'response' => 'success add database',

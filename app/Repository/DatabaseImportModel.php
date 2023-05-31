@@ -61,5 +61,43 @@ class DatabaseImportModel
 
     }
 
+    // public static function insert($auth, $data) 
+    // {
+
+    //     $mytime = Carbon::now();
+
+    //     $arr = [
+    //         "file" => $data->file,
+    //         "group" => [
+    //             "_id" => $auth->_id,
+    //             "name" => $auth->name
+    //         ],
+    //         "row" => 0,
+    //         "status" => $data->status,
+    //         "website" => [
+    //             "_id" => "",
+    //             "name" => ""
+    //         ],
+    //         "created" => [
+    //             "timestamp" => $mytime->toDateTimeString(),
+    //             "user" => [
+    //                 "_id" => $auth->_id,
+    //                 "username" => $auth->username
+    //             ]
+    //         ],
+    //         "modified" => [
+    //             "timestamp" => $mytime->toDateTimeString(),
+    //             "user" => [
+    //                 "_id" => $auth->_id,
+    //                 "username" => $auth->username
+    //             ]
+    //         ]
+    //     ];
+
+
+    //     return DB::table('databaseImport')
+    //         ->insert($arr);
+    // }
+
     
 }

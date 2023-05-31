@@ -189,6 +189,92 @@ class DatabaseModel
     }
 
 
+    // private static function importAdditionalData($account, $action, $database, $databaseAccount, $website) 
+    // {
+
+    //     if(!empty($databaseAccount)) {
+
+    //         if($databaseAccount->database["_id"] != "0" && $database->_id != $databaseAccount->database["_id"]) {
+
+    //             $databaseById = DatabaseRepository::findOneById($databaseAccount->database["_id"], $website->_id);
+
+    //             if(!empty($databaseById)) {
+
+    //                 DatabaseRepository::delete($databaseById);
+
+    //             }
+
+    //             $action["accounts"][count($action["phones"]) - 1] = true;
+
+    //         }
+
+    //         $databaseAccount->database = [
+    //             "_id" => DataComponent::initializeObjectId($database->_id),
+    //             "name" => $database->name
+    //         ];
+
+    //         if(empty($databaseAccount->_id)) {
+
+    //             try {
+
+    //                 DatabaseAccountRepository::insert($account, $databaseAccount, $website->_id);
+
+    //             } catch(Exception $exception) {
+
+    //                 if($exception->getCode() == 11000) {
+
+    //                     self::replaceAccount($account, $database, $databaseAccount, $website);
+
+    //                 }
+
+    //             }
+
+    //         } else {
+
+    //             try {
+
+    //                 DatabaseAccountRepository::update($account, $databaseAccount, $website->_id);
+
+    //             } catch(Exception $exception) {
+
+    //                 if($exception->getCode() == 11000) {
+
+    //                     self::replaceAccount($account, $database, $databaseAccount, $website);
+
+    //                 }
+
+    //             }
+
+    //         }
+
+    //     }
+
+    //     try {
+
+    //         $databaseAttempt = new DatabaseAttempt();
+    //         $databaseAttempt->contact = $database->contact;
+    //         $databaseAttempt->total = 0;
+    //         $databaseAttempt->website = [
+    //             "ids" => [],
+    //             "names" => [],
+    //             "totals" => []
+    //         ];
+    //         DatabaseAttemptModel::insert($account, $databaseAttempt);
+
+    //     } catch(Exception $exception) {
+
+    //         if($exception->getCode() != 11000) {
+
+    //             Log::error($exception->getMessage());
+
+    //         }
+
+    //     }
+
+    //     return $action;
+
+    // }
+
     // public static function count() {
 
     //     return Database::where([])->count("_id");

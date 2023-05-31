@@ -69,4 +69,13 @@ class UserGroupModel
         ])->get();
 
     }
+
+    public static function findOneByIdStatus($id, $status) {
+
+        return UserGroup::where([
+            ["_id", "=", $id],
+            ["status", "=", $status]
+        ])->first();
+
+    }
 }
