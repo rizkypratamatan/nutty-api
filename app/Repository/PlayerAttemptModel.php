@@ -45,7 +45,7 @@ class PlayerAttemptModel
             "totals" => $data->totals
         ],
         "created" => [
-            "timestamp" => $data->timestamp,
+            "timestamp" => $mytime->toDateTimeString(),
             "user" => [
                 "_id" => $auth->_id,
                 "username" => $data->username

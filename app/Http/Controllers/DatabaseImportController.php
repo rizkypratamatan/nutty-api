@@ -8,6 +8,7 @@ use App\Components\LogComponent;
 use App\Repository\DatabaseImportModel;
 use App\Repository\UserGroupModel;
 use App\Repository\WebsiteModel;
+use App\Services\DatabaseService;
 use Illuminate\Http\Request;
 
 class DatabaseImportController extends Controller
@@ -27,6 +28,7 @@ class DatabaseImportController extends Controller
 
             if ($data) {
                 // DataComponent::initializeCollectionByWebsite($data->_id);
+                $data = DatabaseService::importData($request);
                 $response = [
                     'result' => true,
                     'response' => 'success add import database',

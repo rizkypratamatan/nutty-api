@@ -206,15 +206,16 @@ class WebsiteModel
     
 
 
-    // public static function findOneByIdNucodeStatus($id, $nucode, $status) {
+    public static function findOneByIdNucodeStatus($id, $nucode, $status) 
+    {
 
-    //     return Website::where([
-    //         ["_id", "=", $id],
-    //         ["nucode", "=", $nucode],
-    //         ["status", "=", $status]
-    //     ])->first();
+        return Website::where([
+            ["_id", "=", $id],
+            ["nucode", "=", $nucode],
+            ["status", "=", $status]
+        ])->first();
 
-    // }
+    }
 
 
     

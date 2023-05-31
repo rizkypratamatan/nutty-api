@@ -12,24 +12,7 @@ use Illuminate\Http\Request;
 class UserController extends Controller
 {
     public function getAllUser(Request $request)
-    // {
-    //     $checkToken = Authentication::validate($request); 
-    //     if ($checkToken->original->result) {
-    //         $userModel =  new UserModel();
-    //         $user = $userModel->getAllUser();
-
-    //         $response = [
-    //             'result' => true,
-    //             'response' => 'Get All User Group',
-    //             'dataUser' => $user
-    //         ];
-    //     } else {
-    //         $response = $checkToken->original;
-    //     }
-
-    //     return response()->json($response, 200);
-    // }
-
+    
     {
         // print_r($request->all());die();
 
@@ -161,31 +144,6 @@ class UserController extends Controller
     }
 
     public function getUserById(Request $request)
-
-    // {
-    //     $checkToken = Authentication::validate($request); 
-    //     if ($checkToken->original->result) {
-    //         $userModel =  new UserModel();
-    //         $user = $userModel->getUserById($request->id);
-
-    //         if ($user) {
-    //             $response = [
-    //                 'result' => true,
-    //                 'response' => 'success get user group',
-    //                 'dataUser' => $user
-    //             ];
-    //         } else {
-    //             $response = [
-    //                 'result' => false,
-    //                 'response' => 'failed get user group',
-    //             ];
-    //         }
-    //     } else {
-    //         $response = $checkToken->original;
-    //     }
-
-    //     return response()->json($response, 200);
-    // }
 
     {
         // print_r($request->all());die();
