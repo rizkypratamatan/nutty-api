@@ -5,28 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Jenssegers\Mongodb\Eloquent\Model;
 
-class Whatsapp extends Model
+class Sms extends Model
 {
     use HasFactory;
     protected $attributes = [
-        "account" => 0,
-        "campaign" => "",
-        "recipient" => "",
-        "type" => "",
+        "mode" => 'devices',
+        "phone" => "",
         "message" => "",
-        "media_file" => "",
-        "media_url" => "",
-        "media_type" => "",
-        "document_file" => "",
-        "document_url" => "",
-        "document_type" => "",
-        "button_1" => "",
-        "button_2" => "",
-        "button_3" => "",
-        "list_title" => "",
-        "menu_title" => "",
-        "footer" => "",
-        "format" => "",
+        "device" => "",
+        "sim" => 1,
+        "priority" => 1,
         "shortener" => "",
         "created" => [
             "timestamp" => "",
@@ -49,24 +37,12 @@ class Whatsapp extends Model
     ];
 
     protected $fillable = [
-        "account",
-        "campaign",
-        "recipient",
-        "type",
+        "mode",
+        "phone",
         "message",
-        "media_file",
-        "media_url",
-        "media_type",
-        "document_file",
-        "document_url",
-        "document_type",
-        "button_1",
-        "button_2",
-        "button_3",
-        "list_title",
-        "menu_title",
-        "footer",
-        "format",
+        "device",
+        "sim",
+        "priority",
         "shortener",
         "created->timestamp",
         "created->user->_id",
@@ -74,7 +50,7 @@ class Whatsapp extends Model
         "modified->user->_id",
     ];
 
-    protected $table = "whatsapp_chats";
+    protected $table = "sms_messages";
 
     public $timestamps = false;
 

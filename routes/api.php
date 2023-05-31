@@ -6,6 +6,7 @@ use App\Http\Controllers\LicenseController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SmsController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserGroupController;
 use App\Http\Controllers\WebsiteController;
@@ -85,18 +86,6 @@ Route::group(["middleware" => ["authentication"]], function() {
 
     //whatsapp
     Route::group(['prefix' => 'whatsapp'], function(){
-        // Route::post('delete-received-chat', [WhatsappController::class, 'deleteReceivedChat'])->name('delete-received-chat');
-        // Route::post('delete-sent-chat', [WhatsappController::class, 'deleteSentChat'])->name('delete-sent-chat');
-        // Route::post('delete-campaign', [WhatsappController::class, 'deleteCampaign'])->name('delete-campaign');
-        // Route::post('get-accounts', [WhatsappController::class, 'getAccounts'])->name('getAccounts');
-        // Route::post('get-pending-chats', [WhatsappController::class, 'getPendingChats'])->name('get-pending-chats');
-        // Route::post('get-received-chats', [WhatsappController::class, 'getReceivedChats'])->name('get-received-chats');
-        // Route::post('get-sent-chats', [WhatsappController::class, 'getSentChats'])->name('get-sent-chats');
-        // Route::post('get-campaigns', [WhatsappController::class, 'getCampaigns'])->name('get-campaigns');
-        // Route::post('get-qrimage', [WhatsappController::class, 'getQRImage'])->name('get-qrimage');
-        // Route::post('start-campaign', [WhatsappController::class, 'startCampaign'])->name('start-campaign');
-        // Route::post('stop-campaign', [WhatsappController::class, 'stopCampaign'])->name('stop-campaign');
-
         Route::post('get-chats', [WhatsappController::class, 'getChats'])->name('get-chats');
         Route::post('delete-chat', [WhatsappController::class, 'deleteChat'])->name('delete-chat');
         Route::post('get-chat-by-id', [WhatsappController::class, 'getChatById'])->name('get-chat-by-id');
@@ -105,7 +94,15 @@ Route::group(["middleware" => ["authentication"]], function() {
 
         
     });
-    
+
+    Route::group(['prefix' => 'sms'], function(){
+        Route::post('get-messages', [SmsController::class, 'getMessages'])->name('get-messages');
+        Route::post('delete-message', [SmsController::class, 'deleteMessage'])->name('delete-message');
+        Route::post('get-message-by-id', [SmsController::class, 'getMessageById'])->name('get-message-by-id');
+        Route::post('send-bulk-message', [SmsController::class, 'sendBulkMessage'])->name('send-bulk-message');
+        Route::post('send-single-message', [SmsController::class, 'sendSingleMessage'])->name('send-single-message');
+    });
+
     //database
     Route::post('/add-database', [DatabaseController::class, 'addDatabase'])->name('add-database');
     Route::post('/delete-database', [DatabaseController::class, 'deleteDatabase'])->name('delete-database');

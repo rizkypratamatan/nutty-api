@@ -93,7 +93,7 @@ class UserLogModel
 
         return UserLog::where([
             ["user._id", "=", $userId]
-        ])->where("status", "active")->whereIn("type", $types)->orderBy("created.timestamp", "DESC")->first();
+        ])->whereIn("type", $types)->orderBy("created.timestamp", "DESC")->first();
 
     }
 }

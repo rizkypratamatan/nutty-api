@@ -3,12 +3,12 @@
 namespace App\Repository;
 
 use App\Components\AuthenticationComponent;
-use App\Models\Whatsapp;
-use App\Services\Gateway\WhatsappService;
+use App\Models\Sms;
+use App\Services\Gateway\SMSService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class WhatsappModel
+class SMSModel
 {
     protected $service;
     protected $user;
@@ -16,60 +16,58 @@ class WhatsappModel
 
     public function __construct($request)
     {   
-        $this->service = new WhatsappService();
+        $this->service = new SMSService();
         $this->user = AuthenticationComponent::toUser($request);
         $this->request = $request;
     }
 
-    public function getAllChat($limit=10, $offset=0, $auth=null)
+    public function getAll($limit=10, $offset=0, $auth=null)
     {   
         if($auth){
-            return Whatsapp::where("created.user._id", $auth->id)
+            return Sms::where("created.user._id", $auth->id)
                             ->take($limit)
                             ->skip($offset)
                             ->get();
         }else{
-            return Whatsapp::take($limit)
+            return Sms::take($limit)
                             ->skip($offset)
                             ->get();
         }
         
     }
 
-    public static function deleteChat($id, $auth=null)
+    public static function delete($id, $auth=null)
     {
         if($auth){
-            return Whatsapp::where('_id', $id)->where("created.user._id", $auth->id)->delete();
+            return Sms::where('_id', $id)->where("created.user._id", $auth->id)->delete();
         }else{
-            return Whatsapp::where('_id', $id)->delete();
+            return Sms::where('_id', $id)->delete();
         }
         
     }
 
-    public function getChatById($id, $auth=null)
+    public function getById($id, $auth=null)
     {
         if($auth){
-            return Whatsapp::where('_id', $id)->where("created.user._id", $auth->id)->first();
+            return Sms::where('_id', $id)->where("created.user._id", $auth->id)->first();
         }else{
-            return Whatsapp::where('_id', $id)->first();
+            return Sms::where('_id', $id)->first();
         }
         
     }
 
-    public function sendSingleChat()
+    public function sendSingle()
     {
-        $account = $this->service->getAccounts();
+        $device = $this->service->getDevices();
 
-        if($account['status'] == 200){
-            $chat = $this->service->initializeSingleData($this->request, $account['data'][0]['id'], $this->request->recipient);
-            $resp = $this->service->processSingleChat($chat);
-            $this->insertDB($chat);
-
-            $response = $resp;
+        if($device['status'] == 200){
+            $message = $this->service->initializeSingleData($this->request->message, $device['data'][0]['unique'], $this->request->phone);
+            $response = $this->service->processSingleChat($message);
+            $this->insertDB($message);
         }else{
             $response = [
                 'result' => false,
-                'response' => "Whatsapp service currently unavailable",
+                'response' => "SMS service currently unavailable",
                 'data' => false
             ];
         }
@@ -77,15 +75,15 @@ class WhatsappModel
         return $response;
     }
 
-    public function sendBulkChat()
+    public function sendBulk()
     {   
         //get wa accounts
-        $account = $this->service->getAccounts();
+        $device = $this->service->getDevices();
         
-        if($account['status'] == 200){
-            $accountCount = count($account['data']);
+        if($device['status'] == 200){
+            $accountCount = count($device['data']);
 
-            $numbers = explode(",", $this->request->recipients);
+            $numbers = explode(",", $this->request->numbers);
             $total_number = count($numbers);
 
             if($total_number > 3){
@@ -101,28 +99,28 @@ class WhatsappModel
             }
 
             for($i=0;$i<$accountCount;$i++){
-                $device_id = $account['data'][$i]['id'];
+                $device_id = $device['data'][$i]['unique'];
                 $bulk = $this->service->initializeBulkChat($this->request, $device_id, implode(",", $numbers[$i]));
                 //proses chat
                 $this->service->processBulkChat($bulk);
 
                 //save DB
                 foreach($numbers[$i] as $recepient){
-                    $data = $this->service->initializeSingleChat($this->request, $device_id, $recepient);
+                    $data = $this->service->initializeSingleChat($this->request->message, $device_id, $recepient);
                     $this->insertDB($data);
                 }
             }
 
             $response = [
                 'result' => true,
-                'response' => "WhatsApp chats has been queued!",
+                'response' => "Message chats has been queued!",
                 'data' => false
             ];
 
         }else{
             $response = [
                 'result' => false,
-                'response' => "Whatsapp service currently unavailable",
+                'response' => "Message service currently unavailable",
                 'data' => false
             ];
         }
@@ -132,9 +130,9 @@ class WhatsappModel
 
     public function insertDB($data)
     {
-        unset($data['recipients']);
-        unset($data['group']);
         unset($data['secret']);
+        unset($data['campaign']);
+        unset($data['numbers']);
 
         //save to db
         $mytime = Carbon::now();
@@ -143,15 +141,15 @@ class WhatsappModel
 
         $data['created'] = [
             "timestamp" => $mytime->toDateTimeString(),
-            "user" => ["_id"=>$this->user->_id],
+            "user" => ["_id" => $this->user->_id]
         ];
 
         $data['modified'] = [
             "timestamp" => $mytime->toDateTimeString(),
-            "user" => ["_id"=>$this->user->_id],
+            "user" => ["_id" => $this->user->_id]
         ];
 
-        return DB::table('whatsapp_chats')->insert($data);
+        return DB::table('sms_messages')->insert($data);
     }
 
     // public function deleteReceivedChat($id)
