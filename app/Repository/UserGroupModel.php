@@ -55,13 +55,22 @@ class UserGroupModel
     public function updateUserGroupById()
     {
         $data = UserGroup::find($this->request->id);
-        $data->description = $data->description;
-        $data->name = $data->name;
-        $data->status = $data->status;
-        $data->type = $data->type;
+        $data->description = $this->request->description;
+        $data->name = $this->request->name;
+        $data->status = $this->request->status;
+        $data->type = $this->request->type;
         $data->modified = DataComponent::initializeTimestamp($this->user);
 
         $data->save();
+
+        $update = [
+            "group" => [
+                "_id" => DataComponent::initializeObjectId($this->request->id),
+                "name" => $data->name,
+            ]
+        ];
+
+        UserModel::updateByGroupId($this->request->id, $update);
 
         return $data;
     }

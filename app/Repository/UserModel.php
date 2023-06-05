@@ -5,10 +5,7 @@ namespace App\Repository;
 use App\Components\AuthenticationComponent;
 use App\Components\DataComponent;
 use App\Models\User;
-use App\Models\UserGroup;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\DB;
 
 class UserModel
 {
@@ -33,6 +30,8 @@ class UserModel
         $user = new User();
         $user->name = $data->name;
         $user->gender = $data->gender;
+        $user->type = $data->type;
+        $user->nucode = $data->nucode;
         $user->contact = [
             'email' => $data->email,
             'fax' => $data->fax,
@@ -62,6 +61,30 @@ class UserModel
         $user->zip = $data->zip;
         $user->created = DataComponent::initializeTimestamp(AuthenticationComponent::toUser($data));
         $user->modified = DataComponent::initializeTimestamp(AuthenticationComponent::toUser($data));
+
+        //user role priviledge
+        $userRoleByIdStatus = UserRoleModel::findOneByIdStatus($user->role["_id"], "Active");
+        if(!empty($userRoleByIdStatus)) {
+
+            $user->privilege = $userRoleByIdStatus->privilege;
+            $user->role = [
+                "_id" => DataComponent::initializeObjectId($userRoleByIdStatus->_id),
+                "name" => $userRoleByIdStatus->name
+            ];
+
+        }
+
+        //user group
+        $userGroupByIdStatus = UserGroupModel::findOneByIdStatus($user->group["_id"], "Active");
+        if(!empty($userGroupByIdStatus)) {
+
+            $user->group = [
+                "_id" => DataComponent::initializeObjectId($userGroupByIdStatus->_id),
+                "name" => $userGroupByIdStatus->name
+            ];
+
+        }
+
         $user->save();
 
         DataComponent::initializeCollectionByAccount($user->_id);
@@ -86,6 +109,8 @@ class UserModel
         $user = User::find($data->id);
         $user->name = $data->name;
         $user->gender = $data->gender;
+        $user->type = $data->type;
+        $user->nucode = $data->nucode;
         $user->contact = [
             'email' => $data->email,
             'fax' => $data->fax,
@@ -108,12 +133,50 @@ class UserModel
             '_id' => $data->group['_id'],
             'name' => $data->group['name']
         ];
+        $user->privilege = [
+            "database" => "0000",
+            "report" => "0000",
+            "setting" => "0000",
+            "settingApi" => "0000",
+            "user" => "0000",
+            "userGroup" => "0000",
+            "userRole" => "0000",
+            "website" => "0000",
+            "worksheet" => "0000",
+            "whatsapp" => "0000",
+            "sms" =>  "0000",
+            "email" =>  "0000"
+        ];
         $user->username = $data->username;
         $user->country = $data->country;
         $user->city = $data->city;
         $user->street = $data->street;
         $user->zip = $data->zip;
         $user->modified = DataComponent::initializeTimestamp(AuthenticationComponent::toUser($data));
+
+        //user role priviledge
+        $userRoleByIdStatus = UserRoleModel::findOneByIdStatus($user->role["_id"], "Active");
+        if(!empty($userRoleByIdStatus)) {
+
+            $user->privilege = $userRoleByIdStatus->privilege;
+            $user->role = [
+                "_id" => DataComponent::initializeObjectId($userRoleByIdStatus->_id),
+                "name" => $userRoleByIdStatus->name
+            ];
+
+        }
+
+        //user group
+        $userGroupByIdStatus = UserGroupModel::findOneByIdStatus($user->group["_id"], "Active");
+        if(!empty($userGroupByIdStatus)) {
+
+            $user->group = [
+                "_id" => DataComponent::initializeObjectId($userGroupByIdStatus->_id),
+                "name" => $userGroupByIdStatus->name
+            ];
+
+        }
+
         $user->save();
 
         return $user;
@@ -125,6 +188,19 @@ class UserModel
             ["_id", "=", $id],
             ["status", "=", $status]
         ])->first();
+
+    }
+
+    public static function updateByGroupId($groupId, $data) {
+
+        User::where("group._id", $groupId)->update($data, ["upsert" => false]);
+
+    }
+
+
+    public static function updateByRoleId($roleId, $data) {
+
+        User::where("role._id", $roleId)->update($data, ["upsert" => false]);
 
     }
 }

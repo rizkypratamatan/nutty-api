@@ -101,7 +101,56 @@ class UserRoleModel
             ]
         ];
 
+        $update = [
+            "privilege" => $arr['privilege'],
+            "role" => [
+                "_id" => DataComponent::initializeObjectId($data->id),
+                "name" => $arr['name']
+            ]
+        ];
+
+        UserModel::updateByRoleId($data->id, $update);
+
         return DB::table('userRole')
             ->where('_id', $data->id)->update($arr);
+    }
+
+    public static function findByNucodeStatus($nucode, $status) {
+
+        return UserRole::where([
+            ["nucode", "=", $nucode],
+            ["status", "=", $status]
+        ])->get();
+
+    }
+
+
+    public static function findByStatus($status) {
+        return UserRole::where([
+            ["status", "=", $status]
+        ])->get();
+    }
+
+
+    public static function findOneById($id) {
+        return UserRole::where([
+            ["_id", "=", $id]
+        ])->first();
+    }
+
+
+    public static function findOneByIdStatus($id, $status) {
+        return UserRole::where([
+            ["_id", "=", $id],
+            ["status", "=", $status]
+        ])->first();
+    }
+
+
+    public static function findOneByNameNucode($name, $nucode) {
+        return UserRole::where([
+            ["name", "=", $name],
+            ["nucode", "=", $nucode]
+        ])->first();
     }
 }
