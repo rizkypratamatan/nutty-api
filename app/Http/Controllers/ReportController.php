@@ -26,16 +26,16 @@ class ReportController extends Controller {
             //check privilege
             DataComponent::checkPrivilege($request, "report", "view");
 
-            $userModel =  new UserModel();
-            $user = $userModel->userReport($request->id);
-            $userModel->user->_id = $validation->report->user["_id"];
-            $userModel->user->username = $validation->report->user["username"];
+            $model =  new ReportModel();
+            $data = $model->userReport($request->id);
+            $model->user->_id = $validation->report->user["_id"];
+            $model->user->username = $validation->report->user["username"];
 
-            if ($user) {
+            if ($data) {
                 $response = [
                     'result' => true,
                     'response' => 'success get user report',
-                    'dataUser' => $user
+                    'dataUser' => $data
                 ];
             } else {
                 $response = [
@@ -59,10 +59,10 @@ class ReportController extends Controller {
             //check privilege
             DataComponent::checkPrivilege($request, "report", "add");
 
-            $userModel =  new ReportModel();
-            $user = $userModel->addReport($request);
+            $model =  new ReportModel();
+            $data = $model->addReport($request);
 
-            if ($user) {
+            if ($data) {
                 $response = [
                     'result' => true,
                     'response' => 'success add report',
@@ -91,10 +91,10 @@ class ReportController extends Controller {
             //check privilege
             DataComponent::checkPrivilege($request, "report", "delete");
 
-            $userModel =  new ReportModel();
-            $user = $userModel->deleteReport($request->id);
+            $model =  new ReportModel();
+            $data = $model->deleteReport($request->id);
 
-            if ($user) {
+            if ($data) {
                 $response = [
                     'result' => true,
                     'response' => 'success delete report',
@@ -121,10 +121,10 @@ class ReportController extends Controller {
             //check privilege
             DataComponent::checkPrivilege($request, "report", "edit");
 
-            $userModel =  new ReportModel();
-            $user = $userModel->updateReport($request);
+            $model =  new ReportModel();
+            $data = $model->updateReport($request);
 
-            if ($user) {
+            if ($data) {
                 $response = [
                     'result' => true,
                     'response' => 'success update report',
@@ -152,14 +152,14 @@ class ReportController extends Controller {
             //check privilege
             DataComponent::checkPrivilege($request, "report", "view");
 
-            $userModel =  new ReportModel();
-            $user = $userModel->getReportById($request->id);
+            $model =  new ReportModel();
+            $data = $model->getReportById($request->id);
 
-            if ($user) {
+            if ($data) {
                 $response = [
                     'result' => true,
                     'response' => 'success get report',
-                    'dataUser' => $user
+                    'dataUser' => $data
                 ];
             } else {
                 $response = [

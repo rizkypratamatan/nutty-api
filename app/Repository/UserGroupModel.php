@@ -23,14 +23,14 @@ class UserGroupModel
         return UserGroup::get()->take($limit)->skip($offset);
     }
 
-    public function addUserGroup($data)
+    public function addUserGroup()
     {
 
         $data = new UserGroup();
-        $data->description = $data->description;
-        $data->name = $data->name;
-        $data->status = $data->status;
-        $data->type = $data->type;
+        $data->description = $this->request->description;
+        $data->name = $this->request->name;
+        $data->status = $this->request->status;
+        $data->type = $this->request->type;
         $data->created = DataComponent::initializeTimestamp($this->user);
         $data->modified = DataComponent::initializeTimestamp($this->user);
 
@@ -39,21 +39,21 @@ class UserGroupModel
         return $data;
     }
 
-    public static function deleteUserGroup($id)
+    public function deleteUserGroup()
     {
 
-        return UserGroup::where('_id', $id)->delete();
+        return UserGroup::where('_id', $this->request->id)->delete();
     }
 
-    public function getUserGroupById($id)
+    public function getUserGroupById()
     {
 
-        return UserGroup::where('_id', $id)->first();
+        return UserGroup::where('_id', $this->request->id)->first();
     }
 
-    public function updateUserGroupById($data)
+    public function updateUserGroupById()
     {
-        $data = UserGroup::find($data->id);
+        $data = UserGroup::find($this->request->id);
         $data->description = $data->description;
         $data->name = $data->name;
         $data->status = $data->status;

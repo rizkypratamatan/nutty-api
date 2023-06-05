@@ -22,7 +22,7 @@ class UserGroupController extends Controller
             
             $limit = !empty($request->limit)?$request->limit:10;
             $offset = !empty($request->offset)?$request->offset:0;
-            $userModel =  new UserGroupModel();
+            $userModel =  new UserGroupModel($request);
             $user = $userModel->getAllUserGroup($limit, $offset);
 
             $response = [
@@ -48,8 +48,8 @@ class UserGroupController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "userGroup", "add");
 
-            $userModel =  new UserGroupModel();
-            $user = $userModel->addUserGroup($request);
+            $userModel =  new UserGroupModel($request);
+            $user = $userModel->addUserGroup();
 
             if ($user) {
                 $response = [
@@ -79,8 +79,8 @@ class UserGroupController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "userGroup", "edit");
 
-            $userModel =  new UserGroupModel();
-            $user = $userModel->updateUserGroupById($request);
+            $userModel =  new UserGroupModel($request);
+            $user = $userModel->updateUserGroupById();
 
             if ($user) {
                 $response = [
@@ -110,8 +110,8 @@ class UserGroupController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "userGroup", "delete");
 
-            $userModel =  new UserGroupModel();
-            $user = $userModel->deleteUserGroup($request->id);
+            $userModel =  new UserGroupModel($request);
+            $user = $userModel->deleteUserGroup();
 
             if ($user) {
                 $response = [
@@ -141,8 +141,8 @@ class UserGroupController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "userGroup", "view");
 
-            $userModel =  new UserGroupModel();
-            $user = $userModel->getUserGroupById($request->id);
+            $userModel =  new UserGroupModel($request);
+            $user = $userModel->getUserGroupById();
 
             if ($user) {
                 $response = [
