@@ -73,7 +73,7 @@ class DataComponent {
 
                     break;
             }
-
+            
             if(substr($user->privilege[$privilege], $start, 1) == "7") {
                 $result["message"] = strtoupper($user->username)." Authorized to ".strtoupper($action)." ".strtoupper($privilege);
                 $result["code"] = 200;
