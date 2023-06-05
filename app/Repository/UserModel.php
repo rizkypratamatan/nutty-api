@@ -64,7 +64,7 @@ class UserModel
         $user->modified = DataComponent::initializeTimestamp(AuthenticationComponent::toUser($data));
         $user->save();
 
-        DataComponent::initializeCollectionByAccount($user->id);
+        DataComponent::initializeCollectionByAccount($user->_id);
 
         return $user;
     }
