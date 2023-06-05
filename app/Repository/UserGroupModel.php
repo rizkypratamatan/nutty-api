@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Components\AuthenticationComponent;
 use App\Components\DataComponent;
 use App\Models\UserGroup;
 use Carbon\Carbon;
