@@ -540,6 +540,24 @@ class DataComponent {
 
         }
 
+        if(!Schema::hasTable("message_templates_" . $accountId)) {
+
+            Schema::create("message_templates_" . $accountId, function(Blueprint $table) {
+
+                self::createEmailLogsIndex($table);
+
+            });
+
+        } else {
+
+            Schema::table("message_templates_" . $accountId, function(Blueprint $table) {
+
+                self::createEmailLogsIndex($table);
+
+            });
+
+        }
+
     }
 
     public static function createWhatsappLogsIndex($table) {
@@ -609,6 +627,21 @@ class DataComponent {
         $table->string("initiated_time")->index();
         $table->string("status")->index();
         $table->string("schedule_status")->index();
+        $table->date("created.timestamp")->index();
+        $table->string("created.user._id")->index();
+        $table->string("created.user.avatar")->index();
+        $table->string("created.user.name")->index();
+        $table->string("created.user.username")->index();
+        $table->date("modified.timestamp")->index();
+        $table->string("modified.user._id")->index();
+        $table->string("modified.user.avatar")->index();
+        $table->string("modified.user.name")->index();
+        $table->string("modified.user.username")->index();
+    }
+
+    public static function createMessageTemplatesIndex($table) {
+        $table->string("name")->index();
+        $table->text("format")->index();
         $table->date("created.timestamp")->index();
         $table->string("created.user._id")->index();
         $table->string("created.user.avatar")->index();

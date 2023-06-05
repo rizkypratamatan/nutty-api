@@ -5,6 +5,7 @@ use App\Http\Controllers\DatabaseImportController;
 use App\Http\Controllers\EmailLogController;
 use App\Http\Controllers\LicenseController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\MessageTemplateController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SmsLogController;
@@ -37,6 +38,13 @@ Route::post('/logout', [LoginController::class, 'userLogout'])->name('logout');
 
 
 Route::group(["middleware" => ["authentication"]], function() {
+    //message-template
+    Route::post('/get-all-template', [MessageTemplateController::class, 'index'])->name('get-all-template');
+    Route::post('/add-template', [MessageTemplateController::class, 'store'])->name('add-template');
+    Route::post('/delete-template', [MessageTemplateController::class, 'delete'])->name('delete-template');
+    Route::post('/get-template-by-id', [MessageTemplateController::class, 'show'])->name('get-template-by-id');
+    Route::post('/update-template', [MessageTemplateController::class, 'update'])->name('update-template');
+
     //worksheet
     Route::post("/worksheet", [WorksheetController::class, "index"]);
     Route::post("/worksheet/call", [WorksheetController::class, "call"]);
