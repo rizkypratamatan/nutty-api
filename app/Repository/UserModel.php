@@ -100,6 +100,14 @@ class UserModel
             'main' => Crypt::encryptString($data->password),
             'recovery' => Crypt::encryptString($data->password)
         ];
+        $user->role = [
+            '_id' => $data->role->_id,
+            'name' => $data->role->name
+        ];
+        $user->group = [
+            '_id' => $data->role->_id,
+            'name' => $data->role->name
+        ];
         $user->username = $data->username;
         $user->country = $data->country;
         $user->city = $data->city;
