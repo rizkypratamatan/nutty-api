@@ -48,12 +48,12 @@ class UserModel
             'recovery' => Crypt::encryptString($data->password)
         ];
         $user->role = [
-            '_id' => $data->role->_id,
-            'name' => $data->role->name
+            '_id' => $data->role['_id'],
+            'name' => $data->role['name']
         ];
         $user->group = [
-            '_id' => $data->role->_id,
-            'name' => $data->role->name
+            '_id' => $data->group['_id'],
+            'name' => $data->group['name']
         ];
         $user->username = $data->username;
         $user->country = $data->country;
@@ -101,12 +101,12 @@ class UserModel
             'recovery' => Crypt::encryptString($data->password)
         ];
         $user->role = [
-            '_id' => $data->role->_id,
-            'name' => $data->role->name
+            '_id' => $data->role['_id'],
+            'name' => $data->role['name']
         ];
         $user->group = [
-            '_id' => $data->role->_id,
-            'name' => $data->role->name
+            '_id' => $data->group['_id'],
+            'name' => $data->group['name']
         ];
         $user->username = $data->username;
         $user->country = $data->country;

@@ -46,7 +46,10 @@ class DataComponent {
     public static function checkPrivilege($request, $privilege, $action) {
 
         $user = AuthenticationComponent::toUser($request);
-        $result = ["message" => strtoupper($user->username)." Unauthorized to ".strtoupper($action)." ".strtoupper($privilege), "code" => 403];    
+        $result = [
+            "message" => strtoupper($user->username)." Unauthorized to ".strtoupper($action)." ".strtoupper($privilege), 
+            "code" => 403
+        ];    
 
         if(!empty($user)) {
 
