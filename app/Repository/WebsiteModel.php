@@ -192,15 +192,16 @@ class WebsiteModel
     // }
 
 
-    // public static function findByStatusNotApiNexusSaltStart($apiNexusSalt, $start, $status) {
+    public static function findByStatusNotApiNexusSaltStart($apiNexusSalt, $start, $status) 
+    {
 
-    //     return Website::where([
-    //         ["api.nexus.salt", "!=", $apiNexusSalt],
-    //         ["start", "!=", $start],
-    //         ["status", "=", $status]
-    //     ])->get();
+        return Website::where([
+            ["api.nexus.salt", "!=", $apiNexusSalt],
+            ["start", "!=", $start],
+            ["status", "=", $status]
+        ])->get();
 
-    // }
+    }
 
 
     
