@@ -9,16 +9,12 @@ use App\Models\UserGroup;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Http\Request;
 
 class UserModel
 {
-    public $request;
-    public $account;
 
-    public function __construct(Request $request)
+    public function __construct()
     {   
-        $this->request = $request;
     }
 
     public function getUserByUsername($username)
@@ -56,8 +52,8 @@ class UserModel
         $user->city = $data->city;
         $user->street = $data->street;
         $user->zip = $data->zip;
-        $user->created = DataComponent::initializeTimestamp(AuthenticationComponent::toUser($this->request));
-        $user->modified = DataComponent::initializeTimestamp(AuthenticationComponent::toUser($this->request));
+        $user->created = DataComponent::initializeTimestamp(AuthenticationComponent::toUser($data));
+        $user->modified = DataComponent::initializeTimestamp(AuthenticationComponent::toUser($data));
         $user->save();
 
         DataComponent::initializeCollectionByAccount($user);

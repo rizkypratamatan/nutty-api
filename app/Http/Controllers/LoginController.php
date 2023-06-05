@@ -22,7 +22,7 @@ class LoginController extends Controller
         LogComponent::response($request, $validation);
 
         if ($validation->result) {
-            $userModel =  new UserModel;
+            $userModel =  new UserModel();
             $user = $userModel->getUserByUsername($request->username);            
             $pass =  Crypt::decryptString($user['password']['main']);
             
