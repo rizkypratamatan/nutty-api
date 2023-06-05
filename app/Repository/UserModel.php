@@ -121,7 +121,7 @@ class UserModel
 
     public function updateUserById($data)
     {
-        $user = User::find($data->id);
+        $user = User::findOrFail($data->id);
         $user->name = $data->name;
         $user->gender = $data->gender;
         $user->type = $data->type;
