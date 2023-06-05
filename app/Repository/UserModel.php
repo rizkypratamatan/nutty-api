@@ -32,6 +32,7 @@ class UserModel
         $user->gender = $data->gender;
         $user->type = $data->type;
         $user->nucode = $data->nucode;
+        $user->status = $data->status;
         $user->contact = [
             'email' => $data->email,
             'fax' => $data->fax,
@@ -59,6 +60,20 @@ class UserModel
         $user->city = $data->city;
         $user->street = $data->street;
         $user->zip = $data->zip;
+        $user->privilege = [
+            "database" => "0000",
+            "report" => "0000",
+            "setting" => "0000",
+            "settingApi" => "0000",
+            "user" => "0000",
+            "userGroup" => "0000",
+            "userRole" => "0000",
+            "website" => "0000",
+            "worksheet" => "0000",
+            "whatsapp" => "0000",
+            "sms" =>  "0000",
+            "email" =>  "0000"
+        ];
         $user->created = DataComponent::initializeTimestamp(AuthenticationComponent::toUser($data));
         $user->modified = DataComponent::initializeTimestamp(AuthenticationComponent::toUser($data));
 
@@ -111,6 +126,7 @@ class UserModel
         $user->gender = $data->gender;
         $user->type = $data->type;
         $user->nucode = $data->nucode;
+        $user->status = $data->status;
         $user->contact = [
             'email' => $data->email,
             'fax' => $data->fax,
