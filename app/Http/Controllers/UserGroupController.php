@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Components\AuthenticationComponent;
 use App\Components\DataComponent;
 use App\Components\LogComponent;
-use App\Helpers\Authentication;
 use App\Repository\UserGroupModel;
 use Illuminate\Http\Request;
 
