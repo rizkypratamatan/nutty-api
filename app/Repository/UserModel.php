@@ -113,7 +113,7 @@ class UserModel
         $user->city = $data->city;
         $user->street = $data->street;
         $user->zip = $data->zip;
-        $user->modified = DataComponent::initializeTimestamp($this->account);
+        $user->modified = DataComponent::initializeTimestamp(AuthenticationComponent::toUser($data));
         $user->save();
 
         return $user;
