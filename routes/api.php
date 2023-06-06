@@ -5,6 +5,7 @@ use App\Http\Controllers\DatabaseImportController;
 use App\Http\Controllers\EmailLogController;
 use App\Http\Controllers\LicenseController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SmsLogController;
@@ -123,5 +124,9 @@ Route::group(["middleware" => ["authentication"]], function() {
     // database import
     Route::post('/import-database', [DatabaseImportController::class, 'importDatabase'])->name('import-database');
     Route::post('/import-initialize-data', [DatabaseImportController::class, 'initializeData'])->name('import-initialize-data');
+    Route::post('/import-history-delete', [DatabaseImportController::class, 'historyDelete'])->name('import-history-delete');
+
+    // register
+    Route::post('/register', [RegisterController::class, 'addRegister'])->name('register');
 
 });

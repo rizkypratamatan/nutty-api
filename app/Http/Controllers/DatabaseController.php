@@ -16,7 +16,7 @@ class DatabaseController extends Controller
         LogComponent::response($request, $validation);
 
         if ($validation->result) {
-            //check privilege
+            // check privilege
             DataComponent::checkPrivilege($request, "database", "add");
             $auth = AuthenticationComponent::toUser($request);
 
