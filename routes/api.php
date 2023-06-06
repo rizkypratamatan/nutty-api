@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\ContactGroupController;
 use App\Http\Controllers\DatabaseController;
 use App\Http\Controllers\DatabaseImportController;
 use App\Http\Controllers\EmailLogController;
@@ -44,6 +46,20 @@ Route::group(["middleware" => ["authentication"]], function() {
     Route::post('/delete-template', [MessageTemplateController::class, 'delete'])->name('delete-template');
     Route::post('/get-template-by-id', [MessageTemplateController::class, 'show'])->name('get-template-by-id');
     Route::post('/update-template', [MessageTemplateController::class, 'update'])->name('update-template');
+
+    //contact group
+    Route::post('/get-all-contact-group', [ContactGroupController::class, 'index'])->name('get-all-contact-group');
+    Route::post('/add-contact-group', [ContactGroupController::class, 'store'])->name('add-contact-group');
+    Route::post('/delete-contact-group', [ContactGroupController::class, 'delete'])->name('delete-contact-group');
+    Route::post('/get-contact-group-by-id', [ContactGroupController::class, 'show'])->name('get-contact-group-by-id');
+    Route::post('/update-contact-group', [ContactGroupController::class, 'update'])->name('update-contact-group');
+
+    //contact
+    Route::post('/get-all-contact', [ContactController::class, 'index'])->name('get-all-contact');
+    Route::post('/add-contact', [ContactController::class, 'store'])->name('add-contact');
+    Route::post('/delete-contact', [ContactController::class, 'delete'])->name('delete-contact');
+    Route::post('/get-contact-by-id', [ContactController::class, 'show'])->name('get-contact-by-id');
+    Route::post('/update-contact', [ContactController::class, 'update'])->name('update-contact');
 
     //worksheet
     Route::post("/worksheet", [WorksheetController::class, "index"]);

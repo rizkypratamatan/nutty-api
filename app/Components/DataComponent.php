@@ -544,7 +544,7 @@ class DataComponent {
 
             Schema::create("message_templates_" . $accountId, function(Blueprint $table) {
 
-                self::createEmailLogsIndex($table);
+                self::createMessageTemplatesIndex($table);
 
             });
 
@@ -552,7 +552,43 @@ class DataComponent {
 
             Schema::table("message_templates_" . $accountId, function(Blueprint $table) {
 
-                self::createEmailLogsIndex($table);
+                self::createMessageTemplatesIndex($table);
+
+            });
+
+        }
+
+        if(!Schema::hasTable("contact_groups_" . $accountId)) {
+
+            Schema::create("contact_groups_" . $accountId, function(Blueprint $table) {
+
+                self::createContactGroupIndex($table);
+
+            });
+
+        } else {
+
+            Schema::table("contact_groups_" . $accountId, function(Blueprint $table) {
+
+                self::createContactGroupIndex($table);
+
+            });
+
+        }
+
+        if(!Schema::hasTable("contacts_" . $accountId)) {
+
+            Schema::create("contacts_" . $accountId, function(Blueprint $table) {
+
+                self::createContactIndex($table);
+
+            });
+
+        } else {
+
+            Schema::table("contacts_" . $accountId, function(Blueprint $table) {
+
+                self::createContactIndex($table);
 
             });
 
@@ -642,6 +678,36 @@ class DataComponent {
     public static function createMessageTemplatesIndex($table) {
         $table->string("name")->index();
         $table->text("format")->index();
+        $table->date("created.timestamp")->index();
+        $table->string("created.user._id")->index();
+        $table->string("created.user.avatar")->index();
+        $table->string("created.user.name")->index();
+        $table->string("created.user.username")->index();
+        $table->date("modified.timestamp")->index();
+        $table->string("modified.user._id")->index();
+        $table->string("modified.user.avatar")->index();
+        $table->string("modified.user.name")->index();
+        $table->string("modified.user.username")->index();
+    }
+
+    public static function createContactGroupIndex($table) {
+        $table->string("name")->index();
+        $table->date("created.timestamp")->index();
+        $table->string("created.user._id")->index();
+        $table->string("created.user.avatar")->index();
+        $table->string("created.user.name")->index();
+        $table->string("created.user.username")->index();
+        $table->date("modified.timestamp")->index();
+        $table->string("modified.user._id")->index();
+        $table->string("modified.user.avatar")->index();
+        $table->string("modified.user.name")->index();
+        $table->string("modified.user.username")->index();
+    }
+
+    public static function createContactIndex($table) {
+        $table->string("name")->index();
+        $table->string("number")->index();
+        $table->string("group")->index();
         $table->date("created.timestamp")->index();
         $table->string("created.user._id")->index();
         $table->string("created.user.avatar")->index();
