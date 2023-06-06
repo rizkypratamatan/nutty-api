@@ -31,10 +31,10 @@ class DatabaseModel
             ],
             "country" => $data->country,
             "crm" => [
-                "_id" => "",
-                "avatar" => "",
-                "name" => "",
-                "username" => ""
+                "_id" => $data->_id,
+                "avatar" => $data->avatar,
+                "name" => $data->name,
+                "username" => $data->username
             ],
             "gender" => $data->gender,
             "group" => [
@@ -42,8 +42,8 @@ class DatabaseModel
                 "name" => $auth->username
             ],
             "import" => [
-                "_id" => "",
-                "file" => ""
+                "_id" => $data->_id,
+                "file" => $data->file
             ],
             "language" => $data->language,
             "name" => $data->name,
@@ -52,10 +52,10 @@ class DatabaseModel
             "status" => $data->status,
             "street" => $data->street,
             "telemarketer" => [
-                "_id" => "",
-                "avatar" => "",
-                "name" => "",
-                "username" => ""
+                "_id" => $data->_id,
+                "avatar" => $data->avatar,
+                "name" => $data->name,
+                "username" => $data->username
             ],
             "zip" => $data->zip,
             "created" => [
@@ -184,6 +184,18 @@ class DatabaseModel
         return Database::where([
             ["name", "=", $name],
             ["nucode", "=", $nucode]
+        ])->first();
+
+    }
+
+    public static function findOneByContactPhone($contactPhone, $websiteId) 
+    {
+
+        $database = new Database();
+        $database->setTable("database_" . $websiteId);
+
+        return $database->where([
+            ["contact.phone", "=", $contactPhone]
         ])->first();
 
     }

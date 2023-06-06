@@ -82,4 +82,38 @@ class DatabaseImportController extends Controller
     
     }
 
+    public function historyDelete(Request $request)
+    {
+        $validation = AuthenticationComponent::validate($request);
+        LogComponent::response($request, $validation);
+
+        if ($validation->result) {
+            //check privilege
+            DataComponent::checkPrivilege($request, "databaseImport", "delete");
+            // $auth = AuthenticationComponent::toUser($request);
+
+            $model =  new DatabaseImportModel();
+            $data = $model->historyDelete($request);
+
+            if ($data) {
+                // DataComponent::initializeCollectionByWebsite($data->_id);
+                $data = DatabaseService::importData($request);
+                $response = [
+                    'result' => true,
+                    'response' => 'success add import database',
+                ];
+            } else {
+                $response = [
+                    'result' => false,
+                    'response' => 'failed add import database',
+                ];
+            }
+        } else {
+            $response = $validation;
+        }
+
+        return response()->json($response, 200);
+    
+    }
+
 }
