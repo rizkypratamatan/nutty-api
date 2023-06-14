@@ -478,7 +478,7 @@ class DataComponent {
         $result->group["_id"] = "0";
         $result->group["name"] = "System";
         $result->name = "System";
-        $result->username = "System";
+        $result->username = "system";
 
         return $result;
 

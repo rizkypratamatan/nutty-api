@@ -10,19 +10,18 @@ use Illuminate\Support\Facades\DB;
 class WhatsappLogModel
 {
     protected $service;
-    protected $user;
     protected $request;
 
     public function __construct($request)
     {   
         $this->service = new WhatsappService();
-        $this->user = AuthenticationComponent::toUser($request);
         $this->request = $request;
     }
 
     public function getAllChat($limit=10, $offset=0)
     {   
-        $data = DB::table("whatsappLogs_".$this->user->_id)
+        $user = AuthenticationComponent::toUser($this->request);
+        $data = DB::table("whatsappLogs_".$user->_id)
                 ->take($limit)
                 ->skip($offset)
                 ->get();
@@ -32,14 +31,16 @@ class WhatsappLogModel
 
     public function deleteChat($id)
     {
-        return DB::table("whatsappLogs_".$this->user->_id)
+        $user = AuthenticationComponent::toUser($this->request);
+        return DB::table("whatsappLogs_".$user->_id)
                 ->where('_id', $id)
                 ->delete();
     }
 
     public function getChatById($id)
     {
-        return DB::table("whatsappLogs_".$this->user->_id)
+        $user = AuthenticationComponent::toUser($this->request);
+        return DB::table("whatsappLogs_".$user->_id)
                         ->where('_id', $id)
                         ->first();
     }
@@ -120,15 +121,105 @@ class WhatsappLogModel
 
     public function insertDB($data)
     {
+        $user = AuthenticationComponent::toUser($this->request);
         unset($data['recipients']);
         unset($data['group']);
         unset($data['secret']);
 
         $data['status'] = "queued";
-        $data['created'] = DataComponent::initializeTimestamp($this->user);
-        $data['modified'] = DataComponent::initializeTimestamp($this->user);;
+        $data['created'] = DataComponent::initializeTimestamp($user);
+        $data['modified'] = DataComponent::initializeTimestamp($user);;
 
-        return DB::table('whatsappLogs_'.$this->user->_id)->insert($data);
+        return DB::table('whatsappLogs_'.$user->_id)->insert($data);
+    }
+
+    public function testSendSingleChat()
+    {
+        $user = AuthenticationComponent::systemUser();
+        $account = $this->service->getAccounts();
+
+        if($account['status'] == 200){
+            $chat = $this->service->initializeSingleChat($this->request, $account['data'][0]['id'], $this->request->recipient);
+            $resp = $this->service->processSingleChat($chat);
+            // $this->insertDB($chat);
+
+            $response = $resp;
+        }else{
+            $response = [
+                'result' => false,
+                'response' => "Whatsapp service currently unavailable",
+                'data' => false
+            ];
+        }
+
+        return $response;
+    }
+
+    public function testSendBulkChat()
+    {   
+        //get wa accounts
+        $user = AuthenticationComponent::systemUser();
+        $account = $this->service->getAccounts();
+        
+        if($account['status'] == 200){
+            $accountCount = count($account['data']);
+
+            $numbers = explode(",", $this->request->recipients);
+            $total_number = count($numbers);
+
+            if($total_number > 3){
+                //
+                if($total_number <= $accountCount){
+                    $accountCount = $total_number;
+                    $devider = $total_number/$accountCount;
+                    
+                }else{
+                    $devider = round($total_number/$accountCount);
+                }
+                $numbers = array_chunk($numbers, $devider);
+            }
+
+            for($i=0;$i<$accountCount;$i++){
+                $device_id = $account['data'][$i]['id'];
+
+                if(is_array($numbers[$i])){
+                    $bulk = $this->service->initializeBulkChat($this->request, $device_id, implode(",", $numbers[$i]));
+                    //proses chat
+                    $this->service->processBulkChat($bulk);
+
+                    //save DB
+                    foreach($numbers[$i] as $recepient){
+                        $data = $this->service->initializeSingleChat($this->request, $device_id, $recepient);
+                        // $this->insertDB($data);
+                    }
+                }else{
+                    $bulk = $this->service->initializeBulkChat($this->request, $device_id, implode(",", $numbers));
+                    //proses chat
+                    $this->service->processBulkChat($bulk);
+
+                    //save DB
+                    foreach($numbers as $recepient){
+                        $data = $this->service->initializeSingleChat($this->request, $device_id, $recepient);
+                        // $this->insertDB($data);
+                    }
+                }
+            }
+
+            $response = [
+                'result' => true,
+                'response' => "WhatsApp chats has been queued!",
+                'data' => false
+            ];
+
+        }else{
+            $response = [
+                'result' => false,
+                'response' => "Whatsapp service currently unavailable",
+                'data' => false
+            ];
+        }
+
+        return $response;
     }
 
     // public function deleteReceivedChat($id)
