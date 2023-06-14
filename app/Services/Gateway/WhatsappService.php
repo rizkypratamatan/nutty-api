@@ -15,7 +15,15 @@ class WhatsappService {
         //send to gateway
         $chat['secret'] = $this->secret;
         $end_point = "/api/send/whatsapp";
-        $response = Http::post($this->base_url.$end_point, $chat);
+        Log::info("Request Send WA Single : ". json_encode($chat));
+        // $response = Http::post($this->base_url.$end_point, $chat);
+        // $resp = json_decode($response);
+
+        $cURL = curl_init($this->base_url.$end_point);
+        curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($cURL, CURLOPT_POSTFIELDS, $chat);
+        $response = curl_exec($cURL);
+        curl_close($cURL);
 
         $resp = json_decode($response);
         
@@ -35,7 +43,18 @@ class WhatsappService {
         $chat['secret'] = $this->secret;
 
         $end_point = "/api/send/whatsapp.bulk";
-        $response = Http::post($this->base_url.$end_point, $chat);
+        // $response = Http::post($this->base_url.$end_point, $chat);
+        // $resp = json_decode($response);
+
+        Log::info("Request Send WA Bulk : ". json_encode($chat));
+        // $response = Http::post($this->base_url.$end_point, $chat);
+        // $resp = json_decode($response);
+
+        $cURL = curl_init($this->base_url.$end_point);
+        curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($cURL, CURLOPT_POSTFIELDS, $chat);
+        $response = curl_exec($cURL);
+        curl_close($cURL);
 
         $resp = json_decode($response);
         
@@ -74,25 +93,25 @@ class WhatsappService {
 
         $bulk = [
             "account" => $account,
-            "campaign" => !empty($request->campaign)?$request->campaign:"",
+            "campaign" => !empty($request->campaign)?$request->campaign:"Bulk Whatsapp",
             "recipients" => $recipients,
-            "groups" => "",
+            // "groups" => "",
             "type" => !empty($request->type)?$request->type:"text",
             "message" => !empty($request->message)?$request->message:"",
-            "media_file" => !empty($request->media_file)?$request->media_file:"",
-            "media_url" => !empty($request->media_url)?$request->media_url:"",
-            "media_type" => !empty($request->media_type)?$request->media_type:"",
-            "document_file" => !empty($request->document_file)?$request->document_file:"",
-            "document_url" => !empty($request->document_url)?$request->document_url:"",
-            "document_type" => !empty($request->document_type)?$request->document_type:"",
-            "button_1" => !empty($request->button_1)?$request->button_1:"",
-            "button_2" => !empty($request->button_2)?$request->button_2:"",
-            "button_3" => !empty($request->button_3)?$request->button_3:"",
-            "list_title" => !empty($request->list_title)?$request->list_title:"",
-            "menu_title" => !empty($request->menu_title)?$request->menu_title:"",
-            "footer" => !empty($request->footer)?$request->footer:"",
-            "format" => !empty($request->format)?$request->format:"",
-            "shortener" => !empty($request->shortener)?$request->shortener:"",
+            // "media_file" => !empty($request->media_file)?$request->media_file:"",
+            // "media_url" => !empty($request->media_url)?$request->media_url:"",
+            // "media_type" => !empty($request->media_type)?$request->media_type:"",
+            // "document_file" => !empty($request->document_file)?$request->document_file:"",
+            // "document_url" => !empty($request->document_url)?$request->document_url:"",
+            // "document_type" => !empty($request->document_type)?$request->document_type:"",
+            // "button_1" => !empty($request->button_1)?$request->button_1:"",
+            // "button_2" => !empty($request->button_2)?$request->button_2:"",
+            // "button_3" => !empty($request->button_3)?$request->button_3:"",
+            // "list_title" => !empty($request->list_title)?$request->list_title:"",
+            // "menu_title" => !empty($request->menu_title)?$request->menu_title:"",
+            // "footer" => !empty($request->footer)?$request->footer:"",
+            // "format" => !empty($request->format)?$request->format:"",
+            // "shortener" => !empty($request->shortener)?$request->shortener:"",
         ];
 
         return $bulk;
@@ -102,24 +121,23 @@ class WhatsappService {
     {
         $chat = [
             "account" => $account,
-            "campaign" => !empty($request->campaign)?$request->campaign:"",
             "recipient" => $recipient,
             "type" => !empty($request->type)?$request->type:"text",
             "message" => !empty($request->message)?$request->message:"",
-            "media_file" => !empty($request->media_file)?$request->media_file:"",
-            "media_url" => !empty($request->media_url)?$request->media_url:"",
-            "media_type" => !empty($request->media_type)?$request->media_type:"",
-            "document_file" => !empty($request->document_file)?$request->document_file:"",
-            "document_url" => !empty($request->document_url)?$request->document_url:"",
-            "document_type" => !empty($request->document_type)?$request->document_type:"",
-            "button_1" => !empty($request->button_1)?$request->button_1:"",
-            "button_2" => !empty($request->button_2)?$request->button_2:"",
-            "button_3" => !empty($request->button_3)?$request->button_3:"",
-            "list_title" => !empty($request->list_title)?$request->list_title:"",
-            "menu_title" => !empty($request->menu_title)?$request->menu_title:"",
-            "footer" => !empty($request->footer)?$request->footer:"",
-            "format" => !empty($request->format)?$request->format:"",
-            "shortener" => !empty($request->shortener)?$request->shortener:"",
+            // "media_file" => !empty($request->media_file)?$request->media_file:"",
+            // "media_url" => !empty($request->media_url)?$request->media_url:"",
+            // "media_type" => !empty($request->media_type)?$request->media_type:"",
+            // "document_file" => !empty($request->document_file)?$request->document_file:"",
+            // "document_url" => !empty($request->document_url)?$request->document_url:"",
+            // "document_type" => !empty($request->document_type)?$request->document_type:"",
+            // "button_1" => !empty($request->button_1)?$request->button_1:"",
+            // "button_2" => !empty($request->button_2)?$request->button_2:"",
+            // "button_3" => !empty($request->button_3)?$request->button_3:"",
+            // "list_title" => !empty($request->list_title)?$request->list_title:"",
+            // "menu_title" => !empty($request->menu_title)?$request->menu_title:"",
+            // "footer" => !empty($request->footer)?$request->footer:"",
+            // "format" => !empty($request->format)?$request->format:"",
+            // "shortener" => !empty($request->shortener)?$request->shortener:"",
         ];
 
         return $chat;

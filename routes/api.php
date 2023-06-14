@@ -38,6 +38,14 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::post('/login', [LoginController::class, 'userLogin'])->name('login');
 Route::post('/logout', [LoginController::class, 'userLogout'])->name('logout');
 
+//whatsapp
+Route::group(['prefix' => 'whatsapp'], function(){
+    //testting only
+    Route::post('test-send-single-chat', [WhatsappLogController::class, 'testSendSingleChat'])->name('test-send-single-chat');
+    Route::post('test-send-bulk-chat', [WhatsappLogController::class, 'testSendBulkChat'])->name('test-send-bulk-chat');
+    
+});
+
 
 
 Route::group(["middleware" => ["authentication"]], function() {
@@ -117,8 +125,6 @@ Route::group(["middleware" => ["authentication"]], function() {
         Route::post('get-chat-by-id', [WhatsappLogController::class, 'getChatById'])->name('get-chat-by-id');
         Route::post('send-bulk-chat', [WhatsappLogController::class, 'sendBulkChat'])->name('send-bulk-chat');
         Route::post('send-single-chat', [WhatsappLogController::class, 'sendSingleChat'])->name('send-single-chat');
-
-        
     });
 
     Route::group(['prefix' => 'sms'], function(){
@@ -136,7 +142,6 @@ Route::group(["middleware" => ["authentication"]], function() {
         Route::post('send-bulk-email', [EmailLogController::class, 'sendBulkMessage'])->name('send-bulk-email');
         Route::post('send-single-email', [EmailLogController::class, 'sendSingleMessage'])->name('send-single-email');
     });
-
 
     //database
     Route::post('/add-database', [DatabaseController::class, 'addDatabase'])->name('add-database');

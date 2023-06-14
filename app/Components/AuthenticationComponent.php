@@ -82,5 +82,13 @@ class AuthenticationComponent {
         return $user->getUserById($auth->user['_id']);
     }
 
+    public static function systemUser() {
+
+        $user = new UserModel();
+        $auth = $user->getUserByUsername('system');
+
+        return $user->getUserById($auth->_id);
+    }
+
 
 }
