@@ -20,7 +20,7 @@ class DatabaseController extends Controller
             DataComponent::checkPrivilege($request, "database", "add");
             $auth = AuthenticationComponent::toUser($request);
 
-            $model =  new DatabaseModel();
+            $model =  new DatabaseModel($request);
             $data = $model->addDatabase($request, $auth);
 
             if ($data) {
@@ -53,7 +53,7 @@ class DatabaseController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "database", "delete");
 
-            $model =  new DatabaseModel();
+            $model =  new DatabaseModel($request);
             $data = $model->deleteDatabase($request->id);
 
             if ($data) {
@@ -85,7 +85,7 @@ class DatabaseController extends Controller
             
             $limit = !empty($request->limit)?$request->limit:10;
             $offset = !empty($request->offset)?$request->offset:0;
-            $model =  new DatabaseModel();
+            $model =  new DatabaseModel($request);
             $data = $model->getDatabase($limit, $offset);
 
             $response = [
@@ -112,7 +112,7 @@ class DatabaseController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "database", "view");
 
-            $model =  new DatabaseModel();
+            $model =  new DatabaseModel($request);
             $data = $model->getDatabaseById($request->id);
 
             if ($data) {
@@ -144,7 +144,7 @@ class DatabaseController extends Controller
             DataComponent::checkPrivilege($request, "database", "edit");
             $auth = AuthenticationComponent::toUser($request);
 
-            $model =  new DatabaseModel();
+            $model =  new DatabaseModel($request);
             $data = $model->updateDatabaseById($request, $auth);
 
             if ($data) {

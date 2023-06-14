@@ -26,7 +26,7 @@ class ReportController extends Controller {
             //check privilege
             DataComponent::checkPrivilege($request, "report", "view");
 
-            $model =  new ReportModel();
+            $model =  new ReportModel($request);
             $data = $model->userReport($request->id);
             $model->user->_id = $validation->report->user["_id"];
             $model->user->username = $validation->report->user["username"];
@@ -58,8 +58,9 @@ class ReportController extends Controller {
         if ($validation->result) {
             //check privilege
             DataComponent::checkPrivilege($request, "report", "add");
+            $auth = AuthenticationComponent::toUser($request);
 
-            $model =  new ReportModel();
+            $model =  new ReportModel($request);
             $data = $model->addReport($request);
 
             if ($data) {
@@ -91,7 +92,7 @@ class ReportController extends Controller {
             //check privilege
             DataComponent::checkPrivilege($request, "report", "delete");
 
-            $model =  new ReportModel();
+            $model =  new ReportModel($request);
             $data = $model->deleteReport($request->id);
 
             if ($data) {
@@ -120,8 +121,10 @@ class ReportController extends Controller {
         if ($validation->result) {
             //check privilege
             DataComponent::checkPrivilege($request, "report", "edit");
+            $auth = AuthenticationComponent::toUser($request);
+            
 
-            $model =  new ReportModel();
+            $model =  new ReportModel(request);
             $data = $model->updateReport($request);
 
             if ($data) {
@@ -152,7 +155,7 @@ class ReportController extends Controller {
             //check privilege
             DataComponent::checkPrivilege($request, "report", "view");
 
-            $model =  new ReportModel();
+            $model =  new ReportModel($request);
             $data = $model->getReportById($request->id);
 
             if ($data) {
