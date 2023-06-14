@@ -32,18 +32,18 @@ class UserRoleModel
             "name" => $data->name,
             "nucode" => $data->nucode,
             "privilege" => [
-                "database" => $data->privileges->database,
-                "report" => $data->privileges->report,
-                "setting" => $data->privileges->setting,
-                "settingApi" => $data->privileges->settingApi,
-                "user" => $data->privileges->user,
-                "userGroup" => $data->privileges->userGroup,
-                "userRole" => $data->privileges->userRole,
-                "website" => $data->privileges->website,
-                "worksheet" => $data->privileges->worksheet,
-                "whatsapp" => $data->privileges->whatsapp,
-                "sms" =>  $data->privileges->sms,
-                "email" =>  $data->privileges->email
+                "database" => $data->privilege['database'],
+                "report" => $data->privilege['report'],
+                "setting" => $data->privilege['setting'],
+                "settingApi" => $data->privilege['settingApi'],
+                "user" => $data->privilege['user'],
+                "userGroup" => $data->privilege['userGroup'],
+                "userRole" => $data->privilege['userRole'],
+                "website" => $data->privilege['website'],
+                "worksheet" => $data->privilege['worksheet'],
+                "whatsapp" => $data->privilege['whatsapp'],
+                "sms" =>  $data->privilege['sms'],
+                "email" =>  $data->privilege['email']
             ],
             "status" => $data->status,
             "created" => DataComponent::initializeTimestamp($this->user),
@@ -75,27 +75,21 @@ class UserRoleModel
             "name" => $data->name,
             "nucode" => $data->nucode,
             "privilege" => [
-                "database" => $data->privileges->database,
-                "report" => $data->privileges->report,
-                "setting" => $data->privileges->setting,
-                "settingApi" => $data->privileges->settingApi,
-                "user" => $data->privileges->user,
-                "userGroup" => $data->privileges->userGroup,
-                "userRole" => $data->privileges->userRole,
-                "website" => $data->privileges->website,
-                "worksheet" => $data->privileges->worksheet,
-                "whatsapp" => $data->privileges->whatsapp,
-                "sms" =>  $data->privileges->sms,
-                "email" =>  $data->privileges->email
+                "database" => $data->privilege['database'],
+                "report" => $data->privilege['report'],
+                "setting" => $data->privilege['setting'],
+                "settingApi" => $data->privilege['settingApi'],
+                "user" => $data->privilege['user'],
+                "userGroup" => $data->privilege['userGroup'],
+                "userRole" => $data->privilege['userRole'],
+                "website" => $data->privilege['website'],
+                "worksheet" => $data->privilege['worksheet'],
+                "whatsapp" => $data->privilege['whatsapp'],
+                "sms" =>  $data->privilege['sms'],
+                "email" =>  $data->privilege['email']
             ],
             "status" => $data->status,
-            "modified" => [
-                "timestamp" => $mytime->toDateTimeString(),
-                "user" => [
-                    "_id" => "0",
-                    "username" => "System"
-                ]
-            ]
+            "modified" => DataComponent::initializeTimestamp($this->user)
         ];
 
         $update = [
