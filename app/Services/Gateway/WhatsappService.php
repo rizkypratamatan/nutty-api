@@ -90,7 +90,7 @@ class WhatsappService {
     }
 
     public function initializeBulkChat($request, $account, $recipients){
-
+        
         $bulk = [
             "account" => $account,
             "campaign" => !empty($request->campaign)?$request->campaign:"Bulk Whatsapp",
