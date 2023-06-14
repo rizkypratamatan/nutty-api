@@ -2,9 +2,11 @@
 
 namespace App\Repository;
 
+use App\Components\AuthenticationComponent;
 use App\Components\DataComponent;
 use App\Models\Report;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use MongoDB\BSON\Regex;
@@ -14,6 +16,14 @@ use MongoDB\BSON\UTCDateTime;
 class ReportModel
 {
 
+    protected $user;
+    protected $request;
+
+    public function __construct(Request $request)
+    {   
+        $this->user = AuthenticationComponent::toUser($request);
+        $this->request = $request;
+    }
 
     // public static function countByUserIdBetweenDate($endDate, $nucode, $startDate, $userId) 
     // {
@@ -223,20 +233,8 @@ class ReportModel
                 'names' => $data->names,
                 'totals' => $data->totals
             ],
-            'created' => [
-                'timestamp' => $mytime->toDateTimeString(),
-                // 'user' => [
-                //     '_id' => '0',
-                //     'username' => 'System'
-                // ]
-            ],
-            'modified' => [
-                'timestamp' => $mytime->toDateTimeString(),
-                // 'user' => [
-                //     '_id' => '0',
-                //     'username' => 'System'
-                // ]
-            ]
+            'created' => DataComponent::initializeTimestamp($this->user),
+            'modified' => DataComponent::initializeTimestamp($this->user)
         ];
 
         return DB::table('report')
@@ -265,20 +263,14 @@ class ReportModel
                 'names' => $data->names,
                 'totals' => $data->totals
             ],
-            'created' => [
-                'timestamp' => $mytime->toDateTimeString(),
-                // 'user' => [
-                //     '_id' => '0',
-                //     'username' => 'System'
-                // ]
-            ],
-            'modified' => [
-                'timestamp' => $mytime->toDateTimeString(),
-                // 'user' => [
-                //     '_id' => '0',
-                //     'username' => 'System'
-                // ]
-            ]
+            // 'created' => [
+            //     'timestamp' => $mytime->toDateTimeString(),
+            //     'user' => [
+            //         '_id' => '0',
+            //         'username' => 'System'
+            //     ]
+            // ],
+            'modified' => DataComponent::initializeTimestamp($this->user)
         ];
 
         return DB::table('report')

@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 
 class LicenseController extends Controller
 {
+    
     public function deleteLicense(Request $request)
     {
         // print_r($request->all());die();
@@ -22,7 +23,7 @@ class LicenseController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "license", "delete");
 
-            $userModel =  new LicenseModel();
+            $userModel =  new LicenseModel($request);
             $user = $userModel->deleteLicense($request->id);
 
             if ($user) {
@@ -51,8 +52,9 @@ class LicenseController extends Controller
         if ($validation->result) {
             //check privilege
             DataComponent::checkPrivilege($request, "license", "edit");
+            $auth = AuthenticationComponent::toUser($request);
 
-            $userModel =  new LicenseModel();
+            $userModel =  new LicenseModel($request);
             $user = $userModel->updateLicense($request);
 
             if ($user) {
@@ -81,8 +83,9 @@ class LicenseController extends Controller
         if ($validation->result) {
             //check privilege
             DataComponent::checkPrivilege($request, "license", "add");
+            $auth = AuthenticationComponent::toUser($request);
 
-            $userModel =  new LicenseModel();
+            $userModel =  new LicenseModel($request);
             $user = $userModel->addLicense($request);
 
             if ($user) {
@@ -115,7 +118,7 @@ class LicenseController extends Controller
             
             $limit = !empty($request->limit)?$request->limit:10;
             $offset = !empty($request->offset)?$request->offset:0;
-            $userModel =  new LicenseModel();
+            $userModel =  new LicenseModel($request);
             $user = $userModel->getLicense($limit, $offset);
 
             $response = [
@@ -142,7 +145,7 @@ class LicenseController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "license", "view");
 
-            $userModel =  new LicenseModel();
+            $userModel =  new LicenseModel($request);
             $user = $userModel->getLicenseById($request->id);
 
             if ($user) {

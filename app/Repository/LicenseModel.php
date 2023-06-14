@@ -2,15 +2,26 @@
 
 namespace App\Repository;
 
+use App\Components\AuthenticationComponent;
 use App\Models\License;
 use App\Models\User;
 use App\Models\UserGroup;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 
 class LicenseModel
 {
+
+    protected $user;
+    protected $request;
+
+    public function __construct(Request $request)
+    {   
+        $this->user = AuthenticationComponent::toUser($request);
+        $this->request = $request;
+    }
 
     public function deleteLicense($id)
     {
@@ -43,20 +54,14 @@ class LicenseModel
                 ],
                 'total' => 0
             ],
-            'created' => [
-                'timestamp' => $mytime->toDateTimeString(),
-                'user' => [
-                    // '_id' => '0',
-                    // 'username' => 'System'
-                ]
-            ],
-            'modified' => [
-                'timestamp' => $mytime->toDateTimeString(),
-                'user' => [
-                    // '_id' => '0',
-                    // 'username' => 'System'
-                ]
-            ]
+            // 'created' => [
+            //     'timestamp' => $mytime->toDateTimeString(),
+            //     'user' => [
+            //         '_id' => '0',
+            //         'username' => 'System'
+            //     ]
+            // ],
+            "modified" => DataComponent::initializeTimestamp($this->user)
         ];
 
         return DB::table('user')
@@ -89,20 +94,8 @@ class LicenseModel
                 ],
                 'total' => 0
             ],
-            'created' => [
-                'timestamp' => $mytime->toDateTimeString(),
-                'user' => [
-                    // '_id' => '0',
-                    // 'username' => 'System'
-                ]
-            ],
-            'modified' => [
-                'timestamp' => $mytime->toDateTimeString(),
-                'user' => [
-                    // '_id' => '0',
-                    // 'username' => 'System'
-                ]
-            ]
+            "created" => DataComponent::initializeTimestamp($this->user),
+            "modified" => DataComponent::initializeTimestamp($this->user)
         ];
 
         return DB::table('license')

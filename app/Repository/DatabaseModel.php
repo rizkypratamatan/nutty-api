@@ -2,12 +2,21 @@
 
 namespace App\Repository;
 
+use App\Components\AuthenticationComponent;
+use App\Components\DataComponent;
 use App\Models\Database;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class DatabaseModel
 {
+    public function __construct(Request $request)
+    {   
+        $this->user = AuthenticationComponent::toUser($request);
+        $this->request = $request;
+    }
+
     public function getDatabase($limit=10, $offset=0)
     {   
         return Database::get()->take($limit)->skip($offset);
@@ -58,20 +67,8 @@ class DatabaseModel
                 "username" => $data->username
             ],
             "zip" => $data->zip,
-            "created" => [
-                "timestamp" => $mytime->toDateTimeString(),
-                "user" => [
-                    "_id" => $auth->_id,
-                    "username" => $auth->username
-                ]
-            ],
-            "modified" => [
-                "timestamp" => $mytime->toDateTimeString(),
-                "user" => [
-                    "_id" => $auth->_id,
-                    "username" => $auth->username
-                ]
-            ]
+            'created' => DataComponent::initializeTimestamp($this->user),
+            'modified' => DataComponent::initializeTimestamp($this->user)
         ];
 
         // $websiteByNameNucode = self::findOneByNameNucode($data->name, $data->nucode);
@@ -157,13 +154,7 @@ class DatabaseModel
             //         "username" => $auth->username
             //     ]
             // ],
-            "modified" => [
-                "timestamp" => $mytime->toDateTimeString(),
-                "user" => [
-                    "_id" => $auth->_id,
-                    "username" => $auth->username
-                ]
-            ]
+            "modified" => DataComponent::initializeTimestamp($this->user)
         ];
 
         return DB::table('website')->where('_id', $data->id)->update($arr);
