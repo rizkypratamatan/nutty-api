@@ -27,7 +27,7 @@ class DatabaseController extends Controller
                 DataComponent::initializeCollectionByWebsite($auth->_id);
                 $response = [
                     'result' => true,
-                    'response' => 'success add database',
+                    'response' => 'success add database', 
                 ];
             } else {
                 $response = [
