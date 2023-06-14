@@ -14,6 +14,11 @@ class DatabaseImportModel
     // {   
     //     return Database::get()->take($limit)->skip($offset);
     // }
+    
+    public static function deleteImportDatabase($id)
+    {
+        return DatabaseImport::where('_id', $id)->delete();
+    }
 
     public static function historyDelete($id)
     {

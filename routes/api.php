@@ -154,6 +154,7 @@ Route::group(["middleware" => ["authentication"]], function() {
     Route::post('/import-database', [DatabaseImportController::class, 'importDatabase'])->name('import-database');
     Route::post('/import-initialize-data', [DatabaseImportController::class, 'initializeData'])->name('import-initialize-data');
     Route::post('/import-history-delete', [DatabaseImportController::class, 'historyDelete'])->name('import-history-delete');
+    Route::post('/delete-import-database', [DatabaseImportController::class, 'deleteImportDatabase'])->name('delete-import-database');
 
     // register
     Route::post('/register', [RegisterController::class, 'addRegister'])->name('register');

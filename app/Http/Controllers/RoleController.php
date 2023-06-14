@@ -23,7 +23,7 @@ class RoleController extends Controller
             $limit = !empty($request->limit)?$request->limit:10;
             $offset = !empty($request->offset)?$request->offset:0;
 
-            $model =  new UserRoleModel();
+            $model =  new UserRoleModel($request);
             $data = $model->getRole($limit, $offset);
 
             $response = [
@@ -48,8 +48,9 @@ class RoleController extends Controller
         if ($validation->result) {
             //check privilege
             DataComponent::checkPrivilege($request, "userRole", "add");
+            $auth = AuthenticationComponent::toUser($request);
 
-            $model =  new UserRoleModel();
+            $model =  new UserRoleModel($request);
             $data = $model->addRole($request);
 
             if ($data) {
@@ -79,8 +80,9 @@ class RoleController extends Controller
         if ($validation->result) {
             //check privilege
             DataComponent::checkPrivilege($request, "userRole", "edit");
+            $auth = AuthenticationComponent::toUser($request);
 
-            $model =  new UserRoleModel();
+            $model =  new UserRoleModel($request);
             $data = $model->updateRoleById($request);
 
             if ($data) {
@@ -111,7 +113,7 @@ class RoleController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "userRole", "delete");
 
-            $model =  new UserRoleModel();
+            $model =  new UserRoleModel($request);
             $data = $model->deleteRole($request->id);
 
             if ($data) {
@@ -142,7 +144,7 @@ class RoleController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "userRole", "view");
 
-            $model =  new UserRoleModel();
+            $model =  new UserRoleModel($request);
             $data = $model->getRoleById($request->id);
 
             if ($data) {

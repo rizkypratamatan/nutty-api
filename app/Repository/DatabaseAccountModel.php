@@ -2,22 +2,30 @@
 
 namespace App\Repository;
 
+use App\Components\AuthenticationComponent;
+use App\Components\DataComponent;
 use App\Models\Database;
 use App\Models\DatabaseAccount;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class DatabaseAccountModel
 {
+    public function __construct(Request $request)
+    {   
+        $this->user = AuthenticationComponent::toUser($request);
+        $this->request = $request;
+    }
 
-    public static function insert($auth, $data, $websiteId) 
+    public function insert($auth, $data, $websiteId) 
     {
 
         $mytime = Carbon::now();
 
         $arr = [
             "database" => [
-                "_id" => $auth->_id,
+                "_id" => $this->user->_id,
                 "name" => $data->name
             ],
             "deposit" => [
@@ -75,20 +83,8 @@ class DatabaseAccountModel
                     "amount" => "0"
                 ]
             ],
-            "created" => [
-                "timestamp" => $mytime->toDateTimeString(),
-                "user" => [
-                    "_id" => $auth->_id,
-                    "username" => $data->username
-                ]
-            ],
-            "modified" => [
-                "timestamp" => $mytime->toDateTimeString(),
-                "user" => [
-                    "_id" => $auth->_id,
-                    "username" => $data->username
-                ]
-            ]
+            "created" => DataComponent::initializeTimestamp($this->user),
+            "modified" => DataComponent::initializeTimestamp($this->user)
         ];
 
         return DB::table('databaseAccount')
@@ -205,18 +201,80 @@ class DatabaseAccountModel
     
 
 
-    public static function update($account, $data, $websiteId) 
+    public function update($auth, $data, $websiteId) 
+
     {
+        {
 
-        if($account != null) {
-
-            $data->modified = DataComponent::initializeTimestamp($account);
-
+            $mytime = Carbon::now();
+    
+            $arr = [
+                "database" => [
+                    "_id" => $auth->_id,
+                    "name" => $data->name
+                ],
+                "deposit" => [
+                    "average" => [
+                        "amount" => "0",
+                    ],
+                    "first" => [
+                        "amount" => "0",
+                        "timestamp" => $mytime->toDateTimeString()
+                    ],
+                    "last" => [
+                        "amount" => "0",
+                        "timestamp" => $mytime->toDateTimeString()
+                    ],
+                    "total" => [
+                        "amount" => "0"
+                    ]
+                ],
+                "games" => [],
+                "login" => [
+                    "average" => [
+                        "daily" => 0,
+                        "monthly" => 0,
+                        "weekly" => 0,
+                        "yearly" => 0
+                    ],
+                    "first" => [
+                        "timestamp" => $mytime->toDateTimeString()
+                    ],
+                    "last" => [
+                        "timestamp" => $mytime->toDateTimeString()
+                    ],
+                    "total" => [
+                        "amount" => "0"
+                    ]
+                ],
+                "reference" => "",
+                "register" => [
+                    "timestamp" => $mytime->toDateTimeString()
+                ],
+                "username" => $data->username,
+                "withdrawal" => [
+                    "average" => [
+                        "amount" => "0"
+                    ],
+                    "first" => [
+                        "amount" => "0",
+                        "timestamp" => $mytime->toDateTimeString()
+                    ],
+                    "last" => [
+                        "amount" => "0",
+                        "timestamp" => $mytime->toDateTimeString()
+                    ],
+                    "total" => [
+                        "amount" => "0"
+                    ]
+                ],
+                "modified" => DataComponent::initializeTimestamp($this->user)
+            ];
+    
+            return DB::table('databaseAccount')
+            ->where('_id', $data->id)->update($arr);
+    
         }
-
-        $data->setTable("databaseAccount_" . $websiteId);
-
-        return $data->save();
 
     }
 

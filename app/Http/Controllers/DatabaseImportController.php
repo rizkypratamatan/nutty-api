@@ -100,12 +100,12 @@ class DatabaseImportController extends Controller
                 $data = DatabaseService::importData($request);
                 $response = [
                     'result' => true,
-                    'response' => 'success add import database',
+                    'response' => 'success delete import database',
                 ];
             } else {
                 $response = [
                     'result' => false,
-                    'response' => 'failed add import database',
+                    'response' => 'failed delete import database',
                 ];
             }
         } else {
@@ -114,6 +114,37 @@ class DatabaseImportController extends Controller
 
         return response()->json($response, 200);
     
+    }
+
+    public function deleteImportDatabase(Request $request)
+    {
+        $validation = AuthenticationComponent::validate($request);
+        LogComponent::response($request, $validation);
+        
+        if ($validation->result) {
+
+            //check privilege
+            DataComponent::checkPrivilege($request, "databaseImport", "delete");
+
+            $model =  new DatabaseImportModel($request);
+            $data = $model->deleteImportDatabase($request->id);
+
+            if ($data) {
+                $response = [
+                    'result' => true,
+                    'response' => 'success delete database',
+                ];
+            } else {
+                $response = [
+                    'result' => false,
+                    'response' => 'failed delete database',
+                ];
+            }
+        } else {
+            $response = $validation;
+        }
+
+        return response()->json($response, 200);
     }
 
 }

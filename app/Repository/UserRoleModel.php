@@ -2,12 +2,21 @@
 
 namespace App\Repository;
 
+use App\Components\AuthenticationComponent;
+use App\Components\DataComponent;
 use App\Models\UserRole;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class UserRoleModel
 {
+    public function __construct(Request $request)
+    {   
+        $this->user = AuthenticationComponent::toUser($request);
+        $this->request = $request;
+    }
+
     public function getRole()
     {
         return UserRole::get();
@@ -37,20 +46,8 @@ class UserRoleModel
                 "email" =>  $data->privilege->email
             ],
             "status" => $data->status,
-            "created" => [
-                "timestamp" => $mytime->toDateTimeString(),
-                "user" => [
-                    "_id" => "0",
-                    "username" => "System"
-                ]
-            ],
-            "modified" => [
-                "timestamp" => $mytime->toDateTimeString(),
-                "user" => [
-                    "_id" => "0",
-                    "username" => "System"
-                ]
-            ]
+            "created" => DataComponent::initializeTimestamp($this->user),
+            "modified" => DataComponent::initializeTimestamp($this->user)
         ];
 
         return DB::table('userRole')
