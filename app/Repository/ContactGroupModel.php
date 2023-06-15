@@ -30,6 +30,9 @@ class ContactGroupModel
 
     public static function delete($id, $account)
     {
+        DB::table("contact_".$account->_id)
+            ->pull("groups", ['_id' => $id]);
+
         return DB::table("contact_groups_".$account->_id)->where("_id", $id)->delete();
     }
 
@@ -45,13 +48,25 @@ class ContactGroupModel
     {
         $arr = [
             "name" => $data->name,
-            "created" => DataComponent::initializeTimestamp($account),
             "modified" => DataComponent::initializeTimestamp($account)
         ];
 
-        return DB::table("contact_groups_".$account->_id)
-                ->where("_id", $data->id)
-                ->update($arr);
+        DB::table("contact_groups_".$account->_id)
+                    ->where("_id", $data->id)
+                    ->update($arr);
+
+        $update = DB::table("contact_groups_".$account->_id)
+                    ->where("_id", $data->id)->first();
+
+        //update group in contact
+        DB::table("contact_".$account->_id)
+            ->pull("groups", ['_id' => $data->id]);
+
+        DB::table("contact_".$account->_id)
+            ->push("groups", $update->toArray());
+
+
+        return $update;
     }
 
 }

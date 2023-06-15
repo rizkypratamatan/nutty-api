@@ -2,6 +2,7 @@
 
 namespace App\Services\Gateway;
 
+use App\Components\AuthenticationComponent;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -15,7 +16,17 @@ class SMSService {
         //send to gateway
         $message['secret'] = $this->secret;
         $end_point = "/api/send/sms";
-        $response = Http::post($this->base_url.$end_point, $message);
+        // $response = Http::post($this->base_url.$end_point, $message);
+
+        // $resp = json_decode($response);
+
+        Log::info("Request Send SMS Single : ". json_encode($message));
+
+        $cURL = curl_init($this->base_url.$end_point);
+        curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($cURL, CURLOPT_POSTFIELDS, $message);
+        $response = curl_exec($cURL);
+        curl_close($cURL);
 
         $resp = json_decode($response);
         
@@ -35,7 +46,16 @@ class SMSService {
         $message['secret'] = $this->secret;
 
         $end_point = "/api/send/sms.bulk";
-        $response = Http::post($this->base_url.$end_point, $message);
+        // $response = Http::post($this->base_url.$end_point, $message);
+        // $resp = json_decode($response);
+
+        Log::info("Request Send SMS Single : ". json_encode($message));
+
+        $cURL = curl_init($this->base_url.$end_point);
+        curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($cURL, CURLOPT_POSTFIELDS, $message);
+        $response = curl_exec($cURL);
+        curl_close($cURL);
 
         $resp = json_decode($response);
         
@@ -101,19 +121,40 @@ class SMSService {
         //   }
     }
 
-    public function initializeBulkChat($request, $device, $numbers){
-        $chat = [
-            "mode" => "devices",
-            "campaign" => !empty($request->campaign)?$request->campaign:"",
-            "numbers" => $numbers,
-            "groups" => !empty($request->groups)?$request->groups:"",
-            "message" => !empty($request->message)?$request->message:"",
-            "device" => $device,
-            // "gateway" => "",
-            "sim" => "",
-            "priority" => "",
-            // "shortener" => "",
-        ];
+    public function initializeBulkData($request, $device, $numbers){
+
+        if($request->group){  
+            $user = AuthenticationComponent::toUser($request);
+            //get group contact
+            $numbers = DB::table("contact_".$user->_id)
+                        ->where("groups", ["_id" => $request->group])
+                        ->pluck('number');
+
+            $chat = [
+                "mode" => "devices",
+                "campaign" => !empty($request->campaign)?$request->campaign:"SMS BULK",
+                "numbers" => implode(",",$numbers),
+                "message" => $request->message,
+                "device" => $device,
+                // "gateway" => "",
+                "sim" => 1,
+                "priority" => 1,
+                // "shortener" => "",
+            ];
+        }else{
+            $chat = [
+                "mode" => "devices",
+                "campaign" => !empty($request->campaign)?$request->campaign:"SMS BULK",
+                "numbers" => $numbers,
+                "message" => $request->message,
+                "device" => $device,
+                // "gateway" => "",
+                "sim" => 1,
+                "priority" => 1,
+                // "shortener" => "",
+            ];
+        }
+
 
         return $chat;
     }
@@ -126,7 +167,7 @@ class SMSService {
             "device" => $device,
             "sim" => 1,
             "priority" => 1,
-            "shortener" => "",
+            // "shortener" => "",
         ];
 
         return $chat;

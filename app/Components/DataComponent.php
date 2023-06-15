@@ -707,7 +707,7 @@ class DataComponent {
     public static function createContactIndex($table) {
         $table->string("name")->index();
         $table->string("number")->index();
-        $table->string("group")->index();
+        $table->string("groups")->index();
         $table->date("created.timestamp")->index();
         $table->string("created.user._id")->index();
         $table->string("created.user.avatar")->index();
