@@ -18,10 +18,24 @@ class ContactModel
 
     public static function add($data, $account)
     {
+        $groups = [];
+        if($data->groups){
+            $arrGroup = explode(",", $data->groups);
 
+            foreach($arrGroup as $value){
+                $group = DB::table("contact_groups_". $account->_id)
+                            ->where("_id", $value)->first();
+                
+                if($group){
+                    array_push($groups, $group);
+                }
+            }
+        }
+        
         $arr = [
             "name" => $data->name,
             "number" => $data->number,
+            "group" => $groups,
             "created" => DataComponent::initializeTimestamp($account),
             "modified" => DataComponent::initializeTimestamp($account)
         ];
@@ -44,9 +58,24 @@ class ContactModel
 
     public static function updateById($data, $account)
     {
+        $groups = [];
+        if($data->groups){
+            $arrGroup = explode(",", $data->groups);
+
+            foreach($arrGroup as $value){
+                $group = DB::table("contact_groups_". $account->_id)
+                            ->where("_id", $value)->first();
+                
+                if($group){
+                    array_push($groups, $group);
+                }
+            }
+        }
+
         $arr = [
             "name" => $data->name,
             "number" => $data->number,
+            "group" => $groups,
             "created" => DataComponent::initializeTimestamp($account),
             "modified" => DataComponent::initializeTimestamp($account)
         ];

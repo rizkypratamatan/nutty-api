@@ -87,18 +87,32 @@ class WhatsappLogModel
                     $devider = round($total_number/$accountCount);
                 }
                 $numbers = array_chunk($numbers, $devider);
+            }else{
+                $accountCount = 1;
             }
 
             for($i=0;$i<$accountCount;$i++){
                 $device_id = $account['data'][$i]['id'];
-                $bulk = $this->service->initializeBulkChat($this->request, $device_id, implode(",", $numbers[$i]));
-                //proses chat
-                $this->service->processBulkChat($bulk);
+                if(is_array($numbers[$i])){
+                    $bulk = $this->service->initializeBulkChat($this->request, $device_id, implode(",", $numbers[$i]));
+                    //proses chat
+                    $this->service->processBulkChat($bulk);
 
-                //save DB
-                foreach($numbers[$i] as $recepient){
-                    $data = $this->service->initializeSingleChat($this->request, $device_id, $recepient);
-                    $this->insertDB($data);
+                    //save DB
+                    foreach($numbers[$i] as $recepient){
+                        $data = $this->service->initializeSingleChat($this->request, $device_id, $recepient);
+                        // $this->insertDB($data);
+                    }
+                }else{
+                    $bulk = $this->service->initializeBulkChat($this->request, $device_id, implode(",", $numbers));
+                    //proses chat
+                    $this->service->processBulkChat($bulk);
+
+                    //save DB
+                    foreach($numbers as $recepient){
+                        $data = $this->service->initializeSingleChat($this->request, $device_id, $recepient);
+                        // $this->insertDB($data);
+                    }
                 }
             }
 
@@ -177,6 +191,8 @@ class WhatsappLogModel
                     $devider = round($total_number/$accountCount);
                 }
                 $numbers = array_chunk($numbers, $devider);
+            }else{
+                $accountCount = 1;
             }
 
             for($i=0;$i<$accountCount;$i++){

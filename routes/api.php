@@ -46,6 +46,12 @@ Route::group(['prefix' => 'whatsapp'], function(){
     
 });
 
+//sms testing only
+Route::group(['prefix' => 'sms'], function(){
+    Route::post('send-test-bulk-message', [SmsLogController::class, 'sendTestBulkMessage'])->name('send-test-bulk-message');
+    Route::post('send-test-single-message', [SmsLogController::class, 'sendTestSingleMessage'])->name('send-test-single-message');
+});
+
 
 
 Route::group(["middleware" => ["authentication"]], function() {

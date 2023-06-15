@@ -49,7 +49,7 @@ class UserGroupModel
     public function getUserGroupById()
     {
 
-        return UserGroup::where('_id', $this->request->id)->first();
+        return UserGroup::where('_id', $this->request->id)->get();
     }
 
     public function updateUserGroupById()
