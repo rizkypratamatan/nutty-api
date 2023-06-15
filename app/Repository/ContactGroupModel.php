@@ -4,7 +4,7 @@ namespace App\Repository;
 
 use App\Components\AuthenticationComponent;
 use App\Components\DataComponent;
-
+use Illuminate\Support\Facades\DB;
 
 class ContactGroupModel
 {
@@ -63,7 +63,7 @@ class ContactGroupModel
             ->pull("groups", ['_id' => $data->id]);
 
         DB::table("contact_".$account->_id)
-            ->push("groups", $update->toArray());
+            ->push("groups", $update);
 
 
         return $update;

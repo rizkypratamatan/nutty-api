@@ -27,7 +27,7 @@ class ContactModel
                             ->where("_id", $value)->first();
                 
                 if($group){
-                    array_push($groups, $group->toArray());
+                    array_push($groups, $group);
                 }
             }
         }
@@ -67,7 +67,7 @@ class ContactModel
                             ->where("_id", $value)->first();
                 
                 if($group){
-                    array_push($groups, $group->toArray());
+                    array_push($groups, $group);
                 }
             }
         }

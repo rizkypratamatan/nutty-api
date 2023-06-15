@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Components\AuthenticationComponent;
+use App\Components\LogComponent;
 use App\Repository\ContactGroupModel;
 use Illuminate\Http\Request;
 
@@ -19,12 +20,13 @@ class ContactGroupController extends Controller
             $offset = !empty($request->offset)?$request->offset:0;
 
             $account = AuthenticationComponent::toUser($request);
+            // $account = AuthenticationComponent::systemUser();
 
             $data = ContactGroupModel::getAll($limit, $offset, $account);
 
             $response = [
                 'result' => true,
-                'response' => 'Get All Message Template',
+                'response' => 'Get All Contact Group',
                 'data' => $data
             ];
            
@@ -41,10 +43,11 @@ class ContactGroupController extends Controller
         LogComponent::response($request, $validation);
 
         if ($validation->result) {
-            //check privilege
-            // DataComponent::checkPrivilege($request, "userGroup", "add");
+            //// check privilege
+            DataComponent::checkPrivilege($request, "userGroup", "add");
 
             $account = AuthenticationComponent::toUser($request);
+            // $account = AuthenticationComponent::systemUser();
 
             $data = ContactGroupModel::add($request, $account);
 
@@ -77,7 +80,6 @@ class ContactGroupController extends Controller
             // DataComponent::checkPrivilege($request, "userGroup", "edit");
 
             $account = AuthenticationComponent::toUser($request);
-
             $data = ContactGroupModel::updateById($request, $account);
 
             if ($data) {
@@ -137,10 +139,11 @@ class ContactGroupController extends Controller
 
         if ($validation->result) {
 
-            //check privilege
+            // check privilege
             // DataComponent::checkPrivilege($request, "userGroup", "view");
 
             $account = AuthenticationComponent::toUser($request);
+            
             $data = ContactGroupModel::getById($request->id, $account);
 
             if ($data) {
@@ -152,7 +155,7 @@ class ContactGroupController extends Controller
             } else {
                 $response = [
                     'result' => false,
-                    'response' => 'failed get contact group',
+                    'response' => 'Data Not found',
                 ];
             }
         } else {
