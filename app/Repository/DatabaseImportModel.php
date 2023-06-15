@@ -2,10 +2,12 @@
 
 namespace App\Repository;
 
+use App\Components\AuthenticationComponent;
 use App\Models\Database;
 use App\Models\DatabaseImport;
 use App\Services\DatabaseImportService;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class DatabaseImportModel
@@ -14,6 +16,12 @@ class DatabaseImportModel
     // {   
     //     return Database::get()->take($limit)->skip($offset);
     // }
+
+    public function __construct(Request $request)
+    {   
+        $this->user = AuthenticationComponent::toUser($request);
+        $this->request = $request;
+    }
     
     public static function deleteImportDatabase($id)
     {
@@ -43,20 +51,8 @@ class DatabaseImportModel
             //     "_id" => "",
             //     "name" => ""
             // ],
-            "created" => [
-                "timestamp" => $mytime->toDateTimeString(),
-                "user" => [
-                    "_id" => $auth->_id,
-                    "username" => $auth->username
-                ]
-            ],
-            "modified" => [
-                "timestamp" => $mytime->toDateTimeString(),
-                "user" => [
-                    "_id" => $auth->_id,
-                    "username" => $auth->username
-                ]
-            ]
+            "created" => DataComponent::initializeTimestamp($this->user),
+            "modified" => DataComponent::initializeTimestamp($this->user)
         ];
 
 

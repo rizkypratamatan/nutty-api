@@ -23,7 +23,7 @@ class DatabaseImportController extends Controller
             DataComponent::checkPrivilege($request, "databaseImport", "add");
             $auth = AuthenticationComponent::toUser($request);
 
-            $model =  new DatabaseImportModel();
+            $model =  new DatabaseImportModel($request);
             $data = $model->importDatabase($request, $auth);
 
             if ($data) {
@@ -57,7 +57,7 @@ class DatabaseImportController extends Controller
             DataComponent::checkPrivilege($request, "database", "view");
             $auth = AuthenticationComponent::toUser($request);
 
-            $model =  new DatabaseImportModel();
+            $model =  new DatabaseImportModel($request);
             $data = $model->initializeData($request, $auth);
             $data->userGroup = UserGroupModel::findByStatus("Active");
             $data->websites = WebsiteModel::findByStatus("Active");
@@ -92,7 +92,7 @@ class DatabaseImportController extends Controller
             DataComponent::checkPrivilege($request, "databaseImport", "delete");
             // $auth = AuthenticationComponent::toUser($request);
 
-            $model =  new DatabaseImportModel();
+            $model =  new DatabaseImportModel($request);
             $data = $model->historyDelete($request);
 
             if ($data) {

@@ -174,7 +174,7 @@ class UserService
 
         $validation = [];
 
-        $licenseByNucode = LicenseRepository::findOneByNucode($request->nucode);
+        $licenseByNucode = LicenseModel::findOneByNucode($request->nucode);
 
         if(!empty($licenseByNucode)) {
 
