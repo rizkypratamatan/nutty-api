@@ -147,4 +147,68 @@ class DatabaseImportController extends Controller
         return response()->json($response, 200);
     }
 
+    public function getImportDatabas(Request $request)
+    {
+        $validation = AuthenticationComponent::validate($request);
+        LogComponent::response($request, $validation);
+
+        if ($validation->result) {
+            //check privilege
+            DataComponent::checkPrivilege($request, "databaseImport", "add");
+            $auth = AuthenticationComponent::toUser($request);
+
+            $limit = !empty($request->limit)?$request->limit:10;
+            $offset = !empty($request->offset)?$request->offset:0;
+            $model =  new DatabaseImportModel($request);
+            $data = $model->getImportDatabase($limit, $offset);
+
+            if ($data) {
+                // DataComponent::initializeCollectionByWebsite($data->_id);
+                $data = DatabaseService::importData($request);
+                $response = [
+                    'result' => true,
+                    'response' => 'success get import database',
+                ];
+            } else {
+                $response = [
+                    'result' => false,
+                    'response' => 'failed get import database',
+                ];
+            }
+        } else {
+            $response = $validation;
+        }
+
+        return response()->json($response, 200);
+    
+    }
+
+    public function getImportDatabase(Request $request)
+    {
+        $validation = AuthenticationComponent::validate($request);
+        LogComponent::response($request, $validation);
+
+        if ($validation->result) {
+            //check privilege
+            DataComponent::checkPrivilege($request, "databaseImport", "view");
+            
+            $limit = !empty($request->limit)?$request->limit:10;
+            $offset = !empty($request->offset)?$request->offset:0;
+            $model =  new DatabaseImportModel($request);
+            $data = $model->getImportDatabase($limit, $offset);
+
+            $response = [
+                'result' => true,
+                'response' => 'Get All Database Import',
+                'data' => $data
+            ];
+           
+            
+        } else {
+            $response = $validation;
+        }
+
+        return response()->json($response, 200);
+    }
+
 }
