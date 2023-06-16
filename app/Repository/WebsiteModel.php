@@ -68,6 +68,8 @@ class WebsiteModel
 
     public static function deleteWebsite($id)
     {
+        DB::table("userGroup")
+            ->pull("websites", ['_id' => $id]);
 
         return Website::where('_id', $id)->delete();
     }

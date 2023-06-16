@@ -56,7 +56,6 @@ class UserGroupModel
 
     public function deleteUserGroup()
     {
-
         return UserGroup::where('_id', $this->request->id)->delete();
     }
 
