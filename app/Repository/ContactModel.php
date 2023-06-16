@@ -2,9 +2,8 @@
 
 namespace App\Repository;
 
-use App\Components\AuthenticationComponent;
 use App\Components\DataComponent;
-
+use Illuminate\Support\Facades\DB;
 
 class ContactModel
 {

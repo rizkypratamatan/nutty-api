@@ -68,6 +68,8 @@ class WebsiteModel
 
     public static function deleteWebsite($id)
     {
+        DB::table("userGroup")
+            ->pull("websites", ['_id' => $id]);
 
         return Website::where('_id', $id)->delete();
     }
@@ -80,16 +82,7 @@ class WebsiteModel
 
     public function updateWebsiteById($data)
     {
-        $mytime = Carbon::now();
-
         $arr = [
-            // "api" => [
-            //     "nexus" => [
-            //         "code" => "",
-            //         "salt" => "",
-            //         "url" => ""
-            //     ]
-            // ],
             "description" => $data->description,
             "name" => $data->name,
             "nucode" => $data->nucode,
@@ -99,7 +92,17 @@ class WebsiteModel
             "modified" => DataComponent::initializeTimestamp($this->user)
         ];
 
-        return DB::table('website')->where('_id', $data->id)->update($arr);
+        DB::table('website')->where('_id', $data->id)->update($arr);
+        $update = DB::table('website')->where('_id', $data->id)->first();
+
+        //update website in user group
+        DB::table("userGroup")
+            ->pull("websites", ['_id' => $data->id]);
+
+        DB::table("userGroup")
+            ->push("websites", $update);
+
+        return $update;
     }
 
     public static function findOneById($id) 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Components\AuthenticationComponent;
+use App\Components\LogComponent;
 use App\Repository\ContactModel;
 use Illuminate\Http\Request;
 
@@ -77,7 +78,6 @@ class ContactController extends Controller
             // DataComponent::checkPrivilege($request, "userGroup", "edit");
 
             $account = AuthenticationComponent::toUser($request);
-
             $data = ContactModel::updateById($request, $account);
 
             if ($data) {
@@ -152,7 +152,8 @@ class ContactController extends Controller
             } else {
                 $response = [
                     'result' => false,
-                    'response' => 'failed get contact',
+                    'response' => 'No Data Found',
+                    'data' => null
                 ];
             }
         } else {
