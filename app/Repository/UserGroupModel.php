@@ -29,7 +29,7 @@ class UserGroupModel
     {
         $websites = [];
         if($this->request->websites){
-            $arrWebsites = explode(",", $this->request->websites);
+            $arrWebsites = $this->request->websites;
 
             foreach($arrWebsites as $value){
                 $website = Website::where("_id", $value)->first();
@@ -70,7 +70,7 @@ class UserGroupModel
     {
         $websites = [];
         if($this->request->websites){
-            $arrWebsites = explode(",", $this->request->websites);
+            $arrWebsites = $this->request->websites;
 
             foreach($arrWebsites as $value){
                 $website = Website::where("_id", $value)->first();
