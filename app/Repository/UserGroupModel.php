@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Components\AuthenticationComponent;
 use App\Components\DataComponent;
 use App\Models\UserGroup;
+use App\Models\Website;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -26,11 +27,24 @@ class UserGroupModel
 
     public function addUserGroup()
     {
+        $websites = [];
+        if($this->request->websites){
+            $arrWebsites = explode(",", $this->request->websites);
+
+            foreach($arrWebsites as $value){
+                $website = Website::where("_id", $value)->first();
+                
+                if($website){
+                    array_push($websites, $website);
+                }
+            }
+        }
 
         $data = new UserGroup();
         $data->description = $this->request->description;
         $data->name = $this->request->name;
         $data->status = $this->request->status;
+        $data->websites = $websites;
         $data->type = $this->request->type;
         $data->created = DataComponent::initializeTimestamp($this->user);
         $data->modified = DataComponent::initializeTimestamp($this->user);
@@ -54,9 +68,23 @@ class UserGroupModel
 
     public function updateUserGroupById()
     {
+        $websites = [];
+        if($this->request->websites){
+            $arrWebsites = explode(",", $this->request->websites);
+
+            foreach($arrWebsites as $value){
+                $website = Website::where("_id", $value)->first();
+                
+                if($website){
+                    array_push($websites, $website);
+                }
+            }
+        }
+
         $data = UserGroup::find($this->request->id);
         $data->description = $this->request->description;
         $data->name = $this->request->name;
+        $data->websites = $websites;
         $data->status = $this->request->status;
         $data->type = $this->request->type;
         $data->modified = DataComponent::initializeTimestamp($this->user);

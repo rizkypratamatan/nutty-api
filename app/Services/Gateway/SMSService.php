@@ -154,8 +154,6 @@ class SMSService {
                 // "shortener" => "",
             ];
         }
-
-
         return $chat;
     }
 
