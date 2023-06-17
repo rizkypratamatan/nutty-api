@@ -74,12 +74,17 @@ class DataComponent {
                     break;
             }
             
-            if(substr($user->privilege[$privilege], $start, 1) == "7") {
+            if(isset($user->privilege[$privilege])){
+                if(substr($user->privilege[$privilege], $start, 1) == "7") {
+                    $result["message"] = strtoupper($user->username)." Authorized to ".strtoupper($action)." ".strtoupper($privilege);
+                    $result["code"] = 200;
+                    LogComponent::response($request, $result);
+                }
+            }else{
                 $result["message"] = strtoupper($user->username)." Authorized to ".strtoupper($action)." ".strtoupper($privilege);
                 $result["code"] = 200;
                 LogComponent::response($request, $result);
             }
-
         }
 
         if($result["code"] == 403){
