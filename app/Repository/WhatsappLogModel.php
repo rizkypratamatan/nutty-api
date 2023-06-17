@@ -50,7 +50,7 @@ class WhatsappLogModel
         $account = $this->service->getAccounts();
 
         if($account['status'] == 200){
-            $chat = $this->service->initializeSingleData($this->request, $account['data'][0]['id'], $this->request->recipient);
+            $chat = $this->service->initializeSingleChat($this->request, $account['data'][0]['id'], $this->request->recipient);
             $resp = $this->service->processSingleChat($chat);
             $this->insertDB($chat);
 
