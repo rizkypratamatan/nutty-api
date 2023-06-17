@@ -143,7 +143,7 @@ class SmsLogModel
         $data['created'] = DataComponent::initializeTimestamp($user);
         $data['modified'] = DataComponent::initializeTimestamp($user);
         
-        return DB::table('smsLogs_'.$this->user->_id)->insert($data);
+        return DB::table('smsLogs_'.$user->_id)->insert($data);
     }
 
     public function sendTestSingle()
