@@ -17,9 +17,9 @@ class DatabaseModel
         $this->request = $request;
     }
 
-    public function getDatabase($limit=10, $offset=0)
+    public function getDatabase($website_id, $limit=10, $offset=0)
     {   
-        return Database::get()->take($limit)->skip($offset);
+        return DB::table("database_".$website_id)->get()->take($limit)->skip($offset);
     }
 
     public function addDatabase($data, $auth)
@@ -87,36 +87,52 @@ class DatabaseModel
 
         // }
 
-        return DB::table('database')
+        return DB::table("database_".$data->website_id)
             ->insert($arr);
     }
 
-    public static function deleteDatabase($id)
+    public static function deleteDatabase($website_id, $id)
     {
 
-        return Database::where('_id', $id)->delete();
+        return DB::table("database_".$website_id)->where('_id', $id)->delete();
     }
 
-    public function getDatabaseById($id)
+    public function getDatabaseById($website_id, $id)
     {
 
-        return Database::where('_id', $id)->first();
+        return DB::table("database_".$website_id)->where('_id', $id)->first();
     }
 
-    public function updateDatabaseById($data, $auth)
+    public function updateDatabaseById($data)
     {
-        $mytime = Carbon::now();
-
+        // print_r($data->all());die;
+        // {
+        //     "city": null,
+        //     "contact": {},
+        //     "country": null,
+        //     "crm": {},
+        //     "gender": null,
+        //     "group": {},
+        //     "import": {},
+        //     "language": null,
+        //     "name": "Tes",
+        //     "reference": null,
+        //     "state": null,
+        //     "status": null,
+        //     "street": null,
+        //     "telemarketer": {},
+        //     "zip": null,
+        //     "id": "64819374b50fdd726a013b72",
         $arr = [
             "city" => $data->city,
             "contact" => [
-                "email" => $data->email,
-                "line" => $data->line,
-                "michat" => $data->michat,
-                "phone" => $data->phone,
-                "telegram" => $data->telegram,
-                "wechat" => $data->wechat,
-                "whatsapp" => $data->whatsapp
+                "email" => !empty($data->contact['email'])?$data->contact['email']:"",
+                "line" => !empty($data->contact['line'])?$data->contact['line']:"",
+                "michat" => !empty($data->contact['michat'])?$data->contact['michat']:"",
+                "phone" => !empty($data->contact['phone'])?$data->contact['phone']:"",
+                "telegram" => !empty($data->contact['telegram'])?$data->contact['telegram']:"",
+                "wechat" => !empty($data->contact['wechat'])?$data->contact['wechat']:"",
+                "whatsapp" => !empty($data->contact['whatsapp'])?$data->contact['whatsapp']:""
             ],
             "country" => $data->country,
             // "crm" => [
@@ -157,7 +173,7 @@ class DatabaseModel
             "modified" => DataComponent::initializeTimestamp($this->user)
         ];
 
-        return DB::table('website')->where('_id', $data->id)->update($arr);
+        return DB::table("database_".$data->website_id)->where('_id', $data->id)->update($arr);
     }
 
     public static function findOneById($id) 

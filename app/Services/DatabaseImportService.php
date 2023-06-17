@@ -26,7 +26,7 @@ class DatabaseImportService {
     public static function historyDelete($request) 
     {
 
-        $result = new DatabaseImportModel();
+        $result = new DatabaseImportModel($request);
         $result->response = "Failed to delete database import history data";
         $result->result = false;
 
@@ -48,7 +48,7 @@ class DatabaseImportService {
 
                         if($databaseImportAction->inserts[$key]) {
 
-                            DatabaseModel::deleteDatabase($databaseByContactPhone);
+                            // DatabaseModel::deleteDatabase($databaseByContactPhone);
                             DatabaseAccountModel::deleteByDatabaseId($databaseByContactPhone->_id, $databaseImportById->website["_id"]);
                             DatabaseLogModel::deleteByDatabaseId($databaseByContactPhone->_id, $databaseImportById->website["_id"]);
 

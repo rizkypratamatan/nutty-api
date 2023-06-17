@@ -81,6 +81,11 @@ class DatabaseImportModel
 
     }
 
+    public function getImportDatabase($limit=10, $offset=0)
+    {
+        return DatabaseImport::get()->take($limit)->skip($offset);
+    }
+
     // public static function insert($auth, $data) 
     // {
 
