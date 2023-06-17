@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Components\AuthenticationComponent;
 use App\Components\DataComponent;
+use App\Components\LogComponent;
 use App\Repository\WhatsappLogModel;
 use App\Repository\WhatsappModel;
 use Illuminate\Http\Request;

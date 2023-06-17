@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Components\AuthenticationComponent;
+use App\Components\DataComponent;
+use App\Components\LogComponent;
 use App\Repository\SmsLogModel;
-use App\Repository\SMSModel;
 use Illuminate\Http\Request;
 
 class SmsLogController extends Controller
