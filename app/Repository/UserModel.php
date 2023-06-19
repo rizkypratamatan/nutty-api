@@ -20,9 +20,42 @@ class UserModel
             ->first();
     }
     
-    public function getAllUser($limit=10, $offset=0)
+    public function getAllUser($limit, $offset, $filter = [])
     {
-        return User::get()->take($limit)->skip($offset);
+        //$username, $name, $nucode, $type, $group, $role, $status
+
+        $users = User::take($limit)->skip($offset);
+
+        if(!empty($filter['username'])){
+            $users = $users->where('username', $filter['username']);
+        }
+
+        if(!empty($filter['name'])){
+            $users = $users->where('name', $filter['name']);
+        }
+
+        if(!empty($filter['nucode'])){
+            $users = $users->where('nucode', $filter['nucode']);
+        }
+
+        if(!empty($filter['type'])){
+            $users = $users->where('type', $filter['type']);
+        }
+
+        if(!empty($filter['group'])){
+            $users = $users->where('group._id', $filter['group']);
+        }
+
+        if(!empty($filter['role'])){
+            $users = $users->where('role._id', $filter['role']);
+        }
+
+        if(!empty($filter['status'])){
+            $users = $users->where('status', $filter['status']);
+        }
+
+        $users = $users->get();
+        return $users;
     }
 
     public function addUser($data)

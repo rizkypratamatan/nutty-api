@@ -25,8 +25,17 @@ class UserController extends Controller
 
             $limit = !empty($request->limit)?$request->limit:10;
             $offset = !empty($request->offset)?$request->offset:0;
+            $filter = [];
+            $filter['username'] = !empty($request->username)?$request->username:"";
+            $filter['name'] = !empty($request->name)?$request->name:"";
+            $filter['nucode'] = !empty($request->nucode)?$request->nucode:"";
+            $filter['type'] = !empty($request->type)?$request->type:"";
+            $filter['group'] = !empty($request->group)?$request->group:"";
+            $filter['role'] = !empty($request->role)?$request->role:"";
+            $filter['status'] = !empty($request->status)?$request->status:"";
+
             $userModel =  new UserModel();
-            $user = $userModel->getAllUser($limit, $offset);
+            $user = $userModel->getAllUser($limit, $offset, $filter);
 
             $response = [
                 'result' => true,
