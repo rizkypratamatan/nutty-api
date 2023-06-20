@@ -17,33 +17,53 @@ class UserRoleModel
         $this->request = $request;
     }
 
-    public function getRole()
+    public function getRole($limit, $offset, $filter)
     {
-        return UserRole::get();
+        $data = UserRole::take($limit)->skip($offset);
+        $response = [
+            "data" => null,
+            "total_data" => 0
+        ];
+
+        if(!empty($filter['name'])){
+            $data = $data->where('name', 'LIKE', $filter['name']."%");
+        }
+
+        if(!empty($filter['nucode'])){
+            $data = $data->where('nucode', $filter['nucode']);
+        }
+
+        if(!empty($filter['status'])){
+            $data = $data->where('status', $filter['status']);
+        }
+        $data = $data->get();
+        $total_count = $data->count();
+
+        $response['data'] = $data;
+        $response['total_data'] = $total_count;
+
+        return $response;
     }
 
     public function addRole($data)
     {
-
-        $mytime = Carbon::now();
-
         $arr = [
             "description" => $data->description,
             "name" => $data->name,
             "nucode" => $data->nucode,
-            "privilege" => [
-                "database" => $data->privilege['database'],
-                "report" => $data->privilege['report'],
-                "setting" => $data->privilege['setting'],
-                "settingApi" => $data->privilege['settingApi'],
-                "user" => $data->privilege['user'],
-                "userGroup" => $data->privilege['userGroup'],
-                "userRole" => $data->privilege['userRole'],
-                "website" => $data->privilege['website'],
-                "worksheet" => $data->privilege['worksheet'],
-                "whatsapp" => $data->privilege['whatsapp'],
-                "sms" =>  $data->privilege['sms'],
-                "email" =>  $data->privilege['email']
+            "privileges" => [
+                "database" => $data->privileges['database'],
+                "report" => $data->privileges['report'],
+                "setting" => $data->privileges['setting'],
+                "settingApi" => $data->privileges['settingApi'],
+                "user" => $data->privileges['user'],
+                "userGroup" => $data->privileges['userGroup'],
+                "userRole" => $data->privileges['userRole'],
+                "website" => $data->privileges['website'],
+                "worksheet" => $data->privileges['worksheet'],
+                "whatsapp" => $data->privileges['whatsapp'],
+                "sms" =>  $data->privileges['sms'],
+                "email" =>  $data->privileges['email']
             ],
             "status" => $data->status,
             "created" => DataComponent::initializeTimestamp($this->user),
@@ -68,32 +88,30 @@ class UserRoleModel
 
     public function updateRoleById($data)
     {
-        $mytime = Carbon::now();
-
         $arr = [
             "description" => $data->description,
             "name" => $data->name,
             "nucode" => $data->nucode,
-            "privilege" => [
-                "database" => $data->privilege['database'],
-                "report" => $data->privilege['report'],
-                "setting" => $data->privilege['setting'],
-                "settingApi" => $data->privilege['settingApi'],
-                "user" => $data->privilege['user'],
-                "userGroup" => $data->privilege['userGroup'],
-                "userRole" => $data->privilege['userRole'],
-                "website" => $data->privilege['website'],
-                "worksheet" => $data->privilege['worksheet'],
-                "whatsapp" => $data->privilege['whatsapp'],
-                "sms" =>  $data->privilege['sms'],
-                "email" =>  $data->privilege['email']
+            "privileges" => [
+                "database" => $data->privileges['database'],
+                "report" => $data->privileges['report'],
+                "setting" => $data->privileges['setting'],
+                "settingApi" => $data->privileges['settingApi'],
+                "user" => $data->privileges['user'],
+                "userGroup" => $data->privileges['userGroup'],
+                "userRole" => $data->privileges['userRole'],
+                "website" => $data->privileges['website'],
+                "worksheet" => $data->privileges['worksheet'],
+                "whatsapp" => $data->privileges['whatsapp'],
+                "sms" =>  $data->privileges['sms'],
+                "email" =>  $data->privileges['email']
             ],
             "status" => $data->status,
             "modified" => DataComponent::initializeTimestamp($this->user)
         ];
 
         $update = [
-            "privilege" => $arr['privilege'],
+            "privileges" => $arr['privileges'],
             "role" => [
                 "_id" => DataComponent::initializeObjectId($data->id),
                 "name" => $arr['name']

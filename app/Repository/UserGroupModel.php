@@ -20,9 +20,36 @@ class UserGroupModel
         $this->request = $request;
     }
 
-    public function getAllUserGroup($limit=10, $offset=0)
+    public function getAllUserGroup($limit=10, $offset=0, $filter = [])
     {   
-        return UserGroup::get()->take($limit)->skip($offset);
+        $data = UserGroup::take($limit)->skip($offset);
+        $response = [
+            "data" => null,
+            "total_data" => 0
+        ];
+
+        if(!empty($filter['name'])){
+            $data = $data->where('name', 'LIKE', $filter['name']."%");
+        }
+
+        if(!empty($filter['website'])){
+            $data = $data->where('websites', 'elemMatch', ["_id" => $filter['website']]);
+        }
+
+        if(!empty($filter['nucode'])){
+            $data = $data->where('nucode', $filter['nucode']);
+        }
+
+        if(!empty($filter['status'])){
+            $data = $data->where('status', $filter['status']);
+        }
+        $data = $data->get();
+        $total_count = $data->count();
+
+        $response['data'] = $data;
+        $response['total_data'] = $total_count;
+
+        return $response;
     }
 
     public function addUserGroup()
@@ -35,7 +62,7 @@ class UserGroupModel
                 $website = Website::where("_id", $value)->first();
                 
                 if($website){
-                    array_push($websites, $website);
+                    array_push($websites, $website->toArray());
                 }
             }
         }
@@ -44,8 +71,8 @@ class UserGroupModel
         $data->description = $this->request->description;
         $data->name = $this->request->name;
         $data->status = $this->request->status;
+        $data->nucode = $this->request->nucode;
         $data->websites = $websites;
-        $data->type = $this->request->type;
         $data->created = DataComponent::initializeTimestamp($this->user);
         $data->modified = DataComponent::initializeTimestamp($this->user);
 
@@ -62,7 +89,7 @@ class UserGroupModel
     public function getUserGroupById()
     {
 
-        return UserGroup::where('_id', $this->request->id)->get();
+        return UserGroup::where('_id', $this->request->id)->first();
     }
 
     public function updateUserGroupById()
@@ -75,7 +102,7 @@ class UserGroupModel
                 $website = Website::where("_id", $value)->first();
                 
                 if($website){
-                    array_push($websites, $website);
+                    array_push($websites, $website->toArray());
                 }
             }
         }
@@ -86,6 +113,7 @@ class UserGroupModel
         $data->websites = $websites;
         $data->status = $this->request->status;
         $data->type = $this->request->type;
+        $data->nucode = $this->request->nucode;
         $data->modified = DataComponent::initializeTimestamp($this->user);
 
         $data->save();

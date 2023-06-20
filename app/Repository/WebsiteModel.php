@@ -20,9 +20,46 @@ class WebsiteModel
         $this->request = $request;
     }
 
-    public function getAllWebsite($limit=10, $offset=0)
+    public function getAllWebsite($limit=10, $offset=0, $filter)
     {   
-        return Website::get()->take($limit)->skip($offset);
+        //$username, $name, $nucode, $type, $group, $role, $status
+        /*
+         name: '',
+        nucode: '',
+        type: '',
+        status: '',
+         */
+        $resp = [
+            'data' => null,
+            'total_data' => 0
+        ];
+
+        $data = Website::take($limit)->skip($offset);
+        $counData = new Website();
+
+        if(!empty($filter['name'])){
+            $data = $data->where('name', 'LIKE', $filter['name']."%");
+            $counData = $counData->where('name', 'LIKE', $filter['name']."%");
+        }
+        if(!empty($filter['nucode'])){
+            $data = $data->where('nucode', $filter['nucode']);
+            $counData = $counData->where('nucode', $filter['nucode']);
+        }
+        if(!empty($filter['type'])){
+            $data = $data->where('type', $filter['type']);
+            $counData = $counData->where('type', $filter['type']);
+        }
+        if(!empty($filter['status'])){
+            $data = $data->where('status', $filter['status']);
+            $counData = $data->counData('status', $filter['status']);
+        }
+        $data = $data->get();
+        $counData = $counData->count();
+
+        $resp['data'] = $data;
+        $resp['total_data'] = $counData;
+
+        return $resp;
     }
 
     public function addWebsite($data)
@@ -93,14 +130,16 @@ class WebsiteModel
         ];
 
         DB::table('website')->where('_id', $data->id)->update($arr);
-        $update = DB::table('website')->where('_id', $data->id)->first();
+        $update = Website::where('_id', $data->id)->first();
 
         //update website in user group
-        DB::table("userGroup")
-            ->pull("websites", ['_id' => $data->id]);
+        // DB::table("userGroup")
+        //     ->pull("websites", ['_id' => $data->id]);
 
-        DB::table("userGroup")
-            ->push("websites", $update);
+        // DB::table("userGroup")
+        //     ->where('nestedObject.id','=',$data->id)->update(['nestedObject.$.fieldName'=>"newDate"]);
+        //     ->where("websites", "elemMatch", ["_id" => $data->id])
+        //     ->push("websites", $update->toArray());
 
         return $update;
     }

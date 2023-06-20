@@ -23,6 +23,10 @@ class UserModel
     public function getAllUser($limit, $offset, $filter = [])
     {
         //$username, $name, $nucode, $type, $group, $role, $status
+        $response = [
+            "data" => null,
+            "total_data" => 0
+        ];
 
         $users = User::take($limit)->skip($offset);
 
@@ -31,7 +35,7 @@ class UserModel
         }
 
         if(!empty($filter['name'])){
-            $users = $users->where('name', $filter['name']);
+            $users = $users->where('name', 'LIKE', $filter['name'].'%');
         }
 
         if(!empty($filter['nucode'])){
@@ -54,8 +58,15 @@ class UserModel
             $users = $users->where('status', $filter['status']);
         }
 
-        $users = $users->get();
-        return $users;
+        $users = $users->where('username', '<>', 'system')->get();
+
+        $response = [
+            "data" => $users,
+            "total_data" => $users->count()
+        ];
+        
+
+        return $response;
     }
 
     public function addUser($data)
@@ -67,14 +78,14 @@ class UserModel
         $user->nucode = $data->nucode;
         $user->status = $data->status;
         $user->contact = [
-            'email' => $data->email,
-            'fax' => $data->fax,
-            'line' => $data->line,
-            'michat' => $data->michat,
-            'phone' => $data->phone,
-            'wechat' => $data->wechat,
-            'whatsapp' => $data->whatsapp,
-            'telegram' => $data->telegram,
+            'email' => $data->contact['email'],
+            'fax' => $data->contact['fax'],
+            'line' => $data->contact['line'],
+            'michat' => $data->contact['michat'],
+            'phone' => $data->contact['phone'],
+            'wechat' => $data->contact['wechat'],
+            'whatsapp' => $data->contact['whatsapp'],
+            'telegram' => $data->contact['telegram'],
         ];
         $user->password = [
             'main' => Crypt::encryptString($data->password),
@@ -161,19 +172,22 @@ class UserModel
         $user->nucode = $data->nucode;
         $user->status = $data->status;
         $user->contact = [
-            'email' => $data->email,
-            'fax' => $data->fax,
-            'line' => $data->line,
-            'michat' => $data->michat,
-            'phone' => $data->phone,
-            'wechat' => $data->wechat,
-            'whatsapp' => $data->whatsapp,
-            'telegram' => $data->telegram,
+            'email' => $data->contact['email'],
+            'fax' => $data->contact['fax'],
+            'line' => $data->contact['line'],
+            'michat' => $data->contact['michat'],
+            'phone' => $data->contact['phone'],
+            'wechat' => $data->contact['wechat'],
+            'whatsapp' => $data->contact['whatsapp'],
+            'telegram' => $data->contact['telegram'],
         ];
-        $user->password = [
-            'main' => Crypt::encryptString($data->password),
-            'recovery' => Crypt::encryptString($data->password)
-        ];
+        if($data->password){
+            $user->password = [
+                'main' => Crypt::encryptString($data->password),
+                'recovery' => Crypt::encryptString($data->password)
+            ];
+        }
+        
         $user->role = [
             '_id' => $data->role['_id'],
             'name' => $data->role['name']

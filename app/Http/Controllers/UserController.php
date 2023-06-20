@@ -40,7 +40,8 @@ class UserController extends Controller
             $response = [
                 'result' => true,
                 'response' => 'Get All User',
-                'dataUser' => $user
+                'dataUser' => $user['data'],
+                'total_data' => $user['total_data']
             ];
            
             

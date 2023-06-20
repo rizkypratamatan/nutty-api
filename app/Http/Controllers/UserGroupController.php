@@ -21,13 +21,21 @@ class UserGroupController extends Controller
             
             $limit = !empty($request->limit)?$request->limit:10;
             $offset = !empty($request->offset)?$request->offset:0;
+            $filter = [];
+
+            $filter['name'] = !empty($request->name)?$request->name:0;
+            $filter['website'] = !empty($request->website)?$request->website:0;
+            $filter['status'] = !empty($request->status)?$request->status:0;
+            $filter['nucode'] = !empty($request->nucode)?$request->nucode:0;
+
             $userModel =  new UserGroupModel($request);
-            $user = $userModel->getAllUserGroup($limit, $offset);
+            $data = $userModel->getAllUserGroup($limit, $offset, $filter);
 
             $response = [
                 'result' => true,
                 'response' => 'Get All User Group',
-                'dataUser' => $user
+                'dataUser' => $data['data'],
+                'totalData' => $data['total_data']
             ];
            
             

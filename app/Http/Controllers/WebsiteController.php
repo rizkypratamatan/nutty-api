@@ -21,13 +21,20 @@ class WebsiteController extends Controller
             
             $limit = !empty($request->limit)?$request->limit:10;
             $offset = !empty($request->offset)?$request->offset:0;
+            $filter = [];
+            $filter['name'] = !empty($request->name)?$request->name:0;
+            $filter['nucode'] = !empty($request->nucode)?$request->nucode:0;
+            $filter['type'] = !empty($request->type)?$request->type:0;
+            $filter['status'] = !empty($request->status)?$request->status:0;
+            
             $model =  new WebsiteModel($request);
-            $data = $model->getAllWebsite($limit, $offset);
+            $data = $model->getAllWebsite($limit, $offset, $filter);
 
             $response = [
                 'result' => true,
                 'response' => 'Get All Website',
-                'data' => $data
+                'data' => $data['data'],
+                'total_data' => $data['total_data']
             ];
            
             
