@@ -450,7 +450,8 @@ class DataComponent {
 
         $mytime = Carbon::now();
         return [
-            "timestamp" => $mytime->toDateTimeString(),
+            // "timestamp" => $mytime->toDateTimeString(),
+            "timestamp" => new UTCDateTime(),
             "user" => [
                 "_id" => self::initializeObjectId($account->_id),
                 "avatar" => $account->avatar,
