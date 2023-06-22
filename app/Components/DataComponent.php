@@ -324,21 +324,6 @@ class DataComponent {
 
     }
 
-    public static function initializeAccount($request) 
-    {
-
-        $result = new User();
-
-        if($request->session()->has("account")) {
-
-            $result = $request->session()->get("account");
-
-        }
-
-        return $result;
-
-    }
-
 
     public static function createDatabaseIndex($table) {
 

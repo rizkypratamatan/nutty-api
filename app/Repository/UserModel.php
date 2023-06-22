@@ -9,9 +9,72 @@ use Illuminate\Support\Facades\Crypt;
 
 class UserModel
 {
+    public static function countByNucode($nucode) {
 
-    public function __construct()
-    {   
+        return User::where([
+            ["nucode", "=", $nucode]
+        ])->count();
+
+    }
+
+
+    public static function delete($data) {
+
+        return $data->delete();
+
+    }
+
+
+    public static function deleteByNucode($nucode) {
+
+        return User::where("nucode", $nucode)->delete();
+
+    }
+
+
+    public static function findByNucode($nucode) {
+
+        return User::where([
+            ["nucode", "=", $nucode]
+        ])->get();
+
+    }
+
+
+    public static function findOneByContactEmail($contactEmail) {
+
+        return User::where([
+            ["contact.email", "=", $contactEmail]
+        ])->first();
+
+    }
+
+
+    public static function findOneById($id) {
+
+        return User::where([
+            ["_id", "=", $id]
+        ])->first();
+
+    }
+
+
+    public static function findOneByNucodeUsername($nucode, $username) {
+
+        return User::where([
+            ["nucode", "=", $nucode],
+            ["username", "=", $username]
+        ])->first();
+
+    }
+
+
+    public static function findOneByUsername($username) {
+
+        return User::where([
+            ["username", "=", $username]
+        ])->first();
+
     }
 
     public function getUserByUsername($username)

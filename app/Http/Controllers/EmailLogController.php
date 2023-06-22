@@ -18,7 +18,7 @@ class EmailLogController extends Controller
 
         if ($validation->result) {
             //check privilege
-            DataComponent::checkPrivilege($request, "email", "view");
+            DataComponent::checkPrivilege($request, "tools", "view");
             
             $limit = !empty($request->limit)?$request->limit:10;
             $offset = !empty($request->offset)?$request->offset:0;
@@ -49,7 +49,7 @@ class EmailLogController extends Controller
         if ($validation->result) {
 
             //check privilege
-            DataComponent::checkPrivilege($request, "email", "delete");
+            DataComponent::checkPrivilege($request, "tools", "delete");
 
             $auth = AuthenticationComponent::toUser($request);
 
@@ -81,7 +81,7 @@ class EmailLogController extends Controller
         if ($validation->result) {
 
             //check privilege
-            DataComponent::checkPrivilege($request, "email", "view");
+            DataComponent::checkPrivilege($request, "tools", "view");
             $auth = AuthenticationComponent::toUser($request);
             
             $model =  new EmailLogModel($request);
@@ -115,7 +115,7 @@ class EmailLogController extends Controller
         if ($validation->result){
 
             // check privilege
-            DataComponent::checkPrivilege($request, "email", "add");
+            DataComponent::checkPrivilege($request, "tools", "add");
             $model = new EmailLogModel();
             $response = $model->sendBulk($request);
 
@@ -134,7 +134,7 @@ class EmailLogController extends Controller
         if ($validation->result){
 
             //check privilege
-            DataComponent::checkPrivilege($request, "email", "add");
+            DataComponent::checkPrivilege($request, "tools", "add");
             
 
             $model = new EmailLogModel();

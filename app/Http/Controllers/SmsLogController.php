@@ -17,7 +17,7 @@ class SmsLogController extends Controller
 
         if ($validation->result) {
             //check privilege
-            DataComponent::checkPrivilege($request, "sms", "view");
+            DataComponent::checkPrivilege($request, "tools", "view");
             
             $limit = !empty($request->limit)?$request->limit:10;
             $offset = !empty($request->offset)?$request->offset:0;
@@ -47,7 +47,7 @@ class SmsLogController extends Controller
         if ($validation->result) {
 
             //check privilege
-            DataComponent::checkPrivilege($request, "sms", "delete");
+            DataComponent::checkPrivilege($request, "tools", "delete");
 
             $model =  new SmsLogModel($request);
             $data = $model->deleteChat($request->id);
@@ -77,7 +77,7 @@ class SmsLogController extends Controller
         if ($validation->result) {
 
             //check privilege
-            DataComponent::checkPrivilege($request, "sms", "view");
+            DataComponent::checkPrivilege($request, "tools", "view");
 
             $model =  new SmsLogModel($request);
             $data = $model->getById($request->id);
@@ -110,7 +110,7 @@ class SmsLogController extends Controller
         if ($validation->result){
 
             //check privilege
-            DataComponent::checkPrivilege($request, "sms", "add");
+            DataComponent::checkPrivilege($request, "tools", "add");
 
             $model = new SmsLogModel($request);
             $response = $model->sendBulk();
@@ -130,7 +130,7 @@ class SmsLogController extends Controller
         if ($validation->result){
 
             //check privilege
-            DataComponent::checkPrivilege($request, "sms", "add");
+            DataComponent::checkPrivilege($request, "tools", "add");
 
             $model = new SmsLogModel($request);
             $resp = $model->sendSingle();
