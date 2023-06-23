@@ -1,27 +1,24 @@
 <?php
 
-namespace App\Repositories;
+namespace App\Repository;
 
 use App\Components\DataComponent;
 use App\Models\DatabaseImportAction;
 
 
-class DatabaseImportActionModel 
-{
+class DatabaseImportActionModel {
 
 
-    public static function delete($data, $nucode) 
-    {
+    public static function delete($data, $nucode) {
 
         $data->setTable("databaseImportAction_" . $nucode);
 
-        return DatabaseImportAction::where('_id')->delete();
+        return $data->delete();
 
     }
 
 
-    public static function findById($id, $nucode) 
-    {
+    public static function findById($id, $nucode) {
 
         $model = new DatabaseImportAction();
         $model->setTable("databaseImportAction_" . $nucode);
@@ -33,8 +30,7 @@ class DatabaseImportActionModel
     }
 
 
-    public static function findOneByDatabaseImportId($databaseImportId, $nucode) 
-    {
+    public static function findOneByDatabaseImportId($databaseImportId, $nucode) {
 
         $databaseImportAction = new DatabaseImportAction();
         $databaseImportAction->setTable("databaseImportAction_" . $nucode);
@@ -46,76 +42,31 @@ class DatabaseImportActionModel
     }
 
 
-    public static function insert($auth, $data) 
-    {
+    public static function insert($account, $data) {
 
-        $mytime = Carbon::now();
-        $arr = [
-            "accounts" =>$data->accounts,
-            "databaseImport" => [
-                "_id" => "0",
-                "file" => "System"
-            ],
-            "crms" =>$data->crms,
-            "inserts" =>$data->inserts,
-            "groups" =>$data->groups,
-            "phones" =>$data->phones,
-            "telemarketers" =>$data->telemarketers,
-            "created" => [
-                "timestamp" => $mytime->toDateTimeString(),
-                "user" => [
-                    "_id" => $auth->_id,
-                    "username" => $data->username
-                ]
-            ],
-            "modified" => [
-                "timestamp" => $mytime->toDateTimeString(),
-                "user" => [
-                    "_id" => $auth->_id,
-                    "username" => $data->username
-                ]
-            ]
-        ];
+        $data->created = DataComponent::initializeTimestamp($account);
+        $data->modified = $data->created;
 
-        return DB::table('databaseImportAction')
-            ->insert($arr);
+        $data->setTable("databaseImportAction_" . $account->nucode);
+
+        $data->save();
+
+        return $data;
 
     }
 
 
-    public static function update($auth, $data) 
-    {
+    public static function update($account, $data) {
 
-        $mytime = Carbon::now();
-        $arr = [
-            "accounts" =>$data->accounts,
-            "databaseImport" => [
-                "_id" => "0",
-                "file" => "System"
-            ],
-            "crms" =>$data->crms,
-            "inserts" =>$data->inserts,
-            "groups" =>$data->groups,
-            "phones" =>$data->phones,
-            "telemarketers" =>$data->telemarketers,
-            // "created" => [
-            //     "timestamp" => $mytime->toDateTimeString(),
-            //     "user" => [
-            //         "_id" => $auth->_id,
-            //         "username" => $data->username
-            //     ]
-            // ],
-            "modified" => [
-                "timestamp" => $mytime->toDateTimeString(),
-                "user" => [
-                    "_id" => $auth->_id,
-                    "username" => $data->username
-                ]
-            ]
-        ];
+        if($account != null) {
 
-        return DB::table('databaseImportAction')
-        ->where('_id', $data->id)->update($arr);
+            $data->modified = DataComponent::initializeTimestamp($account);
+
+        }
+
+        $data->setTable("databaseImportAction_" . $account->nucode);
+
+        return $data->save();
 
     }
 

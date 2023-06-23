@@ -17,16 +17,36 @@ class UserRoleModel
         $this->request = $request;
     }
 
-    public function getRole()
+    public function getRole($limit, $offset, $filter)
     {
-        return UserRole::get();
+        $data = UserRole::take($limit)->skip($offset);
+        $response = [
+            "data" => null,
+            "total_data" => 0
+        ];
+
+        if(!empty($filter['name'])){
+            $data = $data->where('name', 'LIKE', $filter['name']."%");
+        }
+
+        if(!empty($filter['nucode'])){
+            $data = $data->where('nucode', $filter['nucode']);
+        }
+
+        if(!empty($filter['status'])){
+            $data = $data->where('status', $filter['status']);
+        }
+        $data = $data->get();
+        $total_count = $data->count();
+
+        $response['data'] = $data;
+        $response['total_data'] = $total_count;
+
+        return $response;
     }
 
     public function addRole($data)
     {
-
-        $mytime = Carbon::now();
-
         $arr = [
             "description" => $data->description,
             "name" => $data->name,
@@ -41,9 +61,11 @@ class UserRoleModel
                 "userRole" => $data->privilege['userRole'],
                 "website" => $data->privilege['website'],
                 "worksheet" => $data->privilege['worksheet'],
-                "whatsapp" => $data->privilege['whatsapp'],
-                "sms" =>  $data->privilege['sms'],
-                "email" =>  $data->privilege['email']
+                "worksheetCrm" => $data->privilege['worksheetCrm'],
+                "tools" => $data->privilege['tools'],
+                // "whatsapp" => $data->privilege['whatsapp'],
+                // "sms" =>  $data->privilege['sms'],
+                // "email" =>  $data->privilege['email']
             ],
             "status" => $data->status,
             "created" => DataComponent::initializeTimestamp($this->user),
@@ -68,8 +90,6 @@ class UserRoleModel
 
     public function updateRoleById($data)
     {
-        $mytime = Carbon::now();
-
         $arr = [
             "description" => $data->description,
             "name" => $data->name,
@@ -84,9 +104,11 @@ class UserRoleModel
                 "userRole" => $data->privilege['userRole'],
                 "website" => $data->privilege['website'],
                 "worksheet" => $data->privilege['worksheet'],
-                "whatsapp" => $data->privilege['whatsapp'],
-                "sms" =>  $data->privilege['sms'],
-                "email" =>  $data->privilege['email']
+                "worksheetCrm" => $data->privilege['worksheetCrm'],
+                "tools" => $data->privilege['tools']
+                // "whatsapp" => $data->privilege['whatsapp'],
+                // "sms" =>  $data->privilege['sms'],
+                // "email" =>  $data->privilege['email']
             ],
             "status" => $data->status,
             "modified" => DataComponent::initializeTimestamp($this->user)

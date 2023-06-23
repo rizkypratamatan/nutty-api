@@ -21,13 +21,21 @@ class UserGroupController extends Controller
             
             $limit = !empty($request->limit)?$request->limit:10;
             $offset = !empty($request->offset)?$request->offset:0;
-            $userModel =  new UserGroupModel($request);
-            $user = $userModel->getAllUserGroup($limit, $offset);
+            $filter = [];
+
+            $filter['name'] = !empty($request->name)?$request->name:0;
+            $filter['website'] = !empty($request->website)?$request->website:0;
+            $filter['status'] = !empty($request->status)?$request->status:0;
+            $filter['nucode'] = !empty($request->nucode)?$request->nucode:0;
+
+            $userModel =  new UserGroupModel();
+            $data = $userModel->getAllUserGroup($limit, $offset, $filter);
 
             $response = [
                 'result' => true,
                 'response' => 'Get All User Group',
-                'dataUser' => $user
+                'dataUser' => $data['data'],
+                'totalData' => $data['total_data']
             ];
            
             
@@ -47,8 +55,8 @@ class UserGroupController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "userGroup", "add");
 
-            $userModel =  new UserGroupModel($request);
-            $user = $userModel->addUserGroup();
+            $userModel =  new UserGroupModel();
+            $user = $userModel->addUserGroup($request);
 
             if ($user) {
                 $response = [
@@ -78,8 +86,8 @@ class UserGroupController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "userGroup", "edit");
 
-            $userModel =  new UserGroupModel($request);
-            $user = $userModel->updateUserGroupById();
+            $userModel =  new UserGroupModel();
+            $user = $userModel->updateUserGroupById($request);
 
             if ($user) {
                 $response = [
@@ -109,8 +117,8 @@ class UserGroupController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "userGroup", "delete");
 
-            $userModel =  new UserGroupModel($request);
-            $user = $userModel->deleteUserGroup();
+            $userModel =  new UserGroupModel();
+            $user = $userModel->deleteUserGroup($request->id);
 
             if ($user) {
                 $response = [
@@ -140,8 +148,8 @@ class UserGroupController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "userGroup", "view");
 
-            $userModel =  new UserGroupModel($request);
-            $user = $userModel->getUserGroupById();
+            $userModel =  new UserGroupModel();
+            $user = $userModel->getUserGroupById($request->id);
 
             if ($user) {
                 $response = [

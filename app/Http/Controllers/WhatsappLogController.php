@@ -18,7 +18,7 @@ class WhatsappLogController extends Controller
 
         if ($validation->result) {
             //check privilege
-            DataComponent::checkPrivilege($request, "whatsapp", "view");
+            DataComponent::checkPrivilege($request, "tools", "view");
             
             $limit = !empty($request->limit)?$request->limit:10;
             $offset = !empty($request->offset)?$request->offset:0;
@@ -48,7 +48,7 @@ class WhatsappLogController extends Controller
         if ($validation->result) {
 
             //check privilege
-            DataComponent::checkPrivilege($request, "whatsapp", "delete");
+            DataComponent::checkPrivilege($request, "tools", "delete");
 
             $model =  new WhatsappLogModel($request);
             $data = $model->deleteChat($request->id);
@@ -78,7 +78,7 @@ class WhatsappLogController extends Controller
         if ($validation->result) {
 
             //check privilege
-            DataComponent::checkPrivilege($request, "whatsapp", "view");
+            DataComponent::checkPrivilege($request, "tools", "view");
 
             $model =  new WhatsappLogModel($request);
             $data = $model->getChatById($request->id);
@@ -111,7 +111,7 @@ class WhatsappLogController extends Controller
         if ($validation->result){
 
             //check privilege
-            DataComponent::checkPrivilege($request, "whatsapp", "add");
+            DataComponent::checkPrivilege($request, "tools", "add");
 
             $model = new WhatsappLogModel($request);
             $resp = $model->sendBulkChat();
@@ -137,7 +137,7 @@ class WhatsappLogController extends Controller
         if ($validation->result){
 
             //check privilege
-            DataComponent::checkPrivilege($request, "whatsapp", "add");
+            DataComponent::checkPrivilege($request, "tools", "add");
 
             $model = new WhatsappLogModel($request);
             $resp = $model->sendSingleChat();

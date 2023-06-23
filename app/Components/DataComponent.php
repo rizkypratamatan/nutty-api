@@ -324,21 +324,6 @@ class DataComponent {
 
     }
 
-    public static function initializeAccount($request) 
-    {
-
-        $result = new User();
-
-        if($request->session()->has("account")) {
-
-            $result = $request->session()->get("account");
-
-        }
-
-        return $result;
-
-    }
-
 
     public static function createDatabaseIndex($table) {
 
@@ -450,7 +435,8 @@ class DataComponent {
 
         $mytime = Carbon::now();
         return [
-            "timestamp" => $mytime->toDateTimeString(),
+            // "timestamp" => $mytime->toDateTimeString(),
+            "timestamp" => new UTCDateTime(),
             "user" => [
                 "_id" => self::initializeObjectId($account->_id),
                 "avatar" => $account->avatar,
