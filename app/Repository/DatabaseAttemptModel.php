@@ -2,107 +2,26 @@
 
 namespace App\Repository;
 
-use App\Models\Database;
+use App\Components\DataComponent;
 use App\Models\DatabaseAttempt;
-use App\Models\DatabaseImport;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
-
-class DatabaseAttemptModel
-{
-
-    public function insert($data, $auth)
-    {
-
-        $mytime = Carbon::now();
-
-        $arr = [
-            "contact" => [
-                "email" => $data->email,
-                "line" => $data->line,
-                "michat" => $data->michat,
-                "phone" => $data->phone,
-                "telegram" => $data->telegram,
-                "wechat" => $data->wechat,
-                "whatsapp" => $data->whatsapp
-            ],
-            "status" => [
-                "names" => "",
-                "totals" => ""
-            ],
-            "total" => 0,
-            "website" => [
-                "ids" => "",
-                "names" => "",
-                "totals" => ""
-            ],
-            "created" => [
-                "timestamp" => $mytime->toDateTimeString(),
-                "user" => [
-                    "_id" => $auth->_id,
-                    "username" => $auth->username
-                ]
-            ],
-            "modified" => [
-                "timestamp" => $mytime->toDateTimeString(),
-                "user" => [
-                    "_id" => $auth->_id,
-                    "username" => $auth->username
-                ]
-            ]
-        ];
 
 
-        return DB::table('databaseAttempt')
-            ->insert($arr);
-    }
+class DatabaseAttemptModel {
 
-    public function update($auth,$data)
-    {
-        $mytime = Carbon::now();
-        $arr = [
-            "contact" => [
-                "email" => $data->email,
-                "line" => $data->line,
-                "michat" => $data->michat,
-                "phone" => $data->phone,
-                "telegram" => $data->telegram,
-                "wechat" => $data->wechat,
-                "whatsapp" => $data->whatsapp
-            ],
-            "status" => [
-                "names" => "",
-                "totals" => ""
-            ],
-            "total" => 0,
-            "website" => [
-                "ids" => "",
-                "names" => "",
-                "totals" => ""
-            ],
-            // "created" => [
-            //     "timestamp" => "",
-            //     "user" => [
-            //         "_id" => "0",
-            //         "username" => "System"
-            //     ]
-            // ],
-            "modified" => [
-                "timestamp" => $mytime->toDateTimeString(),
-                "user" => [
-                    "_id" => $auth->_id,
-                    "username" => $auth->username
-                ]
-            ]
-        ];
 
-        return DB::table('databaseAttempt')
-            ->where('_id', $data->id)->update($arr);
+    public static function findOneByContactPhone($contactPhone, $nucode) {
+
+        $databaseAttempt = new DatabaseAttempt();
+        $databaseAttempt->setTable("databaseAttempt_" . $nucode);
+
+        return $databaseAttempt->where([
+            ["contact.phone", "=", $contactPhone]
+        ])->first();
 
     }
 
-    public static function findOneById($id, $nucode) 
-    {
+
+    public static function findOneById($id, $nucode) {
 
         $databaseAttempt = new DatabaseAttempt();
         $databaseAttempt->setTable("databaseAttempt_" . $nucode);
@@ -113,5 +32,43 @@ class DatabaseAttemptModel
 
     }
 
-    
+
+    public static function insert($account, $data) {
+
+        $data->created = DataComponent::initializeTimestamp($account);
+        $data->modified = $data->created;
+
+        $data->setTable("databaseAttempt_" . $account->nucode);
+
+        $data->save();
+
+        return $data;
+
+    }
+
+
+    public static function insertMany($data, $nucode) {
+
+        $databaseAttempt = new DatabaseAttempt();
+        $databaseAttempt->setTable("databaseAttempt_" . $nucode);
+        $databaseAttempt->insert($data);
+
+    }
+
+
+    public static function update($account, $data) {
+
+        if($account != null) {
+
+            $data->modified = DataComponent::initializeTimestamp($account);
+
+        }
+
+        $data->setTable("databaseAttempt_" . $account->nucode);
+
+        return $data->save();
+
+    }
+
+
 }

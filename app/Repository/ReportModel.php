@@ -207,7 +207,7 @@ class ReportModel
     public function userReport($id)
     {
 
-        return User::where('_id', 'username', $id)->first();
+        return DB::where('_id', 'username', $id)->first();
     }
 
     public function addReport($data)
@@ -280,7 +280,7 @@ class ReportModel
     public function getReportById($id)
     {
 
-        return Report::where('_id', $id)->first();
+        return DB::where('_id', $id)->first();
     }
 
 

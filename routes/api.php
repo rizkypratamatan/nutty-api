@@ -158,10 +158,8 @@ Route::group(["middleware" => ["authentication"]], function() {
 
     // database import
     Route::post('/import-database', [DatabaseImportController::class, 'importDatabase'])->name('import-database');
-    Route::post('/import-initialize-data', [DatabaseImportController::class, 'initializeData'])->name('import-initialize-data');
-    Route::post('/import-history-delete', [DatabaseImportController::class, 'historyDelete'])->name('import-history-delete');
-    Route::post('/delete-import-database', [DatabaseImportController::class, 'deleteImportDatabase'])->name('delete-import-database');
-    Route::post('/get-import-database', [DatabaseImportController::class, 'getImportDatabase'])->name('get-import-database');
+    Route::post('/import-database-delete', [DatabaseImportController::class, 'historyDelete'])->name('import-history-delete');
+    Route::post('/import-database-history', [DatabaseImportController::class, 'history'])->name('import-database-history');
 
     // register
     Route::post('/register', [RegisterController::class, 'addRegister'])->name('register');

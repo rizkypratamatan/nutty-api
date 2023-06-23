@@ -23,7 +23,8 @@ class Authentication {
             
             return response([
                 "status" => 403,
-                "message" => "Unauthenticated"
+                "message" => "Unauthenticated",
+                "data" => $authentication
             ], 403);
         }
         
