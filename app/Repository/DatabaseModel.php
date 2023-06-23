@@ -198,12 +198,14 @@ class DatabaseModel
     public static function findOneByContactPhone($contactPhone, $websiteId) 
     {
 
-        $database = new Database();
-        $database->setTable("database_" . $websiteId);
+        // $database = new Database();
+        // $database->setTable("database_" . $websiteId);
 
-        return $database->where([
-            ["contact.phone", "=", $contactPhone]
-        ])->first();
+        // return $database->where([
+        //     ["contact.phone", "=", $contactPhone]
+        // ])->first();
+
+        return DB::table("database_".$websiteId)->where('_id', $contactPhone)->first();
 
     }
 

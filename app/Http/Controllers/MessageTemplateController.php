@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Components\AuthenticationComponent;
+use App\Components\LogComponent;
 use App\Repository\MessageTemplateModel;
 use Illuminate\Http\Request;
 
