@@ -6,6 +6,7 @@ use App\Components\AuthenticationComponent;
 use App\Components\LogComponent;
 use App\Helpers\Authentication;
 use App\Http\Requests\Login\LoginRequest;
+use App\Repository\UserGroupModel;
 use App\Repository\UserLogModel;
 use App\Repository\UserModel;
 use App\Services\encryption\EncryptionService;
@@ -20,20 +21,29 @@ class LoginController extends Controller
     {
         $validation = AuthenticationComponent::validate($request);
         LogComponent::response($request, $validation);
-
+        
         if ($validation->result) {
+            
             $userModel =  new UserModel();
             $user = $userModel->getUserByUsername($request->username);            
-            $pass =  Crypt::decryptString($user['password']['main']);
             
+            $pass =  Crypt::decryptString($user['password']['main']);
+            $groupModel = new UserGroupModel();
             if ($request->password == $pass) {
                 $data = [
                     'id' => (string)$user['_id'],
                     'name' => $user['name'],
                     'username' => $user['username'],
-                    'role' => $user['role']['name'],
+                    'role' => $user['role'],
+                    'group' => $user['group'],
+                    'website' => $user['group'],
+                    'privilege' => $user['privilege'],
                     'type' => $user['type'],
                 ];
+
+                if((!empty($user['group']) and strtolower($user['group']['name']) != "system")){
+                    $data['group'] = $groupModel->getUserGroupById($user['group']['_id']);
+                }
 
                 $userLog = new UserLogModel();
                 $tokenAuth = $userLog->insertToLog($user, "Login", null);

@@ -2,12 +2,42 @@
 
 namespace App\Repository;
 
+use App\Components\AuthenticationComponent;
 use App\Components\DataComponent;
 use App\Models\Database;
 
 
 class DatabaseModel {
 
+
+    public static function getAll($request, $limit, $offset){
+
+        $account = AuthenticationComponent::toUser($request);
+        $database = new Database();
+        $database->setTable("database_" . $request->website);
+        $database = $database->orderBy('created.timestamp', 'desc');
+
+        $response = [
+            "data" => null,
+            "total_data" => 0
+        ];
+        
+        if(!empty($request->name)){
+            $database = $database->where('name', $request->name);
+        }
+
+        if(!empty($request->phone)){
+            $database = $database->where('phone', $request->phone);
+        }
+        
+        $recordsTotal = $database->count("_id");
+        $data = $database->take($limit)->skip($offset)->get();        
+
+        $response['data'] = $data;
+        $response['total_data'] = $recordsTotal;
+
+        return $response;
+    }
 
     public static function delete($data) {
 
