@@ -29,40 +29,49 @@ class UserModel
         ];
 
         $users = User::take($limit)->skip($offset);
+        $countData = new User();
 
         if(!empty($filter['username'])){
             $users = $users->where('username', $filter['username']);
+            $countData = $countData->where('username', $filter['username']);
         }
 
         if(!empty($filter['name'])){
             $users = $users->where('name', 'LIKE', $filter['name'].'%');
+            $countData = $countData->where('name', 'LIKE', $filter['name'].'%');
         }
 
         if(!empty($filter['nucode'])){
             $users = $users->where('nucode', $filter['nucode']);
+            $countData = $countData->where('nucode', $filter['nucode']);
         }
 
         if(!empty($filter['type'])){
             $users = $users->where('type', $filter['type']);
+            $countData = $countData->where('type', $filter['type']);
         }
 
         if(!empty($filter['group'])){
             $users = $users->where('group._id', $filter['group']);
+            $countData = $countData->where('group._id', $filter['group']);
         }
 
         if(!empty($filter['role'])){
             $users = $users->where('role._id', $filter['role']);
+            $countData = $countData->where('role._id', $filter['role']);
         }
 
         if(!empty($filter['status'])){
             $users = $users->where('status', $filter['status']);
+            $countData = $countData->where('status', $filter['status']);
         }
 
         $users = $users->where('username', '<>', 'system')->get();
+        $counData = $countData->count();
 
         $response = [
             "data" => $users,
-            "total_data" => $users->count()
+            "total_data" => $counData
         ];
         
 
