@@ -19,20 +19,24 @@ class WhatsappLogController extends Controller
         if ($validation->result) {
             //check privilege
             DataComponent::checkPrivilege($request, "tools", "view");
-            
-            $limit = !empty($request->limit)?$request->limit:10;
-            $offset = !empty($request->offset)?$request->offset:0;
 
+            $limit = !empty($request->limit) ? $request->limit : 10;
+            $offset = !empty($request->offset) ? $request->offset : 0;
+            $filter = [];
+            $filter['recipient'] = !empty($request->recipient) ? $request->recipient : "";
+            $filter['message'] = !empty($request->message) ? $request->message : "";
+            $filter['status'] = !empty($request->status) ? $request->status : "";
+            
             $model =  new WhatsappLogModel($request);
-            $data = $model->getAllChat($limit, $offset);
+            $data = $model->getAllChat($limit, $offset, $filter);
 
             $response = [
                 'result' => true,
                 'response' => 'Get All Whatsapp Chat',
-                'data' => $data
+                // 'data' => $data
             ];
-           
-            
+
+            $response = array_merge($data, $response);
         } else {
             $response = $validation;
         }
@@ -44,7 +48,7 @@ class WhatsappLogController extends Controller
     {
         $validation = AuthenticationComponent::validate($request);
         LogComponent::response($request, $validation);
-        
+
         if ($validation->result) {
 
             //check privilege
@@ -103,12 +107,13 @@ class WhatsappLogController extends Controller
         return response()->json($response, 200);
     }
 
-    public function sendBulkChat(Request $request){
+    public function sendBulkChat(Request $request)
+    {
 
         $validation = AuthenticationComponent::validate($request);
         LogComponent::response($request, $validation);
 
-        if ($validation->result){
+        if ($validation->result) {
 
             //check privilege
             DataComponent::checkPrivilege($request, "tools", "add");
@@ -121,7 +126,6 @@ class WhatsappLogController extends Controller
                 'response' => "WhatsApp bulk chats has been queued!",
                 'data' => false
             ];
-            
         } else {
             $response = $validation;
         }
@@ -129,12 +133,13 @@ class WhatsappLogController extends Controller
         return response()->json($response, 200);
     }
 
-    public function sendSingleChat(Request $request){
+    public function sendSingleChat(Request $request)
+    {
 
         $validation = AuthenticationComponent::validate($request);
         LogComponent::response($request, $validation);
 
-        if ($validation->result){
+        if ($validation->result) {
 
             //check privilege
             DataComponent::checkPrivilege($request, "tools", "add");
@@ -143,7 +148,6 @@ class WhatsappLogController extends Controller
             $resp = $model->sendSingleChat();
 
             $response = $resp;
-            
         } else {
             $response = $validation;
         }
@@ -151,25 +155,26 @@ class WhatsappLogController extends Controller
         return response()->json($response, 200);
     }
 
-    public function testSendBulkChat(Request $request){
+    public function testSendBulkChat(Request $request)
+    {
 
         // $validation = AuthenticationComponent::validate($request);
         // LogComponent::response($request, $validation);
 
         // if ($validation->result){
 
-            //check privilege
-            //DataComponent::checkPrivilege($request, "whatsapp", "add");
+        //check privilege
+        //DataComponent::checkPrivilege($request, "whatsapp", "add");
 
-            $model = new WhatsappLogModel($request);
-            $resp = $model->testSendBulkChat();
+        $model = new WhatsappLogModel($request);
+        $resp = $model->testSendBulkChat();
 
-            $response = [
-                'result' => true,
-                'response' => "WhatsApp bulk chats has been queued!",
-                'data' => false
-            ];
-            
+        $response = [
+            'result' => true,
+            'response' => "WhatsApp bulk chats has been queued!",
+            'data' => false
+        ];
+
         // } else {
         //     $response = $validation;
         // }
@@ -177,21 +182,22 @@ class WhatsappLogController extends Controller
         return response()->json($response, 200);
     }
 
-    public function testSendSingleChat(Request $request){
+    public function testSendSingleChat(Request $request)
+    {
 
         // $validation = AuthenticationComponent::validate($request);
         // LogComponent::response($request, $validation);
 
         // if ($validation->result){
 
-            //check privilege
-            // DataComponent::checkPrivilege($request, "whatsapp", "add");
+        //check privilege
+        // DataComponent::checkPrivilege($request, "whatsapp", "add");
 
-            $model = new WhatsappLogModel($request);
-            $resp = $model->testSendSingleChat();
+        $model = new WhatsappLogModel($request);
+        $resp = $model->testSendSingleChat();
 
-            $response = $resp;
-            
+        $response = $resp;
+
         // } else {
         //     $response = $validation;
         // }

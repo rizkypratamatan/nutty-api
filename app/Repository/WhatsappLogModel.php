@@ -13,49 +13,76 @@ class WhatsappLogModel
     protected $request;
 
     public function __construct($request)
-    {   
+    {
         $this->service = new WhatsappService();
         $this->request = $request;
     }
 
-    public function getAllChat($limit=10, $offset=0)
-    {   
+    public function getAllChat($limit = 10, $offset = 0, $filter = [])
+    {
         $user = AuthenticationComponent::toUser($this->request);
-        $data = DB::table("whatsappLogs_".$user->_id)
-                ->take($limit)
-                ->skip($offset)
-                ->get();
 
-        return $data;
+        $response = [
+            "data" => null,
+            "total_data" => 0
+        ];
+
+        $chat = DB::table("whatsappLogs_" . $user->_id)->take($limit)->skip($offset);
+        $countData = DB::table("whatsappLogs_" . $user->_id);
+
+        if (!empty($filter['recipient'])) {
+            $chat = $chat->where('recipient', 'LIKE', "%" . $filter['recipient'] . "%");
+            $countData = $countData->where('recipient', 'LIKE', "%" . $filter['recipient'] . "%");
+        }
+
+        if (!empty($filter['message'])) {
+            $chat = $chat->where('message', 'LIKE', "%" . $filter['message'] . "%");
+            $countData = $countData->where('message', 'LIKE', "%" . $filter['message'] . "%");
+        }
+
+        if (!empty($filter['status'])) {
+            $chat = $chat->where('status', $filter['status']);
+            $countData = $countData->where('status', $filter['status']);
+        }
+
+        $data = $chat->orderBy('_id', 'DESC')->get();
+        $counData = $countData->count();
+
+        $response = [
+            "data" => $data,
+            "total_data" => $counData
+        ];
+
+        return $response;
     }
 
     public function deleteChat($id)
     {
         $user = AuthenticationComponent::toUser($this->request);
-        return DB::table("whatsappLogs_".$user->_id)
-                ->where('_id', $id)
-                ->delete();
+        return DB::table("whatsappLogs_" . $user->_id)
+            ->where('_id', $id)
+            ->delete();
     }
 
     public function getChatById($id)
     {
         $user = AuthenticationComponent::toUser($this->request);
-        return DB::table("whatsappLogs_".$user->_id)
-                        ->where('_id', $id)
-                        ->first();
+        return DB::table("whatsappLogs_" . $user->_id)
+            ->where('_id', $id)
+            ->first();
     }
 
     public function sendSingleChat()
     {
         $account = $this->service->getAccounts();
 
-        if($account['status'] == 200){
+        if ($account['status'] == 200) {
             $chat = $this->service->initializeSingleChat($this->request, $account['data'][0]['id'], $this->request->recipient);
             $resp = $this->service->processSingleChat($chat);
             $this->insertDB($chat);
 
             $response = $resp;
-        }else{
+        } else {
             $response = [
                 'result' => false,
                 'response' => "Whatsapp service currently unavailable",
@@ -67,51 +94,50 @@ class WhatsappLogModel
     }
 
     public function sendBulkChat()
-    {   
+    {
         //get wa accounts
         $account = $this->service->getAccounts();
-        
-        if($account['status'] == 200){
+
+        if ($account['status'] == 200) {
             $accountCount = count($account['data']);
 
             $numbers = explode(",", $this->request->recipients);
             $total_number = count($numbers);
 
-            if($total_number > 3){
+            if ($total_number > 3) {
                 //
-                if($total_number <= $accountCount){
+                if ($total_number <= $accountCount) {
                     $accountCount = $total_number;
-                    $devider = $total_number/$accountCount;
-                    
-                }else{
-                    $devider = round($total_number/$accountCount);
+                    $devider = $total_number / $accountCount;
+                } else {
+                    $devider = round($total_number / $accountCount);
                 }
                 $numbers = array_chunk($numbers, $devider);
-            }else{
+            } else {
                 $accountCount = 1;
             }
 
-            for($i=0;$i<$accountCount;$i++){
+            for ($i = 0; $i < $accountCount; $i++) {
                 $device_id = $account['data'][$i]['id'];
-                if(is_array($numbers[$i])){
+                if (is_array($numbers[$i])) {
                     $bulk = $this->service->initializeBulkChat($this->request, $device_id, implode(",", $numbers[$i]));
                     //proses chat
                     $this->service->processBulkChat($bulk);
 
                     //save DB
-                    foreach($numbers[$i] as $recepient){
+                    foreach ($numbers[$i] as $recepient) {
                         $data = $this->service->initializeSingleChat($this->request, $device_id, $recepient);
                         // $this->insertDB($data);
                     }
-                }else{
+                } else {
                     $bulk = $this->service->initializeBulkChat($this->request, $device_id, implode(",", $numbers));
                     //proses chat
                     $this->service->processBulkChat($bulk);
 
                     //save DB
-                    foreach($numbers as $recepient){
+                    foreach ($numbers as $recepient) {
                         $data = $this->service->initializeSingleChat($this->request, $device_id, $recepient);
-                        // $this->insertDB($data);
+                        $this->insertDB($data);
                     }
                 }
             }
@@ -121,8 +147,7 @@ class WhatsappLogModel
                 'response' => "WhatsApp chats has been queued!",
                 'data' => false
             ];
-
-        }else{
+        } else {
             $response = [
                 'result' => false,
                 'response' => "Whatsapp service currently unavailable",
@@ -144,7 +169,7 @@ class WhatsappLogModel
         $data['created'] = DataComponent::initializeTimestamp($user);
         $data['modified'] = DataComponent::initializeTimestamp($user);;
 
-        return DB::table('whatsappLogs_'.$user->_id)->insert($data);
+        return DB::table('whatsappLogs_' . $user->_id)->insert($data);
     }
 
     public function testSendSingleChat()
@@ -152,13 +177,13 @@ class WhatsappLogModel
         $user = AuthenticationComponent::systemUser();
         $account = $this->service->getAccounts();
 
-        if($account['status'] == 200){
+        if ($account['status'] == 200) {
             $chat = $this->service->initializeSingleChat($this->request, $account['data'][0]['id'], $this->request->recipient);
             $resp = $this->service->processSingleChat($chat);
             // $this->insertDB($chat);
 
             $response = $resp;
-        }else{
+        } else {
             $response = [
                 'result' => false,
                 'response' => "Whatsapp service currently unavailable",
@@ -170,51 +195,50 @@ class WhatsappLogModel
     }
 
     public function testSendBulkChat()
-    {   
+    {
         //get wa accounts
         $user = AuthenticationComponent::systemUser();
         $account = $this->service->getAccounts();
-        
-        if($account['status'] == 200){
+
+        if ($account['status'] == 200) {
             $accountCount = count($account['data']);
 
             $numbers = explode(",", $this->request->recipients);
             $total_number = count($numbers);
 
-            if($total_number > 3){
+            if ($total_number > 3) {
                 //
-                if($total_number <= $accountCount){
+                if ($total_number <= $accountCount) {
                     $accountCount = $total_number;
-                    $devider = $total_number/$accountCount;
-                    
-                }else{
-                    $devider = round($total_number/$accountCount);
+                    $devider = $total_number / $accountCount;
+                } else {
+                    $devider = round($total_number / $accountCount);
                 }
                 $numbers = array_chunk($numbers, $devider);
-            }else{
+            } else {
                 $accountCount = 1;
             }
 
-            for($i=0;$i<$accountCount;$i++){
+            for ($i = 0; $i < $accountCount; $i++) {
                 $device_id = $account['data'][$i]['id'];
 
-                if(is_array($numbers[$i])){
+                if (is_array($numbers[$i])) {
                     $bulk = $this->service->initializeBulkChat($this->request, $device_id, implode(",", $numbers[$i]));
                     //proses chat
                     $this->service->processBulkChat($bulk);
 
                     //save DB
-                    foreach($numbers[$i] as $recepient){
+                    foreach ($numbers[$i] as $recepient) {
                         $data = $this->service->initializeSingleChat($this->request, $device_id, $recepient);
                         // $this->insertDB($data);
                     }
-                }else{
+                } else {
                     $bulk = $this->service->initializeBulkChat($this->request, $device_id, implode(",", $numbers));
                     //proses chat
                     $this->service->processBulkChat($bulk);
 
                     //save DB
-                    foreach($numbers as $recepient){
+                    foreach ($numbers as $recepient) {
                         $data = $this->service->initializeSingleChat($this->request, $device_id, $recepient);
                         // $this->insertDB($data);
                     }
@@ -226,8 +250,7 @@ class WhatsappLogModel
                 'response' => "WhatsApp chats has been queued!",
                 'data' => false
             ];
-
-        }else{
+        } else {
             $response = [
                 'result' => false,
                 'response' => "Whatsapp service currently unavailable",
@@ -247,7 +270,7 @@ class WhatsappLogModel
     //     ]);
 
     //     $resp = json_decode($response);
-        
+
     //     if($resp->status = 200){
     //         Log::info("Response Delete Received WA ".$this->base_url.$end_point." : ". $response);
     //     }else{
@@ -266,7 +289,7 @@ class WhatsappLogModel
     //     ]);
 
     //     $resp = json_decode($response);
-        
+
     //     if($resp->status = 200){
     //         Log::info("Response Delete Sent WA ".$this->base_url.$end_point." : ". $response);
     //     }else{
@@ -285,7 +308,7 @@ class WhatsappLogModel
     //     ]);
 
     //     $resp = json_decode($response);
-        
+
     //     if($resp->status = 200){
     //         Log::info("Response Delete WA Campaign ".$this->base_url.$end_point." : ". $response);
     //     }else{
@@ -305,7 +328,7 @@ class WhatsappLogModel
     //     ]);
 
     //     $resp = json_decode($response);
-        
+
     //     if($resp->status = 200){
     //         Log::info("Response Get WA Pending ".$this->base_url.$end_point." : ". $response);
     //     }else{
@@ -325,7 +348,7 @@ class WhatsappLogModel
     //     ]);
 
     //     $resp = json_decode($response);
-        
+
     //     if($resp->status = 200){
     //         Log::info("Response Get WA Received ".$this->base_url.$end_point." : ". $response);
     //     }else{
@@ -345,7 +368,7 @@ class WhatsappLogModel
     //     ]);
 
     //     $resp = json_decode($response);
-        
+
     //     if($resp->status = 200){
     //         Log::info("Response Get WA Sent ".$this->base_url.$end_point." : ". $response);
     //     }else{
@@ -365,7 +388,7 @@ class WhatsappLogModel
     //     ]);
 
     //     $resp = json_decode($response);
-        
+
     //     if($resp->status = 200){
     //         Log::info("Response Get WA Campaigns ".$this->base_url.$end_point." : ". $response);
     //     }else{
@@ -384,7 +407,7 @@ class WhatsappLogModel
     //     ]);
 
     //     $resp = json_decode($response);
-        
+
     //     if($resp->status = 200){
     //         Log::info("Response Get WA QR ".$this->base_url.$end_point." : ". $response);
     //     }else{
@@ -404,7 +427,7 @@ class WhatsappLogModel
     //     ]);
 
     //     $resp = json_decode($response);
-        
+
     //     if($resp->status = 200){
     //         Log::info("Response Start Wa Campaign ".$this->base_url.$end_point." : ". $response);
     //     }else{
@@ -423,7 +446,7 @@ class WhatsappLogModel
     //     ]);
 
     //     $resp = json_decode($response);
-        
+
     //     if($resp->status = 200){
     //         Log::info("Response Stop Wa Campaign ".$this->base_url.$end_point." : ". $response);
     //     }else{
