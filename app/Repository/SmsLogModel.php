@@ -46,7 +46,7 @@ class SmsLogModel
             $countData = $countData->where('status', $filter['status']);
         }
 
-        $sms = $sms->get();
+        $sms = $sms->orderBy('_id', 'DESC')->get();
         $counData = $countData->count();
 
         $response = [
@@ -135,7 +135,7 @@ class SmsLogModel
                     $this->service->processBulkChat($bulk);
 
                     //save DB
-                    foreach ($numbers[$i] as $recepient) {
+                    foreach ($numbers as $recepient) {
                         $data = $this->service->initializeSingleData($this->request->message, $device_id, $recepient);
                         $this->insertDB($data);
                     }
