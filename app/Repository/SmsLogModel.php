@@ -143,13 +143,13 @@ class SmsLogModel
             }
 
             $response = [
-                'result' => true,
+                'status' => true,
                 'response' => "Message chats has been queued!",
                 'data' => false
             ];
         } else {
             $response = [
-                'result' => false,
+                'status' => false,
                 'response' => "Message service currently unavailable",
                 'data' => false
             ];
