@@ -15,6 +15,26 @@ use stdClass;
 
 class DataComponent {
 
+    public static function checkNucode($request, $nucode, $validation) {
+
+        $user = AuthenticationComponent::toUser($request);
+        if($user) {
+
+            if($user->nucode != "system") {
+
+                if($user->nucode != $nucode) {
+
+                    array_push($validation, false);
+
+                }
+
+            }
+
+        }
+
+        return $validation;
+
+    }
 
     public static function initializeClient($nukey) {
 
@@ -709,5 +729,12 @@ class DataComponent {
         $table->string("modified.user.avatar")->index();
         $table->string("modified.user.name")->index();
         $table->string("modified.user.username")->index();
+    }
+
+    public static function initializeAccount($request) {
+
+        $result = AuthenticationComponent::toUser($request);
+        return $result;
+
     }
 }

@@ -8,30 +8,90 @@ class WorksheetController extends Controller
 {
     public function index(Request $request) {
 
-       
+        // if(DataComponent::checkPrivilege($request, "worksheet", "view")) {
+
+        //     $model = new stdClass();
+        //     $model->websiteId = $request->session()->get("websiteId");
+
+        //     return view("worksheet.worksheet", [
+        //         "layout" => (object)[
+        //             "css" => [],
+        //             "js" => ["worksheet.js"]
+        //         ],
+        //         "model" => $model
+        //     ]);
+
+        // } else {
+
+        //     return redirect("/access-denied/");
+
+        // }
 
     }
 
 
     public function call(Request $request, $websiteId, $id) {
 
+        // if(DataComponent::checkPrivilege($request, "worksheet", "view")) {
+
+        //     $request->session()->put("websiteId", $websiteId);
+
+        //     $model = new stdClass();
+        //     $model->id = $id;
+        //     $model->websiteId = $websiteId;
+
+        //     return view("worksheet.call", [
+        //         "layout" => (object)[
+        //             "css" => [],
+        //             "js" => ["worksheet.js"]
+        //         ],
+        //         "model" => $model
+        //     ]);
+
+        // } else {
+
+        //     return redirect("/access-denied/");
+
+        // }
+
+    }
+
+
+    public function crm(Request $request) {
+
+        // if(DataComponent::checkPrivilege($request, "worksheetCrm", "view")) {
+
+        //     $worksheetResponse = WorksheetService::findFilter($request, null);
+
+        //     $model = new stdClass();
+        //     $model->websiteId = $request->session()->get("websiteId");
+
+        //     return view("worksheet.crm", [
+        //         "layout" => (object)[
+        //             "css" => [],
+        //             "js" => ["worksheet.js"]
+        //         ],
+        //         "model" => $model
+        //     ]);
+
+        // } else {
+
+        //     return redirect("/access-denied/");
+
+        // }
+
+    }
+
+
+    public function crmTable(Request $request) {
+
         if(DataComponent::checkPrivilege($request, "worksheet", "view")) {
 
-            $model = new stdClass();
-            $model->id = $id;
-            $model->websiteId = $websiteId;
-
-            return view("worksheet.call", [
-                "layout" => (object)[
-                    "css" => [],
-                    "js" => ["worksheet.js"]
-                ],
-                "model" => $model
-            ]);
+            return response()->json(WorksheetService::crmFindTable($request), 200);
 
         } else {
 
-            return redirect("/access-denied/");
+            return response()->json(DataComponent::initializeAccessDenied(), 200);
 
         }
 
@@ -40,58 +100,58 @@ class WorksheetController extends Controller
 
     public function result(Request $request) {
 
-        if(DataComponent::checkPrivilege($request, "worksheet", "view")) {
+        // if(DataComponent::checkPrivilege($request, "worksheet", "view")) {
 
-            $worksheetResponse = WorksheetService::findFilter($request, null);
+        //     $worksheetResponse = WorksheetService::findFilter($request, null);
 
-            $model = new stdClass();
-            $model->filterDate = "";
-            $model->userId = "";
-            $model->users = $worksheetResponse->users;
-            $model->websites = $worksheetResponse->websites;
+        //     $model = new stdClass();
+        //     $model->filterDate = "";
+        //     $model->userId = "";
+        //     $model->users = $worksheetResponse->users;
+        //     $model->websites = $worksheetResponse->websites;
 
-            return view("worksheet.result", [
-                "layout" => (object)[
-                    "css" => [],
-                    "js" => ["worksheet.js"]
-                ],
-                "model" => $model
-            ]);
+        //     return view("worksheet.result", [
+        //         "layout" => (object)[
+        //             "css" => [],
+        //             "js" => ["worksheet.js"]
+        //         ],
+        //         "model" => $model
+        //     ]);
 
-        } else {
+        // } else {
 
-            return redirect("/access-denied/");
+        //     return redirect("/access-denied/");
 
-        }
+        // }
 
     }
 
 
     public function resultUser(Request $request, $id) {
 
-        if(DataComponent::checkPrivilege($request, "worksheet", "view")) {
+        // if(DataComponent::checkPrivilege($request, "worksheet", "view")) {
 
-            $worksheetResponse = WorksheetService::findFilter($request, $id);
+        //     $worksheetResponse = WorksheetService::findFilter($request, $id);
 
-            $model = new stdClass();
-            $model->filterDate = $worksheetResponse->filterDate;
-            $model->userId = $id;
-            $model->users = $worksheetResponse->users;
-            $model->websites = $worksheetResponse->websites;
+        //     $model = new stdClass();
+        //     $model->filterDate = $worksheetResponse->filterDate;
+        //     $model->userId = $id;
+        //     $model->users = $worksheetResponse->users;
+        //     $model->websites = $worksheetResponse->websites;
 
-            return view("worksheet.result", [
-                "layout" => (object)[
-                    "css" => [],
-                    "js" => ["worksheet.js"]
-                ],
-                "model" => $model
-            ]);
+        //     return view("worksheet.result", [
+        //         "layout" => (object)[
+        //             "css" => [],
+        //             "js" => ["worksheet.js"]
+        //         ],
+        //         "model" => $model
+        //     ]);
 
-        } else {
+        // } else {
 
-            return redirect("/access-denied/");
+        //     return redirect("/access-denied/");
 
-        }
+        // }
 
     }
 
@@ -144,6 +204,21 @@ class WorksheetController extends Controller
     public function start(Request $request) {
 
         if(DataComponent::checkPrivilege($request, "worksheet", "edit")) {
+
+            return response()->json(WorksheetService::start($request), 200);
+
+        } else {
+
+            return response()->json(DataComponent::initializeAccessDenied(), 200);
+
+        }
+
+    }
+
+
+    public function startCrm(Request $request) {
+
+        if(DataComponent::checkPrivilege($request, "worksheetCrm", "edit")) {
 
             return response()->json(WorksheetService::start($request), 200);
 
