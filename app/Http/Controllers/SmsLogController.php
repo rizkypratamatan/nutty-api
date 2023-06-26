@@ -21,16 +21,21 @@ class SmsLogController extends Controller
             
             $limit = !empty($request->limit)?$request->limit:10;
             $offset = !empty($request->offset)?$request->offset:0;
+            $filter = [];
+            $filter['phone'] = !empty($request->phone)?$request->phone:"";
+            $filter['message'] = !empty($request->message)?$request->message:"";
+            $filter['status'] = !empty($request->status)?$request->status:"";
 
             $model =  new SmsLogModel($request);
-            $data = $model->getAll($limit, $offset);
+            $data = $model->getAll($limit, $offset, $filter);
 
             $response = [
                 'result' => true,
                 'response' => 'Get All Message Chat',
-                'data' => $data
+                // 'data' => $data
             ];
-           
+
+            $response = array_merge($data, $response);
             
         } else {
             $response = $validation;

@@ -20,6 +20,8 @@ class UserRoleModel
     public function getRole($limit, $offset, $filter)
     {
         $data = UserRole::take($limit)->skip($offset);
+        $countData = new UserRole();
+
         $response = [
             "data" => null,
             "total_data" => 0
@@ -27,20 +29,24 @@ class UserRoleModel
 
         if(!empty($filter['name'])){
             $data = $data->where('name', 'LIKE', $filter['name']."%");
+            $countData = $countData->where('name', 'LIKE', $filter['name']."%");
         }
 
         if(!empty($filter['nucode'])){
             $data = $data->where('nucode', $filter['nucode']);
+            $countData = $countData->where('nucode', $filter['nucode']);
         }
 
         if(!empty($filter['status'])){
             $data = $data->where('status', $filter['status']);
+            $countData = $countData->where('status', $filter['status']);
         }
+
         $data = $data->get();
-        $total_count = $data->count();
+        $counData = $countData->count();
 
         $response['data'] = $data;
-        $response['total_data'] = $total_count;
+        $response['total_data'] = $counData;
 
         return $response;
     }
