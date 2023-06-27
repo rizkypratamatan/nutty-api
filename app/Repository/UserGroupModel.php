@@ -2,15 +2,12 @@
 
 namespace App\Repository;
 
-use App\Components\AuthenticationComponent;
 use App\Components\DataComponent;
 use App\Models\UserGroup;
-use App\Models\Website;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
 
-class UserGroupModel
-{
+
+class UserGroupModel {
+
     public function getAllUserGroup($limit=10, $offset=0, $filter = [])
     {   
         $data = UserGroup::take($limit)->skip($offset);
@@ -27,8 +24,7 @@ class UserGroupModel
         }
 
         if(!empty($filter['website'])){
-            $data = $data->where('websites', 'elemMatch', ["_id" => $filter['website']]);
-            $countData = $countData->where('websites', 'elemMatch', ["_id" => $filter['website']]);
+            $data = $data->where('website.ids', 'all', [$filter['website']]);
         }
 
         if(!empty($filter['nucode'])){
@@ -49,84 +45,12 @@ class UserGroupModel
         return $response;
     }
 
-    public function addUserGroup($data)
-    {
-        $auth = AuthenticationComponent::toUser($data);
-        $websites = [];
-        if($data->websites){
-            $arrWebsites = $data->websites;
+    public static function delete($data) {
 
-            foreach($arrWebsites as $value){
-                $website = Website::where("_id", $value)->first();
-                
-                if($website){
-                    array_push($websites, $website->toArray());
-                }
-            }
-        }
+        return $data->delete();
 
-        $data = new UserGroup();
-        $data->description = $data->description;
-        $data->name = $data->name;
-        $data->status = $data->status;
-        $data->nucode = $data->nucode;
-        $data->websites = $websites;
-        $data->created = DataComponent::initializeTimestamp($auth);
-        $data->modified = DataComponent::initializeTimestamp($auth);
-
-        $data->save();
-
-        return $data;
     }
 
-    public function deleteUserGroup($id)
-    {
-        return UserGroup::where('_id', $id)->delete();
-    }
-
-    public function getUserGroupById($id)
-    {
-        return UserGroup::where('_id', $id)->first();
-    }
-
-    public function updateUserGroupById($data)
-    {
-        $auth = AuthenticationComponent::toUser($data);
-        $websites = [];
-        if($data->websites){
-            $arrWebsites = $data->websites;
-
-            foreach($arrWebsites as $value){
-                $website = Website::where("_id", $value)->first();
-                
-                if($website){
-                    array_push($websites, $website->toArray());
-                }
-            }
-        }
-
-        $data = UserGroup::find($data->id);
-        $data->description = $data->description;
-        $data->name = $data->name;
-        $data->websites = $websites;
-        $data->status = $data->status;
-        $data->type = $data->type;
-        $data->nucode = $data->nucode;
-        $data->modified = DataComponent::initializeTimestamp($auth);
-
-        $data->save();
-
-        $update = [
-            "group" => [
-                "_id" => DataComponent::initializeObjectId($data->id),
-                "name" => $data->name,
-            ]
-        ];
-
-        UserModel::updateByGroupId($data->id, $update);
-
-        return $data;
-    }
 
     public static function deleteByNucode($nucode) {
 
@@ -191,4 +115,31 @@ class UserGroupModel
         ])->first();
 
     }
+
+
+    public static function insert($account, $data) {
+
+        $data->created = DataComponent::initializeTimestamp($account);
+        $data->modified = $data->created;
+
+        $data->save();
+
+        return $data;
+
+    }
+
+
+    public static function update($account, $data) {
+
+        if($account != null) {
+
+            $data->modified = DataComponent::initializeTimestamp($account);
+
+        }
+
+        return $data->save();
+
+    }
+
+
 }

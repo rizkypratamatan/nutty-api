@@ -6,6 +6,7 @@ use App\Components\AuthenticationComponent;
 use App\Components\DataComponent;
 use App\Components\LogComponent;
 use App\Repository\UserGroupModel;
+use App\Services\UserGroupService;
 use Illuminate\Http\Request;
 
 class UserGroupController extends Controller
@@ -55,20 +56,7 @@ class UserGroupController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "userGroup", "add");
 
-            $userModel =  new UserGroupModel();
-            $user = $userModel->addUserGroup($request);
-
-            if ($user) {
-                $response = [
-                    'result' => true,
-                    'response' => 'success add user group',
-                ];
-            } else {
-                $response = [
-                    'result' => false,
-                    'response' => 'failed add user group',
-                ];
-            }
+            return response()->json(UserGroupService::insert($request), 200);
         } else {
             $response = $validation;
         }
@@ -85,21 +73,8 @@ class UserGroupController extends Controller
         if ($validation->result) {
             //check privilege
             DataComponent::checkPrivilege($request, "userGroup", "edit");
+            return response()->json(UserGroupService::update($request), 200);
 
-            $userModel =  new UserGroupModel();
-            $user = $userModel->updateUserGroupById($request);
-
-            if ($user) {
-                $response = [
-                    'result' => true,
-                    'response' => 'success update user group',
-                ];
-            } else {
-                $response = [
-                    'result' => false,
-                    'response' => 'failed update user group',
-                ];
-            }
         } else {
             $response = $validation;
         }
@@ -117,20 +92,8 @@ class UserGroupController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "userGroup", "delete");
 
-            $userModel =  new UserGroupModel();
-            $user = $userModel->deleteUserGroup($request->id);
+            return response()->json(UserGroupService::delete($request), 200);
 
-            if ($user) {
-                $response = [
-                    'result' => true,
-                    'response' => 'success delete user group',
-                ];
-            } else {
-                $response = [
-                    'result' => false,
-                    'response' => 'failed delete user group',
-                ];
-            }
         } else {
             $response = $validation;
         }
@@ -149,7 +112,7 @@ class UserGroupController extends Controller
             DataComponent::checkPrivilege($request, "userGroup", "view");
 
             $userModel =  new UserGroupModel();
-            $user = $userModel->getUserGroupById($request->id);
+            $user = $userModel->findOneById($request->id);
 
             if ($user) {
                 $response = [
@@ -169,4 +132,22 @@ class UserGroupController extends Controller
 
         return response()->json($response, 200);
     }
+
+    
+
+
+    public function table(Request $request) {
+
+        if(DataComponent::checkPrivilege($request, "userGroup", "view")) {
+
+            return response()->json(UserGroupService::findTable($request), 200);
+
+        } else {
+
+            return response()->json(DataComponent::initializeAccessDenied(), 200);
+
+        }
+
+    }
+
 }
