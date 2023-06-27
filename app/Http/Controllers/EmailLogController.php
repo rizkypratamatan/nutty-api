@@ -19,21 +19,27 @@ class EmailLogController extends Controller
         if ($validation->result) {
             //check privilege
             DataComponent::checkPrivilege($request, "tools", "view");
-            
-            $limit = !empty($request->limit)?$request->limit:10;
-            $offset = !empty($request->offset)?$request->offset:0;
+
+            $limit = !empty($request->limit) ? $request->limit : 10;
+            $offset = !empty($request->offset) ? $request->offset : 0;
+            $filter = [];
+            $filter['from_name'] = !empty($request->from_name) ? $request->from_name : "";
+            $filter['email'] = !empty($request->email) ? $request->email : "";
+            $filter['subject'] = !empty($request->subject) ? $request->subject : "";
+            $filter['message'] = !empty($request->message) ? $request->message : "";
+            $filter['status'] = !empty($request->status) ? $request->status : "";
 
             $auth = AuthenticationComponent::toUser($request);
             $model =  new EmailLogModel();
-            $data = $model->getAll($limit, $offset, $auth);
+            $data = $model->getAll($limit, $offset, $auth, $filter);
 
             $response = [
                 'result' => true,
                 'response' => 'Get All Message Chat',
-                'data' => $data
+                // 'data' => $data
             ];
-           
             
+            $response = array_merge($data, $response);
         } else {
             $response = $validation;
         }
@@ -45,7 +51,7 @@ class EmailLogController extends Controller
     {
         $validation = AuthenticationComponent::validate($request);
         LogComponent::response($request, $validation);
-        
+
         if ($validation->result) {
 
             //check privilege
@@ -83,7 +89,7 @@ class EmailLogController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "tools", "view");
             $auth = AuthenticationComponent::toUser($request);
-            
+
             $model =  new EmailLogModel($request);
             $data = $model->getById($request->id, $auth);
 
@@ -107,18 +113,18 @@ class EmailLogController extends Controller
         return response()->json($response, 200);
     }
 
-    public function sendBulkMessage(Request $request){
+    public function sendBulkMessage(Request $request)
+    {
 
         $validation = AuthenticationComponent::validate($request);
         LogComponent::response($request, $validation);
 
-        if ($validation->result){
+        if ($validation->result) {
 
             // check privilege
             DataComponent::checkPrivilege($request, "tools", "add");
             $model = new EmailLogModel();
             $response = $model->sendBulk($request);
-
         } else {
             $response = $validation;
         }
@@ -126,22 +132,22 @@ class EmailLogController extends Controller
         return response()->json($response, 200);
     }
 
-    public function sendSingleMessage(Request $request){
-        
+    public function sendSingleMessage(Request $request)
+    {
+
         $validation = AuthenticationComponent::validate($request);
         LogComponent::response($request, $validation);
 
-        if ($validation->result){
+        if ($validation->result) {
 
             //check privilege
             DataComponent::checkPrivilege($request, "tools", "add");
-            
+
 
             $model = new EmailLogModel();
             $resp = $model->sendSingle($request);
 
             $response = $resp;
-            
         } else {
             $response = $validation;
         }
