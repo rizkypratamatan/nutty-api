@@ -22,7 +22,7 @@ class LoginController extends Controller
         LogComponent::response($request, $validation);
 
         if ($validation->result) {
-            $userModel =  new UserModel;
+            $userModel =  new UserModel($request);
             $user = $userModel->getUserByUsername($request->username);            
             $pass =  Crypt::decryptString($user['password']['main']);
             
@@ -66,7 +66,7 @@ class LoginController extends Controller
 
         if(!empty($userLogByAuthenticationInType)) {
             $type = "Logout";
-            $userModel =  new UserModel;
+            $userModel =  new UserModel($request);
             $user = $userModel->getUserByUsername($userLogByAuthenticationInType->user['username']);
             $userLog = new UserLogModel();
             $tokenAuth = $userLog->insertToLog($user, $type, $authentication);    
