@@ -55,7 +55,7 @@ class SmsLogController extends Controller
             DataComponent::checkPrivilege($request, "tools", "delete");
 
             $model =  new SmsLogModel($request);
-            $data = $model->deleteChat($request->id);
+            $data = $model->delete($request->id);
 
             if ($data) {
                 $response = [
