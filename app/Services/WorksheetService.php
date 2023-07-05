@@ -26,6 +26,28 @@ use stdClass;
 
 class WorksheetService {
 
+<<<<<<< HEAD
+=======
+    public static function getCrmData($request) {
+
+        $auth = DataComponent::initializeAccount($request);
+        $result = new stdClass();
+        $sorts = [
+            [
+                "field" => "created.timestamp",
+                "direction" => 1
+            ]
+        ];
+        $depositLastTimestamp = new UTCDateTime(Carbon::now()->subDays($request->days));
+        $count = DatabaseAccountModel::countCrmTable($auth->_id, $depositLastTimestamp, 100, $request->websiteId);
+        if(!$count->isEmpty()) {
+            $result->total_data = $count[0]->count;
+        }
+        $result->data = DatabaseAccountModel::findCrmTable($auth->_id, $depositLastTimestamp, $request->limit, $sorts, $request->offset, $request->websiteId);
+        return $result;
+
+    }
+>>>>>>> 468e4e152bfa20b8dbf2c734ed5d34477cbb3a92
 
     public static function callInitializeData($request) {
 
@@ -69,6 +91,7 @@ class WorksheetService {
     }
 
 
+<<<<<<< HEAD
     public static function crmFindTable($request) {
 
         $result = new stdClass();
@@ -98,6 +121,8 @@ class WorksheetService {
     }
 
 
+=======
+>>>>>>> 468e4e152bfa20b8dbf2c734ed5d34477cbb3a92
     public static function findFilter($request, $id) {
 
         $result = new stdClass();
@@ -232,9 +257,15 @@ class WorksheetService {
 
         $account = DataComponent::initializeAccount($request);
 
+<<<<<<< HEAD
         if($request->session()->has("websiteId")) {
 
             $websiteById = WebsiteModel::findOneById($request->session()->get("websiteId"));
+=======
+        if($request->websiteId) {
+
+            $websiteById = WebsiteModel::findOneById($request->websiteId);
+>>>>>>> 468e4e152bfa20b8dbf2c734ed5d34477cbb3a92
 
             if(!empty($websiteById)) {
 
@@ -552,7 +583,11 @@ class WorksheetService {
 
         $account = DataComponent::initializeAccount($request);
 
+<<<<<<< HEAD
         $databaseById = DatabaseModel::findOneById($request->id, $request->session()->get("websiteId"));
+=======
+        $databaseById = DatabaseModel::findOneById($request->id, $request->websiteId);
+>>>>>>> 468e4e152bfa20b8dbf2c734ed5d34477cbb3a92
 
         if(!empty($databaseById)) {
 
@@ -581,7 +616,11 @@ class WorksheetService {
 
         $database->name = $request->name;
         $database->status = "Processed";
+<<<<<<< HEAD
         DatabaseModel::update($account, $database, $request->session()->get("websiteId"));
+=======
+        DatabaseModel::update($account, $database, $request->websiteId);
+>>>>>>> 468e4e152bfa20b8dbf2c734ed5d34477cbb3a92
 
         $request->account = [
             "username" => strtolower($request->account["username"])
@@ -593,7 +632,11 @@ class WorksheetService {
 
         }
 
+<<<<<<< HEAD
         $websiteById = WebsiteModel::findOneById($request->session()->get("websiteId"));
+=======
+        $websiteById = WebsiteModel::findOneById($request->websiteId);
+>>>>>>> 468e4e152bfa20b8dbf2c734ed5d34477cbb3a92
 
         if(!empty($websiteById)) {
 

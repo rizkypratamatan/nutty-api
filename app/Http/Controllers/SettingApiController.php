@@ -27,7 +27,10 @@ class SettingApiController extends Controller {
         }
 
         return response()->json($response, 200);
+<<<<<<< HEAD
 
+=======
+>>>>>>> 468e4e152bfa20b8dbf2c734ed5d34477cbb3a92
     }
 
     public function index(Request $request){
