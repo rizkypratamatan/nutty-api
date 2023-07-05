@@ -72,7 +72,7 @@ class WorksheetService {
     public static function crmFindTable($request) {
 
         $result = new stdClass();
-        $result->draw = $request->draw;
+        $auth = DataComponent::initializeAccount($request);
 
         $sorts = [
             [
@@ -81,18 +81,17 @@ class WorksheetService {
             ]
         ];
 
-        $depositLastTimestamp = new UTCDateTime(Carbon::now()->subDays($request->columns[1]["search"]["value"]));
+        $depositLastTimestamp = new UTCDateTime(Carbon::now()->subDays($request->days));
 
-        $count = DatabaseAccountModel::countCrmTable($request->session()->get("account")->_id, $depositLastTimestamp, 100, $request->session()->get("websiteId"));
+        $count = DatabaseAccountModel::countCrmTable($auth['_id'], $depositLastTimestamp, 100, $request->websiteId);
 
         if(!$count->isEmpty()) {
 
-            $result->recordsTotal = $count[0]->count;
-            $result->recordsFiltered = $result->recordsTotal;
+            $result->total_data = $count[0]->count;
 
         }
 
-        $result->data = DatabaseAccountModel::findCrmTable($request->session()->get("account")->_id, $depositLastTimestamp, $request->length, $sorts, $request->start, $request->session()->get("websiteId"));
+        $result->data = DatabaseAccountModel::findCrmTable($auth['_id'], $depositLastTimestamp, $request->limit, $sorts, $request->offset, $request->websiteId);
 
         return $result;
 

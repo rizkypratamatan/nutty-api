@@ -2,10 +2,33 @@
 
 namespace App\Http\Controllers;
 
+use App\Components\AuthenticationComponent;
+use App\Components\DataComponent;
+use App\Components\LogComponent;
+use App\Services\WorksheetService;
 use Illuminate\Http\Request;
 
 class WorksheetController extends Controller
 {
+
+    public function getCrmData(Request $request){
+        $validation = AuthenticationComponent::validate($request);
+        LogComponent::response($request, $validation);
+
+        if ($validation->result) {
+            //check privilege
+            DataComponent::checkPrivilege($request, "worksheet", "view");
+            
+            return response()->json(WorksheetService::crmFindTable($request), 200);
+           
+            
+        } else {
+            $response = $validation;
+        }
+
+        return response()->json($response, 200);
+    }
+
     public function index(Request $request) {
 
         // if(DataComponent::checkPrivilege($request, "worksheet", "view")) {
@@ -79,21 +102,6 @@ class WorksheetController extends Controller
         //     return redirect("/access-denied/");
 
         // }
-
-    }
-
-
-    public function crmTable(Request $request) {
-
-        if(DataComponent::checkPrivilege($request, "worksheet", "view")) {
-
-            return response()->json(WorksheetService::crmFindTable($request), 200);
-
-        } else {
-
-            return response()->json(DataComponent::initializeAccessDenied(), 200);
-
-        }
 
     }
 
