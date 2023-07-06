@@ -77,10 +77,12 @@ Route::group(["middleware" => ["authentication"]], function() {
     Route::post('/update-contact', [ContactController::class, 'update'])->name('update-contact');
 
     //worksheet
-    Route::post("/worksheet", [WorksheetController::class, "index"]);
-    Route::post("/worksheet/call", [WorksheetController::class, "call"]);
-    Route::post("/worksheet/result", [WorksheetController::class, "result"]);
-    Route::post("/worksheet/result-user", [WorksheetController::class, "resultUser"]);
+    // Route::post("/worksheet", [WorksheetController::class, "index"]);
+    // Route::post("/worksheet/call", [WorksheetController::class, "call"]);
+    // Route::post("/worksheet/result", [WorksheetController::class, "result"]);
+    // Route::post("/worksheet/result-user", [WorksheetController::class, "resultUser"]);
+
+    Route::post("/worksheet/crm", [WorksheetController::class, "getCrmData"]);
 
     //website
     Route::post('/get-websites', [WebsiteController::class, 'getWebsites'])->name('get-websites');

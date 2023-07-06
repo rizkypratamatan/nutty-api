@@ -2,97 +2,61 @@
 
 namespace App\Repository;
 
-use App\Components\AuthenticationComponent;
 use App\Components\DataComponent;
 use App\Models\PlayerAttempt;
-use Carbon\Carbon;
 
 class PlayerAttemptModel 
 {
 
-    public function __construct(Request $request)
-    {   
-        $this->user = AuthenticationComponent::toUser($request);
-        $this->request = $request;
-    }
+    public static function findOneById($id, $nucode) {
 
-    public function findOneById($id, $nucode) 
-    {
+        $playerAttempt = new PlayerAttempt();
+        $playerAttempt->setTable("playerAttempt_" . $nucode);
 
-        return PlayerAttempt::where('_id', $id)->first();
+        return $playerAttempt->where([
+            ["_id", "=", $id]
+        ])->first();
 
     }
 
 
-    public function findOneByUsername($nucode, $username) 
-    {
+    public static function findOneByUsername($nucode, $username) {
 
-        return PlayerAttempt::where('username', $username)
-        ->first();
+        $playerAttempt = new PlayerAttempt();
+        $playerAttempt->setTable("playerAttempt_" . $nucode);
+
+        return $playerAttempt->where([
+            ["username", "=", $username]
+        ])->first();
+
     }
 
 
-    public function insert($auth, $data) 
-    {
+    public static function insert($account, $data) {
 
-        $mytime = Carbon::now();
-        
-         $arr = [
-        "status" => [
-            "names" => $data->names,
-            "totals" => $data->totals
-        ],
-        "total" => $data->total,
-        "username" => $data->username,
-        "website" => [
-            "ids" => $data->ids,
-            "names" => $data->names,
-            "totals" => $data->totals
-        ],
-        "created" => DataComponent::initializeTimestamp($this->user),
-        "modified" => DataComponent::initializeTimestamp($this->user)
-        ];
+        $data->created = DataComponent::initializeTimestamp($account);
+        $data->modified = $data->created;
 
-        return DB::table('playerAttempt')
-            ->insert($arr);
+        $data->setTable("playerAttempt_" . $account->nucode);
+
+        $data->save();
+
+        return $data;
+
     }
 
 
-    public function update($auth, $data) 
-    {
+    public static function update($account, $data) {
 
-        if($auth != null) 
-        {
+        if($account != null) {
 
-            $data->modified = AuthenticationComponent::validate($auth);
+            $data->modified = DataComponent::initializeTimestamp($account);
 
         }
 
-        $mytime = Carbon::now();
-         $arr = [
-            "status" => [
-                "names" => $data->names,
-                "totals" => $data->totals
-            ],
-            "total" => $data->total,
-            "username" => $data->username,
-            "website" => [
-                "ids" => $data->ids,
-                "names" => $data->names,
-                "totals" => $data->totals
-            ],
-            // "created" => [
-            //     "timestamp" => $data->timestamp,
-            //     "user" => [
-            //         "_id" => $auth->_id,
-            //         "username" => $data->username
-            //     ]
-            // ],
-            "modified" => DataComponent::initializeTimestamp($this->user)
-            ];
+        $data->setTable("playerAttempt_" . $account->nucode);
 
-         return DB::table('playerAttempt')
-         ->where('_id', $data->id)->update($arr);
+        return $data->save();
 
     }
 

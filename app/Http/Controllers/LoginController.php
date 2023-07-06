@@ -40,9 +40,10 @@ class LoginController extends Controller
                     'privilege' => $user['privilege'],
                     'type' => $user['type'],
                 ];
+                
 
                 if((!empty($user['group']) and strtolower($user['group']['name']) != "system")){
-                    $data['group'] = $groupModel->getUserGroupById($user['group']['_id']);
+                    $data['group'] = $groupModel->findOneById($user['group']['_id']);
                 }
 
                 $userLog = new UserLogModel();
