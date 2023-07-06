@@ -4,17 +4,51 @@ namespace App\Repository;
 
 use App\Components\AuthenticationComponent;
 use App\Components\DataComponent;
+use App\Models\MessageTemplate;
 use Illuminate\Support\Facades\DB;
 
 class MessageTemplateModel
 {
-    public static function getAll($limit=10, $offset=0, $auth)
-    {   
-        return DB::table("message_templates_".$auth->_id)
-                            ->take($limit)
-                            ->skip($offset)
-                            ->get();
+    protected $service;
+    protected $user;
+    protected $request;
+
+    public function __construct($request)
+    {
+        // $this->service = new SMSService();
+        $this->request = $request;
     }
+
+    public function getAll($auth, $limit=10, $offset=0, $filter = [])
+
+    {
+        // $user = AuthenticationComponent::toUser($this->request);
+
+        $response = [
+            "data" => null,
+            "total_data" => 0
+        ];
+
+        $data = DB::table("message_templates_" . $auth->_id)->take($limit)->skip($offset);
+        $countData = DB::table("message_templates_" . $auth->_id);
+
+        if(!empty($filter['name'])){
+            $data = $data->where('name', 'LIKE', $filter['name']."%");
+            $countData = $countData->where('name', 'LIKE', $filter['name']."%");
+            }
+
+        $data = $data->orderBy('_id', 'DESC')->get();
+        $counData = $countData->count();
+
+        $response = [
+            "data" => $data,
+            "total_data" => $counData
+        ];
+
+        return $response;
+    }
+
+
 
     public static function add($data, $account)
     {
@@ -36,13 +70,13 @@ class MessageTemplateModel
 
     public static function getById($id, $account)
     {
-
+        // $account = AuthenticationComponent::toUser($this->request);
         return DB::table("message_templates_".$account->_id)
                     ->where("_id", $id)
                     ->first();
     }
 
-    public static function updateById($data, $account)
+    public static function updateById($data, $account, )
     {
         $arr = [
             "name" => $data->name,
@@ -55,5 +89,12 @@ class MessageTemplateModel
                 ->where("_id", $data->id)
                 ->update($arr);
     }
+
+    // {
+    //     $user = AuthenticationComponent::toUser($this->request);
+    //     return DB::table("message_templates_" . $user->_id)
+    //         ->where('_id', $id)
+    //         ->first();
+    // }
 
 }

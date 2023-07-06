@@ -18,16 +18,22 @@ class MessageTemplateController extends Controller
 
             $limit = !empty($request->limit)?$request->limit:10;
             $offset = !empty($request->offset)?$request->offset:0;
+            $filter = [];
 
-            $account = AuthenticationComponent::toUser($request);
+            $filter['name'] = !empty($request->name)?$request->name:0;
+            $auth = AuthenticationComponent::toUser($request);
 
-            $data = MessageTemplateModel::getAll($limit, $offset, $account);
+            // $data = MessageTemplateModel::getAll($auth, $limit, $offset, $account);
+
+            $userModel =  new MessageTemplateModel($request);
+            $data = $userModel->getAll($auth, $limit, $offset, $filter);
 
             $response = [
                 'result' => true,
                 'response' => 'Get All Message Template',
-                'data' => $data
+                // 'data' => $data
             ];
+            $response = array_merge($data, $response);
            
         } else {
             $response = $validation;
