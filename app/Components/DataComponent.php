@@ -109,7 +109,7 @@ class DataComponent {
 
         if($result["code"] == 403){
             LogComponent::response($request, $result);
-            throw new AuthorizationException("Unauthorized", 403);
+            throw new AuthorizationException($result["message"], 403);
         }
     }
 

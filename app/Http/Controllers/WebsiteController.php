@@ -17,7 +17,7 @@ class WebsiteController extends Controller
 
         if ($validation->result) {
             //check privilege
-            DataComponent::checkPrivilege($request, "website", "view");
+            // DataComponent::checkPrivilege($request, "website", "view");
             
             $limit = !empty($request->limit)?$request->limit:10;
             $offset = !empty($request->offset)?$request->offset:0;
@@ -47,6 +47,7 @@ class WebsiteController extends Controller
 
     public function addWebsite(Request $request)
     {
+
         $validation = AuthenticationComponent::validate($request);
         LogComponent::response($request, $validation);
 
@@ -55,11 +56,11 @@ class WebsiteController extends Controller
             DataComponent::checkPrivilege($request, "website", "add");
             $auth = AuthenticationComponent::toUser($request);
 
-            $model =  new WebsiteModel($request);
+            $model =  new WebsiteModel();
             $data = $model->addWebsite($request);
 
             if ($data) {
-                DataComponent::initializeCollectionByWebsite($auth->_id);
+                DataComponent::initializeCollectionByWebsite($data->_id);
                 $response = [
                     'result' => true,
                     'response' => 'success add website',
@@ -88,7 +89,7 @@ class WebsiteController extends Controller
             DataComponent::checkPrivilege($request, "website", "edit");
             $auth = AuthenticationComponent::toUser($request);
 
-            $model =  new WebsiteModel($request);
+            $model =  new WebsiteModel();
             $data = $model->updateWebsiteById($request);
 
             if ($data) {

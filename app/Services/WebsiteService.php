@@ -149,7 +149,7 @@ class WebsiteService {
                 WebsiteModel::update(DataComponent::initializeAccount($request), $websiteById);
 
                 $syncQueue = new SyncQueue();
-                $syncQueue->date = new UTCDateTime(Carbon::now()->subDays(90));
+                $syncQueue->date = new UTCDateTime(Carbon::now()->subDays(5));
                 $syncQueue->nucode = $websiteById->nucode;
                 $syncQueue->status = "OnGoing";
                 $syncQueue->website = [
