@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Crypt;
 
 class UserModel
 {
+    
     public static function countByNucode($nucode) {
 
         return User::where([
@@ -338,4 +339,29 @@ class UserModel
         User::where("role._id", $roleId)->update($data, ["upsert" => false]);
 
     }
+
+    public static function insert($account, $data) {
+
+        $data->created = DataComponent::initializeTimestamp($account);
+        $data->modified = $data->created;
+
+        $data->save();
+
+        return $data;
+
+    }
+
+
+    public static function update($account, $data) {
+
+        if($account != null) {
+
+            $data->modified = DataComponent::initializeTimestamp($account);
+
+        }
+
+        return $data->save();
+
+    }
+
 }

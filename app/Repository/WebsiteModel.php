@@ -5,9 +5,9 @@ namespace App\Repository;
 use App\Components\AuthenticationComponent;
 use App\Components\DataComponent;
 use App\Models\Website;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use MongoDB\BSON\UTCDateTime;
 
 class WebsiteModel
 {
@@ -61,7 +61,7 @@ class WebsiteModel
         $data->description = $request->description;
         $data->name = $request->name;
         $data->nucode = $request->nucode;
-        $data->start = $request->start;
+        $data->start = new UTCDateTime(Carbon::createFromFormat("Y/m/d H:i:s", "1970/01/10 00:00:00"));
         $data->status = $request->status;
         $data->sync = "NoSync";
         $data->created = DataComponent::initializeTimestamp($account);

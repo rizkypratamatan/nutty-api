@@ -11,6 +11,7 @@ use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\MessageTemplateController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SettingApiController;
 use App\Http\Controllers\SmsLogController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserGroupController;
@@ -56,6 +57,18 @@ Route::group(['prefix' => 'sms'], function(){
 
 
 Route::group(["middleware" => ["authentication"]], function() {
+     //Setting
+     Route::group(['prefix' => 'setting'], function(){
+        //api
+        Route::post('get-api', [SettingApiController::class, 'index'])->name('get-api');
+        Route::post('update-api', [SettingApiController::class, 'update'])->name('update-api');
+        Route::post('sync-api', [SettingApiController::class, 'sync'])->name('sync-api');
+        // Route::post('delete-chat', [WhatsappLogController::class, 'deleteChat'])->name('delete-chat');
+        // Route::post('get-chat-by-id', [WhatsappLogController::class, 'getChatById'])->name('get-chat-by-id');
+        // Route::post('send-bulk-chat', [WhatsappLogController::class, 'sendBulkChat'])->name('send-bulk-chat');
+        // Route::post('send-single-chat', [WhatsappLogController::class, 'sendSingleChat'])->name('send-single-chat');
+    });
+
     //message-template
     Route::post('/get-all-template', [MessageTemplateController::class, 'index'])->name('get-all-template');
     Route::post('/add-template', [MessageTemplateController::class, 'store'])->name('add-template');
