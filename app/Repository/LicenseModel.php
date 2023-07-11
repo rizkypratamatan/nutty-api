@@ -137,7 +137,7 @@ class LicenseModel
         return License::where('_id', $id)->first();
     }
 
-    public function findOneByNucode($nucode) 
+    public static function findOneByNucode($nucode) 
     {
 
         return License::where([

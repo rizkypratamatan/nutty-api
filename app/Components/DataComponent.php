@@ -109,7 +109,7 @@ class DataComponent {
 
         if($result["code"] == 403){
             LogComponent::response($request, $result);
-            throw new AuthorizationException("Unauthorized", 403);
+            throw new AuthorizationException($result["message"], 403);
         }
     }
 
@@ -467,6 +467,12 @@ class DataComponent {
 
     }
 
+    public static function initializeObject($data) {
+
+        return json_decode(json_encode($data));
+
+    }
+
     public static function initializeObjectId($id) {
 
         $result = "0";
@@ -569,41 +575,41 @@ class DataComponent {
 
         }
 
-        if(!Schema::hasTable("contact_groups_" . $accountId)) {
+        // if(!Schema::hasTable("contact_groups_" . $accountId)) {
 
-            Schema::create("contact_groups_" . $accountId, function(Blueprint $table) {
+        //     Schema::create("contact_groups_" . $accountId, function(Blueprint $table) {
 
-                self::createContactGroupIndex($table);
+        //         self::createContactGroupIndex($table);
 
-            });
+        //     });
 
-        } else {
+        // } else {
 
-            Schema::table("contact_groups_" . $accountId, function(Blueprint $table) {
+        //     Schema::table("contact_groups_" . $accountId, function(Blueprint $table) {
 
-                self::createContactGroupIndex($table);
+        //         self::createContactGroupIndex($table);
 
-            });
+        //     });
 
-        }
+        // }
 
-        if(!Schema::hasTable("contacts_" . $accountId)) {
+        // if(!Schema::hasTable("contacts_" . $accountId)) {
 
-            Schema::create("contacts_" . $accountId, function(Blueprint $table) {
+        //     Schema::create("contacts_" . $accountId, function(Blueprint $table) {
 
-                self::createContactIndex($table);
+        //         self::createContactIndex($table);
 
-            });
+        //     });
 
-        } else {
+        // } else {
 
-            Schema::table("contacts_" . $accountId, function(Blueprint $table) {
+        //     Schema::table("contacts_" . $accountId, function(Blueprint $table) {
 
-                self::createContactIndex($table);
+        //         self::createContactIndex($table);
 
-            });
+        //     });
 
-        }
+        // }
 
     }
 
@@ -701,35 +707,35 @@ class DataComponent {
         $table->string("modified.user.username")->index();
     }
 
-    public static function createContactGroupIndex($table) {
-        $table->string("name")->index();
-        $table->date("created.timestamp")->index();
-        $table->string("created.user._id")->index();
-        $table->string("created.user.avatar")->index();
-        $table->string("created.user.name")->index();
-        $table->string("created.user.username")->index();
-        $table->date("modified.timestamp")->index();
-        $table->string("modified.user._id")->index();
-        $table->string("modified.user.avatar")->index();
-        $table->string("modified.user.name")->index();
-        $table->string("modified.user.username")->index();
-    }
+    // public static function createContactGroupIndex($table) {
+    //     $table->string("name")->index();
+    //     $table->date("created.timestamp")->index();
+    //     $table->string("created.user._id")->index();
+    //     $table->string("created.user.avatar")->index();
+    //     $table->string("created.user.name")->index();
+    //     $table->string("created.user.username")->index();
+    //     $table->date("modified.timestamp")->index();
+    //     $table->string("modified.user._id")->index();
+    //     $table->string("modified.user.avatar")->index();
+    //     $table->string("modified.user.name")->index();
+    //     $table->string("modified.user.username")->index();
+    // }
 
-    public static function createContactIndex($table) {
-        $table->string("name")->index();
-        $table->string("number")->index();
-        $table->string("groups")->index();
-        $table->date("created.timestamp")->index();
-        $table->string("created.user._id")->index();
-        $table->string("created.user.avatar")->index();
-        $table->string("created.user.name")->index();
-        $table->string("created.user.username")->index();
-        $table->date("modified.timestamp")->index();
-        $table->string("modified.user._id")->index();
-        $table->string("modified.user.avatar")->index();
-        $table->string("modified.user.name")->index();
-        $table->string("modified.user.username")->index();
-    }
+    // public static function createContactIndex($table) {
+    //     $table->string("name")->index();
+    //     $table->string("number")->index();
+    //     $table->string("groups")->index();
+    //     $table->date("created.timestamp")->index();
+    //     $table->string("created.user._id")->index();
+    //     $table->string("created.user.avatar")->index();
+    //     $table->string("created.user.name")->index();
+    //     $table->string("created.user.username")->index();
+    //     $table->date("modified.timestamp")->index();
+    //     $table->string("modified.user._id")->index();
+    //     $table->string("modified.user.avatar")->index();
+    //     $table->string("modified.user.name")->index();
+    //     $table->string("modified.user.username")->index();
+    // }
 
     public static function initializeAccount($request) {
 
@@ -738,8 +744,22 @@ class DataComponent {
 
     }
 
-    public static function initializeTableQuery($model, $tableFilterColumns, $tableFilterOrders, $defaultOrders) 
-    {
+    public static function initializeTableData($account, $model) {
+
+        if($account->nucode != "system") {
+
+            $model = $model->where([
+                ["nucode", "=", $account->nucode]
+            ]);
+
+        }
+
+        return $model;
+
+    }
+
+
+    public static function initializeTableQuery($model, $tableFilterColumns, $tableFilterOrders, $defaultOrders) {
 
         $query = [];
 
@@ -809,25 +829,36 @@ class DataComponent {
 
     }
 
-    public static function initializeObject($data) 
-    {
+    public static function initializeFilterDateRange($dateRange, $defaultEnd, $defaultStart) {
 
-        return json_decode(json_encode($data));
+        $result = new stdClass();
+        $result->end = $defaultEnd;
+        $result->response = "Failed to initialize filter date range";
+        $result->result = false;
+        $result->start = $defaultStart;
 
-    }
+        if(!empty($dateRange)) {
 
-    public static function initializePage($start, $length) 
-    {
+            $date = explode(" to ", $dateRange);
 
-        $result = $start / $length;
+            if(count($date) == 1) {
 
-        if($result < 1) {
+                $result->start = new UTCDateTime(Carbon::parse($date[0])->format("U") * 1000);
 
-            $result = 1;
+            } else if(count($date) == 2) {
+
+                $result->start = new UTCDateTime(Carbon::parse($date[0])->format("U") * 1000);
+                $result->end = new UTCDateTime(Carbon::parse($date[1])->format("U") * 1000);
+
+            }
 
         }
+
+        $result->response = "Filter date range initialized";
+        $result->result = true;
 
         return $result;
 
     }
+
 }

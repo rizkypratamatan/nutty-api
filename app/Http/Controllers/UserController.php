@@ -7,6 +7,7 @@ use App\Components\DataComponent;
 use App\Components\LogComponent;
 use App\Helpers\Authentication;
 use App\Repository\UserModel;
+use App\Services\UserService;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -62,21 +63,22 @@ class UserController extends Controller
         if ($validation->result) {
             //check privilege
             DataComponent::checkPrivilege($request, "user", "add");
+            return response()->json(UserService::insert($request), 200);
 
-            $userModel =  new UserModel();
-            $user = $userModel->addUser($request);
+            // $userModel =  new UserModel();
+            // $user = $userModel->addUser($request);
 
-            if ($user) {
-                $response = [
-                    'result' => true,
-                    'response' => 'success add user',
-                ];
-            } else {
-                $response = [
-                    'result' => false,
-                    'response' => 'failed add user',
-                ];
-            }
+            // if ($user) {
+            //     $response = [
+            //         'result' => true,
+            //         'response' => 'success add user',
+            //     ];
+            // } else {
+            //     $response = [
+            //         'result' => false,
+            //         'response' => 'failed add user',
+            //     ];
+            // }
         } else {
             $response = $validation;
         }

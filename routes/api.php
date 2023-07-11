@@ -11,11 +11,13 @@ use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\MessageTemplateController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SettingApiController;
 use App\Http\Controllers\SmsLogController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserGroupController;
 use App\Http\Controllers\WebsiteController;
 use App\Http\Controllers\WhatsappLogController;
+use App\Http\Controllers\WorksheetController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -55,6 +57,14 @@ Route::group(['prefix' => 'sms'], function(){
 
 
 Route::group(["middleware" => ["authentication"]], function() {
+     //Setting
+     Route::group(['prefix' => 'setting'], function(){
+        //api
+        Route::post('get-api', [SettingApiController::class, 'index'])->name('get-api');
+        Route::post('update-api', [SettingApiController::class, 'update'])->name('update-api');
+        Route::post('sync-api', [SettingApiController::class, 'sync'])->name('sync-api');
+    });
+
     //message-template
     Route::post('/get-all-template', [MessageTemplateController::class, 'index'])->name('get-all-template');
     Route::post('/add-template', [MessageTemplateController::class, 'store'])->name('add-template');
@@ -63,18 +73,18 @@ Route::group(["middleware" => ["authentication"]], function() {
     Route::post('/update-template', [MessageTemplateController::class, 'update'])->name('update-template');
 
     //contact group
-    Route::post('/get-all-contact-group', [ContactGroupController::class, 'index'])->name('get-all-contact-group');
-    Route::post('/add-contact-group', [ContactGroupController::class, 'store'])->name('add-contact-group');
-    Route::post('/delete-contact-group', [ContactGroupController::class, 'delete'])->name('delete-contact-group');
-    Route::post('/get-contact-group-by-id', [ContactGroupController::class, 'show'])->name('get-contact-group-by-id');
-    Route::post('/update-contact-group', [ContactGroupController::class, 'update'])->name('update-contact-group');
+    // Route::post('/get-all-contact-group', [ContactGroupController::class, 'index'])->name('get-all-contact-group');
+    // Route::post('/add-contact-group', [ContactGroupController::class, 'store'])->name('add-contact-group');
+    // Route::post('/delete-contact-group', [ContactGroupController::class, 'delete'])->name('delete-contact-group');
+    // Route::post('/get-contact-group-by-id', [ContactGroupController::class, 'show'])->name('get-contact-group-by-id');
+    // Route::post('/update-contact-group', [ContactGroupController::class, 'update'])->name('update-contact-group');
 
     //contact
-    Route::post('/get-all-contact', [ContactController::class, 'index'])->name('get-all-contact');
-    Route::post('/add-contact', [ContactController::class, 'store'])->name('add-contact');
-    Route::post('/delete-contact', [ContactController::class, 'delete'])->name('delete-contact');
-    Route::post('/get-contact-by-id', [ContactController::class, 'show'])->name('get-contact-by-id');
-    Route::post('/update-contact', [ContactController::class, 'update'])->name('update-contact');
+    // Route::post('/get-all-contact', [ContactController::class, 'index'])->name('get-all-contact');
+    // Route::post('/add-contact', [ContactController::class, 'store'])->name('add-contact');
+    // Route::post('/delete-contact', [ContactController::class, 'delete'])->name('delete-contact');
+    // Route::post('/get-contact-by-id', [ContactController::class, 'show'])->name('get-contact-by-id');
+    // Route::post('/update-contact', [ContactController::class, 'update'])->name('update-contact');
 
     //worksheet
     // Route::post("/worksheet", [WorksheetController::class, "index"]);
@@ -83,6 +93,7 @@ Route::group(["middleware" => ["authentication"]], function() {
     // Route::post("/worksheet/result-user", [WorksheetController::class, "resultUser"]);
 
     Route::post("/worksheet/crm", [WorksheetController::class, "getCrmData"]);
+    Route::post("/worksheet/result", [WorksheetController::class, "resultTable"]);
 
     //website
     Route::post('/get-websites', [WebsiteController::class, 'getWebsites'])->name('get-websites');

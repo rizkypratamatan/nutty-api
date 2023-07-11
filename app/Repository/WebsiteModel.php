@@ -5,20 +5,12 @@ namespace App\Repository;
 use App\Components\AuthenticationComponent;
 use App\Components\DataComponent;
 use App\Models\Website;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use MongoDB\BSON\UTCDateTime;
 
 class WebsiteModel
 {
-    protected $user;
-    protected $request;
-
-    public function __construct(Request $request)
-    {   
-        $this->user = AuthenticationComponent::toUser($request);
-        $this->request = $request;
-    }
 
     public function getAllWebsite($limit=10, $offset=0, $filter)
     {   
@@ -55,32 +47,31 @@ class WebsiteModel
         return $resp;
     }
 
-    public function addWebsite($data)
+    public function addWebsite($request)
     {
+        $account = AuthenticationComponent::toUser($request);
+        $data = new Website();
+        $data->api = [
+                        "nexus" => [
+                            "code" => "",
+                            "salt" => "",
+                            "url" => ""
+                        ]
+                    ];
+        $data->description = $request->description;
+        $data->name = $request->name;
+        $data->nucode = $request->nucode;
+        $data->start = new UTCDateTime(Carbon::createFromFormat("Y/m/d H:i:s", "1970/01/10 00:00:00"));
+        $data->status = $request->status;
+        $data->sync = "NoSync";
+        $data->created = DataComponent::initializeTimestamp($account);
+        $data->modified = DataComponent::initializeTimestamp($account);
 
-        $arr = [
-            "api" => [
-                "nexus" => [
-                    "code" => "",
-                    "salt" => "",
-                    "url" => ""
-                ]
-            ],
-            "description" => $data->description,
-            "name" => $data->name,
-            "nucode" => $data->nucode,
-            "start" => "",
-            "status" => $data->status,
-            "sync" => $data->sync,
-            "created" => DataComponent::initializeTimestamp($this->user),
-            "modified" => DataComponent::initializeTimestamp($this->user)
-        ];
-
-        $websiteByNameNucode = self::findOneByNameNucode($data->name, $data->nucode);
+        $websiteByNameNucode = self::findOneByNameNucode($request->name, $request->nucode);
 
         if(!empty($websiteByNameNucode)) {
 
-            if(!$data->id == $websiteByNameNucode->id) {
+            if(!$request->id == $websiteByNameNucode->id) {
 
                 // array_push($validation, false);
 
@@ -92,8 +83,9 @@ class WebsiteModel
 
         }
 
-        return DB::table('website')
-            ->insert($arr);
+        $data->save();
+
+        return $data;
     }
 
     public static function deleteWebsite($id)
@@ -110,20 +102,18 @@ class WebsiteModel
         return Website::where('_id', $id)->first();
     }
 
-    public function updateWebsiteById($data)
+    public function updateWebsiteById($request)
     {
-        $arr = [
-            "description" => $data->description,
-            "name" => $data->name,
-            "nucode" => $data->nucode,
-            "start" => "",
-            "status" => $data->status,
-            "sync" => $data->sync,
-            "modified" => DataComponent::initializeTimestamp($this->user)
-        ];
+        $account = AuthenticationComponent::toUser($request);
+        $data = Website::find($request->id);
 
-        DB::table('website')->where('_id', $data->id)->update($arr);
-        $update = Website::where('_id', $data->id)->first();
+        $data->description = $request->description;
+        $data->name = $request->name;
+        $data->nucode = $request->nucode;
+        $data->start = "";
+        $data->status = $request->status;
+        $data->modified = DataComponent::initializeTimestamp($account);
+        $data->save();
 
         //update website in user group
         // DB::table("userGroup")
@@ -134,7 +124,7 @@ class WebsiteModel
         //     ->where("websites", "elemMatch", ["_id" => $data->id])
         //     ->push("websites", $update->toArray());
 
-        return $update;
+        return $data;
     }
 
     public static function findByStatusNotApiNexusSaltStart($apiNexusSalt, $start, $status) 

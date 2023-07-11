@@ -39,6 +39,7 @@ class LoginController extends Controller
                     'website' => $user['group'],
                     'privilege' => $user['privilege'],
                     'type' => $user['type'],
+                    'nucode' => $user['nucode']
                 ];
                 
 
@@ -52,14 +53,14 @@ class LoginController extends Controller
                 $data["token-auth"] = $tokenAuth;
 
                 $response = [
-                    'result' => 'true',
+                    'result' => true,
                     'response' => 'Login successful',
                     'dataUser' => $data
                 ];
             } else {
                 $response = [
-                    'result' => 'false',
-                    'response' => 'Login failed'
+                    'result' => false,
+                    'response' => 'Login failed!, Invalid Credential'
                 ];
             }
         } else {

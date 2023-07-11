@@ -47,7 +47,7 @@ class SettingApiController extends Controller {
             $filter['type'] = !empty($request->type)?$request->type:0;
             $filter['status'] = !empty($request->status)?$request->status:"Active";
             
-            $model =  new WebsiteModel($request);
+            $model =  new WebsiteModel();
             $data = $model->getAllWebsite($limit, $offset, $filter);
 
             $response = [

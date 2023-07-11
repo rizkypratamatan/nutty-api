@@ -11,11 +11,6 @@ use Illuminate\Support\Facades\DB;
 
 class UserRoleModel
 {
-    public function __construct(Request $request)
-    {   
-        $this->user = AuthenticationComponent::toUser($request);
-        $this->request = $request;
-    }
 
     public function getRole($limit, $offset, $filter)
     {
@@ -51,35 +46,57 @@ class UserRoleModel
         return $response;
     }
 
-    public function addRole($data)
+    public function addRole($request)
     {
-        $arr = [
-            "description" => $data->description,
-            "name" => $data->name,
-            "nucode" => $data->nucode,
-            "privilege" => [
-                "database" => $data->privilege['database'],
-                "report" => $data->privilege['report'],
-                "setting" => $data->privilege['setting'],
-                "settingApi" => $data->privilege['settingApi'],
-                "user" => $data->privilege['user'],
-                "userGroup" => $data->privilege['userGroup'],
-                "userRole" => $data->privilege['userRole'],
-                "website" => $data->privilege['website'],
-                "worksheet" => $data->privilege['worksheet'],
-                "worksheetCrm" => $data->privilege['worksheetCrm'],
-                "tools" => $data->privilege['tools'],
-                // "whatsapp" => $data->privilege['whatsapp'],
-                // "sms" =>  $data->privilege['sms'],
-                // "email" =>  $data->privilege['email']
-            ],
-            "status" => $data->status,
-            "created" => DataComponent::initializeTimestamp($this->user),
-            "modified" => DataComponent::initializeTimestamp($this->user)
-        ];
+        $account = AuthenticationComponent::toUser($request);
 
-        return DB::table('userRole')
-            ->insert($arr);
+        $data = new UserRole();
+        $data->description = $request->description;
+        $data->name = $request->name;
+        $data->nucode = $request->nucode;
+        $data->privilege = [
+            "database" => $request->privilege['database'],
+            "report" => $request->privilege['report'],
+            "setting" => $request->privilege['setting'],
+            "settingApi" => $request->privilege['settingApi'],
+            "user" => $request->privilege['user'],
+            "userGroup" => $request->privilege['userGroup'],
+            "userRole" => $request->privilege['userRole'],
+            "website" => $request->privilege['website'],
+            "worksheet" => $request->privilege['worksheet'],
+            "worksheetCrm" => $request->privilege['worksheetCrm'],
+            "tools" => $request->privilege['tools'],
+        ];
+        $data->status = $request->status;
+        $data->created = DataComponent::initializeTimestamp($account);
+        $data->modified = DataComponent::initializeTimestamp($account);
+        $data->save();
+        // $arr = [
+        //     "description" => $data->description,
+        //     "name" => $data->name,
+        //     "nucode" => $data->nucode,
+        //     "privilege" => [
+        //         "database" => $data->privilege['database'],
+        //         "report" => $data->privilege['report'],
+        //         "setting" => $data->privilege['setting'],
+        //         "settingApi" => $data->privilege['settingApi'],
+        //         "user" => $data->privilege['user'],
+        //         "userGroup" => $data->privilege['userGroup'],
+        //         "userRole" => $data->privilege['userRole'],
+        //         "website" => $data->privilege['website'],
+        //         "worksheet" => $data->privilege['worksheet'],
+        //         "worksheetCrm" => $data->privilege['worksheetCrm'],
+        //         "tools" => $data->privilege['tools'],
+        //         // "whatsapp" => $data->privilege['whatsapp'],
+        //         // "sms" =>  $data->privilege['sms'],
+        //         // "email" =>  $data->privilege['email']
+        //     ],
+        //     "status" => $data->status,
+        //     "created" => DataComponent::initializeTimestamp($this->user),
+        //     "modified" => DataComponent::initializeTimestamp($this->user)
+        // ];
+
+        return $data;
     }
 
     public static function deleteRole($id)
@@ -94,44 +111,65 @@ class UserRoleModel
         return UserRole::where('_id', $id)->first();
     }
 
-    public function updateRoleById($data)
+    public function updateRoleById($request)
     {
-        $arr = [
-            "description" => $data->description,
-            "name" => $data->name,
-            "nucode" => $data->nucode,
-            "privilege" => [
-                "database" => $data->privilege['database'],
-                "report" => $data->privilege['report'],
-                "setting" => $data->privilege['setting'],
-                "settingApi" => $data->privilege['settingApi'],
-                "user" => $data->privilege['user'],
-                "userGroup" => $data->privilege['userGroup'],
-                "userRole" => $data->privilege['userRole'],
-                "website" => $data->privilege['website'],
-                "worksheet" => $data->privilege['worksheet'],
-                "worksheetCrm" => $data->privilege['worksheetCrm'],
-                "tools" => $data->privilege['tools']
-                // "whatsapp" => $data->privilege['whatsapp'],
-                // "sms" =>  $data->privilege['sms'],
-                // "email" =>  $data->privilege['email']
-            ],
-            "status" => $data->status,
-            "modified" => DataComponent::initializeTimestamp($this->user)
+        $account = AuthenticationComponent::toUser($request);
+
+        $data = UserRole::find($request->id);
+        $data->description = $request->description;
+        $data->name = $request->name;
+        $data->nucode = $request->nucode;
+        $data->privilege = [
+            "database" => $request->privilege['database'],
+            "report" => $request->privilege['report'],
+            "setting" => $request->privilege['setting'],
+            "settingApi" => $request->privilege['settingApi'],
+            "user" => $request->privilege['user'],
+            "userGroup" => $request->privilege['userGroup'],
+            "userRole" => $request->privilege['userRole'],
+            "website" => $request->privilege['website'],
+            "worksheet" => $request->privilege['worksheet'],
+            "worksheetCrm" => $request->privilege['worksheetCrm'],
+            "tools" => $request->privilege['tools'],
         ];
+        $data->status = $request->status;
+        $data->modified = DataComponent::initializeTimestamp($account);
+        $data->save();
+        // $arr = [
+        //     "description" => $data->description,
+        //     "name" => $data->name,
+        //     "nucode" => $data->nucode,
+        //     "privilege" => [
+        //         "database" => $data->privilege['database'],
+        //         "report" => $data->privilege['report'],
+        //         "setting" => $data->privilege['setting'],
+        //         "settingApi" => $data->privilege['settingApi'],
+        //         "user" => $data->privilege['user'],
+        //         "userGroup" => $data->privilege['userGroup'],
+        //         "userRole" => $data->privilege['userRole'],
+        //         "website" => $data->privilege['website'],
+        //         "worksheet" => $data->privilege['worksheet'],
+        //         "worksheetCrm" => $data->privilege['worksheetCrm'],
+        //         "tools" => $data->privilege['tools']
+        //         // "whatsapp" => $data->privilege['whatsapp'],
+        //         // "sms" =>  $data->privilege['sms'],
+        //         // "email" =>  $data->privilege['email']
+        //     ],
+        //     "status" => $data->status,
+        //     "modified" => DataComponent::initializeTimestamp($this->user)
+        // ];
 
         $update = [
-            "privilege" => $arr['privilege'],
+            "privilege" => $data->privilege,
             "role" => [
                 "_id" => DataComponent::initializeObjectId($data->id),
-                "name" => $arr['name']
+                "name" => $data->name
             ]
         ];
 
         UserModel::updateByRoleId($data->id, $update);
 
-        return DB::table('userRole')
-            ->where('_id', $data->id)->update($arr);
+        return $data;
     }
 
     public static function findByNucodeStatus($nucode, $status) {
@@ -171,5 +209,42 @@ class UserRoleModel
             ["name", "=", $name],
             ["nucode", "=", $nucode]
         ])->first();
+    }
+
+    public static function delete($data) {
+
+        return $data->delete();
+
+    }
+
+
+    public static function deleteByNucode($nucode) {
+
+        return UserRole::where("nucode", $nucode)->delete();
+
+    }
+
+    public static function insert($account, $data) {
+
+        $data->created = DataComponent::initializeTimestamp($account);
+        $data->modified = $data->created;
+
+        $data->save();
+
+        return $data;
+
+    }
+
+
+    public static function update($account, $data) {
+
+        if($account != null) {
+
+            $data->modified = DataComponent::initializeTimestamp($account);
+
+        }
+
+        return $data->save();
+
     }
 }
