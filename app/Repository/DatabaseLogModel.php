@@ -10,13 +10,12 @@ use MongoDB\BSON\Regex;
 class DatabaseLogModel 
 {
 
-
-    public static function countDatabaseAccountTable($createdDateEnd, $createdDateStart, $name, $status, $userId, $username, $websiteId) {
+    public static function countDatabaseAccountTable($createdDateEnd, $createdDateStart, $name, $phone, $status, $userId, $username, $websiteId, $whatsapp) {
 
         $databaseLog = new DatabaseLog();
         $databaseLog->setTable("databaseLog_" . $websiteId);
 
-        return $databaseLog->raw(function($collection) use ($createdDateEnd, $createdDateStart, $name, $status, $userId, $username, $websiteId) {
+        return $databaseLog->raw(function($collection) use ($createdDateEnd, $createdDateStart, $name, $phone, $status, $userId, $username, $websiteId, $whatsapp) {
 
             $query = self::lookupDatabaseAccountTable([], $websiteId);
 
@@ -26,7 +25,7 @@ class DatabaseLogModel
                 ]
             ]);
 
-            $query = self::filterDatabaseAccountTable($createdDateEnd, $createdDateStart, $name, $query, $status, $username);
+            $query = self::filterDatabaseAccountTable($createdDateEnd, $createdDateStart, $name, $phone, $query, $status, $username, $whatsapp);
 
             array_push($query, [
                 '$count' => "count"
@@ -51,13 +50,13 @@ class DatabaseLogModel
     }
 
 
-    private static function filterDatabaseAccountTable($createdDateEnd, $createdDateStart, $name, $query, $status, $username) {
+    private static function filterDatabaseAccountTable($createdDateEnd, $createdDateStart, $name, $phone, $query, $status, $username, $whatsapp) {
 
         if(!empty($createdDateEnd) && !empty($createdDateStart)) {
 
             array_push($query, [
                 '$match' => [
-                    "created.timestamp" => [
+                    "modified.timestamp" => [
                         '$gte' => $createdDateStart,
                         '$lte' => $createdDateEnd
                     ]
@@ -76,11 +75,11 @@ class DatabaseLogModel
 
         }
 
-        if(!empty($username)) {
+        if(!empty($phone)) {
 
             array_push($query, [
                 '$match' => [
-                    'databaseAccount.username' => new Regex($username)
+                    'database.contact.phone' => new Regex($phone)
                 ]
             ]);
 
@@ -96,17 +95,37 @@ class DatabaseLogModel
 
         }
 
+        if(!empty($username)) {
+
+            array_push($query, [
+                '$match' => [
+                    'databaseAccount.username' => new Regex($username)
+                ]
+            ]);
+
+        }
+
+        if(!empty($whatsapp)) {
+
+            array_push($query, [
+                '$match' => [
+                    'database.contact.whatsapp' => new Regex($whatsapp)
+                ]
+            ]);
+
+        }
+
         return $query;
 
     }
 
 
-    public static function findDatabaseAccountTable($createdDateEnd, $createdDateStart, $limit, $name, $start, $sorts, $status, $userId, $username, $websiteId) {
+    public static function findDatabaseAccountTable($createdDateEnd, $createdDateStart, $limit, $name, $phone, $start, $sorts, $status, $userId, $username, $websiteId, $whatsapp) {
 
         $databaseLog = new DatabaseLog();
         $databaseLog->setTable("databaseLog_" . $websiteId);
 
-        return $databaseLog->raw(function($collection) use ($createdDateEnd, $createdDateStart, $limit, $name, $start, $sorts, $status, $userId, $username, $websiteId) {
+        return $databaseLog->raw(function($collection) use ($createdDateEnd, $createdDateStart, $limit, $name, $phone, $start, $sorts, $status, $userId, $username, $websiteId, $whatsapp) {
 
             $query = self::lookupDatabaseAccountTable([], $websiteId);
 
@@ -116,7 +135,7 @@ class DatabaseLogModel
                 ]
             ]);
 
-            $query = self::filterDatabaseAccountTable($createdDateEnd, $createdDateStart, $name, $query, $status, $username);
+            $query = self::filterDatabaseAccountTable($createdDateEnd, $createdDateStart, $name, $phone, $query, $status, $username, $whatsapp);
 
             foreach($sorts as $sort) {
 
@@ -139,6 +158,18 @@ class DatabaseLogModel
             return $collection->aggregate($query, ["allowDiskUse" => true]);
 
         });
+
+    }
+
+
+    public static function findLastByDatabaseId($databaseId, $websiteId) {
+
+        $databaseLog = new DatabaseLog();
+        $databaseLog->setTable("databaseLog_" . $websiteId);
+
+        return $databaseLog->where([
+            ["database._id", "=", $databaseId]
+        ])->orderBy("created.timestamp", "DESC")->first();
 
     }
 

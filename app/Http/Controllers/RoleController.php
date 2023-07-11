@@ -6,6 +6,7 @@ use App\Components\AuthenticationComponent;
 use App\Components\DataComponent;
 use App\Components\LogComponent;
 use App\Repository\UserRoleModel;
+use App\Services\UserRoleService;
 use Illuminate\Http\Request;
 
 class RoleController extends Controller
@@ -28,7 +29,7 @@ class RoleController extends Controller
             $filter['status'] = !empty($request->status)?$request->status:0;
             $filter['nucode'] = !empty($request->nucode)?$request->nucode:0;
 
-            $model =  new UserRoleModel($request);
+            $model =  new UserRoleModel();
             $data = $model->getRole($limit, $offset, $filter);
 
             $response = [
@@ -56,7 +57,7 @@ class RoleController extends Controller
             DataComponent::checkPrivilege($request, "userRole", "add");
             $auth = AuthenticationComponent::toUser($request);
 
-            $model =  new UserRoleModel($request);
+            $model =  new UserRoleModel();
             $data = $model->addRole($request);
 
             if ($data) {
@@ -88,7 +89,7 @@ class RoleController extends Controller
             DataComponent::checkPrivilege($request, "userRole", "edit");
             $auth = AuthenticationComponent::toUser($request);
 
-            $model =  new UserRoleModel($request);
+            $model =  new UserRoleModel();
             $data = $model->updateRoleById($request);
 
             if ($data) {
@@ -119,20 +120,8 @@ class RoleController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "userRole", "delete");
 
-            $model =  new UserRoleModel($request);
-            $data = $model->deleteRole($request->id);
+            return response()->json(UserRoleService::delete($request), 200);
 
-            if ($data) {
-                $response = [
-                    'result' => true,
-                    'response' => 'success delete role',
-                ];
-            } else {
-                $response = [
-                    'result' => false,
-                    'response' => 'failed delete role',
-                ];
-            }
         } else {
             $response = $validation;
         }
@@ -150,7 +139,7 @@ class RoleController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "userRole", "view");
 
-            $model =  new UserRoleModel($request);
+            $model =  new UserRoleModel();
             $data = $model->getRoleById($request->id);
 
             if ($data) {

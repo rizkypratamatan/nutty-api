@@ -39,6 +39,7 @@ class LoginController extends Controller
                     'website' => $user['group'],
                     'privilege' => $user['privilege'],
                     'type' => $user['type'],
+                    'nucode' => $user['nucode']
                 ];
                 
 

@@ -4,8 +4,8 @@ namespace App\Services;
 
 use App\Components\DataComponent;
 use App\Models\UserRole;
-use App\Repositories\UserRepository;
-use App\Repositories\UserRoleRepository;
+use App\Repository\UserModel;
+use App\Repository\UserRoleModel;
 use stdClass;
 
 
@@ -18,11 +18,11 @@ class UserRoleService {
         $result->response = "Failed to delete user role data";
         $result->result = false;
 
-        $userRoleById = UserRoleRepository::findOneById($request->id);
+        $userRoleById = UserRoleModel::findOneById($request->id);
 
         if(!empty($userRoleById)) {
 
-            UserRoleRepository::delete($userRoleById);
+            UserRoleModel::delete($userRoleById);
 
             $result->response = "User role data deleted";
             $result->result = true;
@@ -66,7 +66,7 @@ class UserRoleService {
         $result->response = "Failed to initialize user role data";
         $result->result = false;
 
-        $result->userRole = UserRoleRepository::findOneById($request->id);
+        $result->userRole = UserRoleModel::findOneById($request->id);
 
         $result->response = "User role data initialized";
         $result->result = true;
@@ -86,7 +86,7 @@ class UserRoleService {
 
         if($validation->result) {
 
-            UserRoleRepository::insert(DataComponent::initializeAccount($request), $validation->userRole);
+            UserRoleModel::insert(DataComponent::initializeAccount($request), $validation->userRole);
 
             $result->response = "User role data inserted";
             $result->result = true;
@@ -108,7 +108,7 @@ class UserRoleService {
 
         if($validation->result) {
 
-            UserRoleRepository::update(DataComponent::initializeAccount($request), $validation->userRole);
+            UserRoleModel::update(DataComponent::initializeAccount($request), $validation->userRole);
 
             $update = [
                 "privilege" => $validation->userRole->privilege,
@@ -117,7 +117,7 @@ class UserRoleService {
                     "name" => $validation->userRole->name
                 ]
             ];
-            UserRepository::updateByRoleId($validation->userRole->_id, $update);
+            UserModel::updateByRoleId($validation->userRole->_id, $update);
 
             $result->response = "User role data updated";
             $result->result = true;
@@ -141,7 +141,7 @@ class UserRoleService {
 
         if(!is_null($request->id)) {
 
-            $result->userRole = UserRoleRepository::findOneById($request->id);
+            $result->userRole = UserRoleModel::findOneById($request->id);
 
             if(empty($result->userRole)) {
 
@@ -171,7 +171,7 @@ class UserRoleService {
         ];
         $result->userRole->status = $request->status;
 
-        $userRoleByNameNucode = UserRoleRepository::findOneByNameNucode($request->name, $request->nucode);
+        $userRoleByNameNucode = UserRoleModel::findOneByNameNucode($request->name, $request->nucode);
 
         if(!empty($userRoleByNameNucode)) {
 

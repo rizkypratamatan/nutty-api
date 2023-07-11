@@ -467,6 +467,12 @@ class DataComponent {
 
     }
 
+    public static function initializeObject($data) {
+
+        return json_decode(json_encode($data));
+
+    }
+
     public static function initializeObjectId($id) {
 
         $result = "0";
@@ -569,41 +575,41 @@ class DataComponent {
 
         }
 
-        if(!Schema::hasTable("contact_groups_" . $accountId)) {
+        // if(!Schema::hasTable("contact_groups_" . $accountId)) {
 
-            Schema::create("contact_groups_" . $accountId, function(Blueprint $table) {
+        //     Schema::create("contact_groups_" . $accountId, function(Blueprint $table) {
 
-                self::createContactGroupIndex($table);
+        //         self::createContactGroupIndex($table);
 
-            });
+        //     });
 
-        } else {
+        // } else {
 
-            Schema::table("contact_groups_" . $accountId, function(Blueprint $table) {
+        //     Schema::table("contact_groups_" . $accountId, function(Blueprint $table) {
 
-                self::createContactGroupIndex($table);
+        //         self::createContactGroupIndex($table);
 
-            });
+        //     });
 
-        }
+        // }
 
-        if(!Schema::hasTable("contacts_" . $accountId)) {
+        // if(!Schema::hasTable("contacts_" . $accountId)) {
 
-            Schema::create("contacts_" . $accountId, function(Blueprint $table) {
+        //     Schema::create("contacts_" . $accountId, function(Blueprint $table) {
 
-                self::createContactIndex($table);
+        //         self::createContactIndex($table);
 
-            });
+        //     });
 
-        } else {
+        // } else {
 
-            Schema::table("contacts_" . $accountId, function(Blueprint $table) {
+        //     Schema::table("contacts_" . $accountId, function(Blueprint $table) {
 
-                self::createContactIndex($table);
+        //         self::createContactIndex($table);
 
-            });
+        //     });
 
-        }
+        // }
 
     }
 
@@ -701,35 +707,35 @@ class DataComponent {
         $table->string("modified.user.username")->index();
     }
 
-    public static function createContactGroupIndex($table) {
-        $table->string("name")->index();
-        $table->date("created.timestamp")->index();
-        $table->string("created.user._id")->index();
-        $table->string("created.user.avatar")->index();
-        $table->string("created.user.name")->index();
-        $table->string("created.user.username")->index();
-        $table->date("modified.timestamp")->index();
-        $table->string("modified.user._id")->index();
-        $table->string("modified.user.avatar")->index();
-        $table->string("modified.user.name")->index();
-        $table->string("modified.user.username")->index();
-    }
+    // public static function createContactGroupIndex($table) {
+    //     $table->string("name")->index();
+    //     $table->date("created.timestamp")->index();
+    //     $table->string("created.user._id")->index();
+    //     $table->string("created.user.avatar")->index();
+    //     $table->string("created.user.name")->index();
+    //     $table->string("created.user.username")->index();
+    //     $table->date("modified.timestamp")->index();
+    //     $table->string("modified.user._id")->index();
+    //     $table->string("modified.user.avatar")->index();
+    //     $table->string("modified.user.name")->index();
+    //     $table->string("modified.user.username")->index();
+    // }
 
-    public static function createContactIndex($table) {
-        $table->string("name")->index();
-        $table->string("number")->index();
-        $table->string("groups")->index();
-        $table->date("created.timestamp")->index();
-        $table->string("created.user._id")->index();
-        $table->string("created.user.avatar")->index();
-        $table->string("created.user.name")->index();
-        $table->string("created.user.username")->index();
-        $table->date("modified.timestamp")->index();
-        $table->string("modified.user._id")->index();
-        $table->string("modified.user.avatar")->index();
-        $table->string("modified.user.name")->index();
-        $table->string("modified.user.username")->index();
-    }
+    // public static function createContactIndex($table) {
+    //     $table->string("name")->index();
+    //     $table->string("number")->index();
+    //     $table->string("groups")->index();
+    //     $table->date("created.timestamp")->index();
+    //     $table->string("created.user._id")->index();
+    //     $table->string("created.user.avatar")->index();
+    //     $table->string("created.user.name")->index();
+    //     $table->string("created.user.username")->index();
+    //     $table->date("modified.timestamp")->index();
+    //     $table->string("modified.user._id")->index();
+    //     $table->string("modified.user.avatar")->index();
+    //     $table->string("modified.user.name")->index();
+    //     $table->string("modified.user.username")->index();
+    // }
 
     public static function initializeAccount($request) {
 
@@ -737,4 +743,122 @@ class DataComponent {
         return $result;
 
     }
+
+    public static function initializeTableData($account, $model) {
+
+        if($account->nucode != "system") {
+
+            $model = $model->where([
+                ["nucode", "=", $account->nucode]
+            ]);
+
+        }
+
+        return $model;
+
+    }
+
+
+    public static function initializeTableQuery($model, $tableFilterColumns, $tableFilterOrders, $defaultOrders) {
+
+        $query = [];
+
+        foreach($tableFilterColumns as $column) {
+
+            if(!empty($column->search->value)) {
+
+                if($column->search->regex) {
+
+                    array_push($query, [
+                        $column->name,
+                        "LIKE",
+                        "%" . $column->search->value . "%"
+                    ]);
+
+                } else {
+
+                    if($column->search->value == "true" || $column->search->value == "false") {
+
+                        array_push($query, [
+                            $column->name,
+                            "=",
+                            filter_var($column->search->value, FILTER_VALIDATE_BOOLEAN)
+                        ]);
+
+                    } else {
+
+                        array_push($query, [
+                            $column->name,
+                            "=",
+                            $column->search->value
+                        ]);
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        $model = $model->where($query);
+
+        if($tableFilterOrders[0]->column == 0) {
+
+            if(strtoupper($tableFilterOrders[0]->dir) == "ASC" || strtoupper($tableFilterOrders[0]->dir) == "DESC") {
+
+                foreach($defaultOrders as $order) {
+
+                    $model = $model->orderBy($order, strtoupper($tableFilterOrders[0]->dir));
+
+                }
+
+            }
+
+        } else {
+
+            if(strtoupper($tableFilterOrders[0]->dir) == "ASC" || strtoupper($tableFilterOrders[0]->dir) == "DESC") {
+
+                $model = $model->orderBy($tableFilterOrders[0]->column->data, strtoupper($tableFilterOrders[0]->dir));
+
+            }
+
+        }
+
+        return $model;
+
+    }
+
+    public static function initializeFilterDateRange($dateRange, $defaultEnd, $defaultStart) {
+
+        $result = new stdClass();
+        $result->end = $defaultEnd;
+        $result->response = "Failed to initialize filter date range";
+        $result->result = false;
+        $result->start = $defaultStart;
+
+        if(!empty($dateRange)) {
+
+            $date = explode(" to ", $dateRange);
+
+            if(count($date) == 1) {
+
+                $result->start = new UTCDateTime(Carbon::parse($date[0])->format("U") * 1000);
+
+            } else if(count($date) == 2) {
+
+                $result->start = new UTCDateTime(Carbon::parse($date[0])->format("U") * 1000);
+                $result->end = new UTCDateTime(Carbon::parse($date[1])->format("U") * 1000);
+
+            }
+
+        }
+
+        $result->response = "Filter date range initialized";
+        $result->result = true;
+
+        return $result;
+
+    }
+
 }

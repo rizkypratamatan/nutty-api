@@ -384,22 +384,29 @@ class WorksheetService {
     public static function resultFindTable($request) {
 
         $result = new stdClass();
-        $result->draw = $request->draw;
 
         $account = DataComponent::initializeAccount($request);
 
         $websiteIds = [];
-        $filter = DataComponent::initializeObject($request->columns);
+        
         $count = 0;
         $data = new Collection();
 
-        $filterName = $filter[3]->search->value;
-        $filterPhone = $filter[4]->search->value;
-        $filterStatus = $filter[7]->search->value;
+        $filterName = $request->filter_name;
+        $filterPhone = $request->filter_phone;
+        $filterStatus = $request->filter_status;
         $filterUser = $account->_id;
-        $filterUsername = $filter[2]->search->value;
-        $filterWebsite = $filter[6]->search->value;
-        $filterWhatsapp = $filter[5]->search->value;
+        $filterUsername = $request->filter_username;
+        $filterWebsite = $request->filter_website;
+        $filterWhatsapp = $request->filter_name;
+
+        // $filterName = $filter[3]->search->value;
+        // $filterPhone = $filter[4]->search->value;
+        // $filterStatus = $filter[7]->search->value;
+        // $filterUser = $account->_id;
+        // $filterUsername = $filter[2]->search->value;
+        // $filterWebsite = $filter[6]->search->value;
+        // $filterWhatsapp = $filter[5]->search->value;
 
         if($account->username == "system" || $account->type == "Administrator") {
 
@@ -409,7 +416,7 @@ class WorksheetService {
 
             } else if($account->type == "Administrator") {
 
-                $userById = UserModel::findOneById($filter[2]->search->value);
+                $userById = UserModel::findOneById($filterUsername);
 
                 if(!empty($userById)) {
 
@@ -425,13 +432,23 @@ class WorksheetService {
 
             }
 
-            $filterName = $filter[4]->search->value;
-            $filterPhone = $filter[5]->search->value;
-            $filterStatus = $filter[8]->search->value;
-            $filterUser = $filter[2]->search->value;
-            $filterUsername = $filter[3]->search->value;
-            $filterWebsite = $filter[7]->search->value;
-            $filterWhatsapp = $filter[6]->search->value;;
+            
+
+            // $filterName = $filter[4]->search->value;
+            // $filterPhone = $filter[5]->search->value;
+            // $filterStatus = $filter[8]->search->value;
+            // $filterUser = $filter[2]->search->value;
+            // $filterUsername = $filter[3]->search->value;
+            // $filterWebsite = $filter[7]->search->value;
+            // $filterWhatsapp = $filter[6]->search->value;;
+
+            $filterName = $request->filter_name;
+            $filterPhone = $request->filter_phone;
+            $filterStatus = $request->filter_status;
+            $filterUser = $request->filter_user;
+            $filterUsername = $request->filter_username;
+            $filterWebsite = $request->filter_website;
+            $filterWhatsapp = $request->filter_whatsapp;
 
         } else {
 
@@ -451,7 +468,7 @@ class WorksheetService {
         if(!empty($websiteIds)) {
 
             $date = Carbon::now()->setHour(0)->setMinute(0)->setSecond(0)->setMicrosecond(0);
-            $filterDateRange = DataComponent::initializeFilterDateRange($request->columns[1]["search"]["value"], new UTCDateTime($date->addDays(1)), new UTCDateTime($date));
+            $filterDateRange = DataComponent::initializeFilterDateRange($request->filter_date, new UTCDateTime($date->addDays(1)), new UTCDateTime($date));
 
             foreach($websiteIds as $value) {
 
@@ -482,34 +499,33 @@ class WorksheetService {
                     ]
                 ];
 
-                $order = DataComponent::initializeObject($request->order);
+                // $order = DataComponent::initializeObject($request->order);
 
-                if($order[0]->column != 0) {
+                // if($order[0]->column != 0) {
 
-                    if(strtoupper($order[0]->dir) == "ASC" || strtoupper($order[0]->dir) == "DESC") {
+                //     if(strtoupper($order[0]->dir) == "ASC" || strtoupper($order[0]->dir) == "DESC") {
 
-                        $direction = 1;
+                //         $direction = 1;
 
-                        if(strtoupper($order[0]->dir) == "DESC") {
+                //         if(strtoupper($order[0]->dir) == "DESC") {
 
-                            $direction = -1;
+                //             $direction = -1;
 
-                        }
+                //         }
 
-                        $sorts = [
-                            [
-                                "field" => $order[0]->column->data,
-                                "direction" => $direction
-                            ]
-                        ];
+                //         $sorts = [
+                //             [
+                //                 "field" => $order[0]->column->data,
+                //                 "direction" => $direction
+                //             ]
+                //         ];
 
-                    }
+                //     }
 
-                }
+                // }
 
                 if($retrieve) {
-
-                    $data = $data->merge(DatabaseLogModel::findDatabaseAccountTable($filterDateRange->end, $filterDateRange->start, $request->length, $filterName, $filterPhone, $request->start, $sorts, $filterStatus, $filterUser, $filterUsername, $value, $filterWhatsapp));
+                    $data = $data->merge(DatabaseLogModel::findDatabaseAccountTable($filterDateRange->end, $filterDateRange->start, $request->limit, $filterName, $filterPhone, $request->offset, $sorts, $filterStatus, $filterUser, $filterUsername, $value, $filterWhatsapp));
 
                 }
 
@@ -517,8 +533,7 @@ class WorksheetService {
 
         }
 
-        $result->recordsTotal = $count;
-        $result->recordsFiltered = $result->recordsTotal;
+        $result->total_data = $count;
 
         $result->data = $data;
 
