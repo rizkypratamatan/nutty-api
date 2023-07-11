@@ -737,4 +737,97 @@ class DataComponent {
         return $result;
 
     }
+
+    public static function initializeTableQuery($model, $tableFilterColumns, $tableFilterOrders, $defaultOrders) 
+    {
+
+        $query = [];
+
+        foreach($tableFilterColumns as $column) {
+
+            if(!empty($column->search->value)) {
+
+                if($column->search->regex) {
+
+                    array_push($query, [
+                        $column->name,
+                        "LIKE",
+                        "%" . $column->search->value . "%"
+                    ]);
+
+                } else {
+
+                    if($column->search->value == "true" || $column->search->value == "false") {
+
+                        array_push($query, [
+                            $column->name,
+                            "=",
+                            filter_var($column->search->value, FILTER_VALIDATE_BOOLEAN)
+                        ]);
+
+                    } else {
+
+                        array_push($query, [
+                            $column->name,
+                            "=",
+                            $column->search->value
+                        ]);
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        $model = $model->where($query);
+
+        if($tableFilterOrders[0]->column == 0) {
+
+            if(strtoupper($tableFilterOrders[0]->dir) == "ASC" || strtoupper($tableFilterOrders[0]->dir) == "DESC") {
+
+                foreach($defaultOrders as $order) {
+
+                    $model = $model->orderBy($order, strtoupper($tableFilterOrders[0]->dir));
+
+                }
+
+            }
+
+        } else {
+
+            if(strtoupper($tableFilterOrders[0]->dir) == "ASC" || strtoupper($tableFilterOrders[0]->dir) == "DESC") {
+
+                $model = $model->orderBy($tableFilterOrders[0]->column->data, strtoupper($tableFilterOrders[0]->dir));
+
+            }
+
+        }
+
+        return $model;
+
+    }
+
+    public static function initializeObject($data) 
+    {
+
+        return json_decode(json_encode($data));
+
+    }
+
+    public static function initializePage($start, $length) 
+    {
+
+        $result = $start / $length;
+
+        if($result < 1) {
+
+            $result = 1;
+
+        }
+
+        return $result;
+
+    }
 }

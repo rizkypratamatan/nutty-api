@@ -111,6 +111,7 @@ Route::group(["middleware" => ["authentication"]], function() {
     Route::post('/add-license', [LicenseController::class, 'addLicense'])->name('add-license');
     Route::post('/get-license', [LicenseController::class, 'getLicense'])->name('get-license');
     Route::post('/get-license-by-id', [LicenseController::class, 'getLicenseById'])->name('get-license-by-id');
+    Route::post('/get-table', [LicenseController::class, 'getTable'])->name('get-table');
     
     //report
     Route::post('/report', [ReportController::class, 'userReport'])->name('report');

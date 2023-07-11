@@ -13,20 +13,22 @@ use Illuminate\Support\Facades\DB;
 
 class LicenseModel
 {
-
+    protected $service;
     protected $user;
     protected $request;
 
     public function __construct(Request $request)
     {   
-        $this->user = AuthenticationComponent::toUser($request);
+        // $this->user = AuthenticationComponent::toUser($request);
         $this->request = $request;
     }
 
-    public function deleteLicense($id)
+    public static function deleteLicense($id)
     {
 
-        return License::where('_id', $id)->delete();
+        // return License::where('_id', $id)->delete();
+
+        return DB::table("license")->where("_id", $id)->delete();
     }
 
     public function updateLicense($data)
@@ -71,8 +73,6 @@ class LicenseModel
     public function addLicense($data)
     {
 
-        $mytime = Carbon::now();
-
         $arr = [
             'nucode' => $data->nucode,
             'package' => [
@@ -102,9 +102,33 @@ class LicenseModel
             ->insert($arr);
     }
 
-    public function getLicense($limit=10, $offset=0)
-    {   
-        return License::get()->take($limit)->skip($offset);
+    public function getLicense($auth, $limit=10, $offset=0, $filter = [])
+    
+    {
+        // $user = AuthenticationComponent::toUser($this->request);
+
+        $response = [
+            "data" => null,
+            "total_data" => 0
+        ];
+
+        $data = DB::table("license" . $auth->_id)->take($limit)->skip($offset);
+        $countData = DB::table("license" . $auth->_id);
+
+        if (!empty($filter['nucode'])) {
+            $data = $data->where('nucode', 'LIKE', "%" . $filter['nucode'] . "%");
+            $countData = $countData->where('nucode', 'LIKE', "%" . $filter['nucode'] . "%");
+        }
+
+        $data = $data->orderBy('_id', 'DESC')->get();
+        $counData = $countData->count();
+
+        $response = [
+            "data" => $data,
+            "total_data" => $counData
+        ];
+
+        return $response;
     }
 
     public function getLicenseById($id)
