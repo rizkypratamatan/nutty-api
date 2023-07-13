@@ -3,6 +3,7 @@
 namespace App\Services\Gateway;
 
 use App\Components\AuthenticationComponent;
+use App\Models\Sms;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -148,10 +149,8 @@ class SMSService {
                 "numbers" => $numbers,
                 "message" => $request->message,
                 "device" => $device,
-                // "gateway" => "",
                 "sim" => 1,
                 "priority" => 1,
-                // "shortener" => "",
             ];
         }
         return $chat;
@@ -165,12 +164,58 @@ class SMSService {
             "device" => $device,
             "sim" => 1,
             "priority" => 1,
-            // "shortener" => "",
         ];
 
         return $chat;
 
 
+    }
+
+    public function initializeData($message, $device, $phone){
+
+        $sms = new Sms();
+        $sms->mode = "devices";
+        $sms->phone = $phone;
+        $sms->message = $message;
+        $sms->device = $device;
+        $sms->sim = 1;
+        $sms->priority = 1;
+    
+        return $sms;
+    }
+
+    public function sendSms($sms)
+    {
+        //send to gateway
+        $message = [
+            "mode" => "devices",
+            "phone" => $sms->phone,
+            "message" => $sms->message,
+            "device" => $sms->device,
+            "sim" => 1,
+            "priority" => 1,
+            "secret" => $this->secret,
+        ];
+        $end_point = "/api/send/sms";
+        Log::info("Request Send SMS Single : ". json_encode($message));
+
+        $cURL = curl_init($this->base_url.$end_point);
+        curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($cURL, CURLOPT_POSTFIELDS, $message);
+        $response = curl_exec($cURL);
+        curl_close($cURL);
+
+        $resp = json_decode($response);
+        
+        if($resp->status = 200){
+            $resp->status = true;
+            Log::info("Response Send Message Single ".$this->base_url.$end_point." : ". $response);
+        }else{
+            $resp->status = false;
+            Log::error("Response Send Message Single ".$this->base_url.$end_point." : ". $response);
+        }
+
+        return $resp;
     }
 
 

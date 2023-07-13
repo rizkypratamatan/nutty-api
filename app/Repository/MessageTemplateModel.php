@@ -90,6 +90,18 @@ class MessageTemplateModel
                 ->update($arr);
     }
 
+    public static function getRandomMessage($account){
+        $data = new MessageTemplate();
+        $data->setTable('message_templates_'.$account->_id);
+
+        $total_data = $data->count();
+        $randomNumber = rand(0, ($total_data-1));
+
+        $data = $data->take(1)->skip($randomNumber)->first();
+
+        return $data;
+    }
+
     // {
     //     $user = AuthenticationComponent::toUser($this->request);
     //     return DB::table("message_templates_" . $user->_id)

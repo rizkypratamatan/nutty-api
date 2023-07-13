@@ -72,6 +72,178 @@ class DatabaseAccountModel {
 
     }
 
+    public static function countNewDataCrmTable($crmId, $status, $limit, $websiteId) {
+
+        $databaseAccount = new DatabaseAccount();
+        $databaseAccount->setTable("databaseAccount_" . $websiteId);
+
+        return $databaseAccount->raw(function($collection) use ($crmId, $status, $limit, $websiteId) {
+
+            $query = [
+                [
+                    '$lookup' => [
+                        "from" => "database_" . $websiteId,
+                        "localField" => "database._id",
+                        "foreignField" => "_id",
+                        "pipeline" => [],
+                        "as" => "database"
+                    ]
+                ]
+            ];
+
+            array_push($query, [
+                '$match' => [
+                    '$and' => [
+                        ["database.crm._id" => DataComponent::initializeObjectId($crmId)],
+                        ["database.status" => $status],
+                    ]
+                ]
+            ]);
+
+            array_push($query, [
+                '$limit' => $limit
+            ]);
+
+            array_push($query, [
+                '$count' => "count"
+            ]);
+
+            return $collection->aggregate($query, ["allowDiskUse" => true]);
+
+        });
+
+    }
+
+    public static function countNewDataTeleTable($telemarketerId, $status, $limit, $websiteId) {
+
+        $databaseAccount = new DatabaseAccount();
+        $databaseAccount->setTable("databaseAccount_" . $websiteId);
+
+        return $databaseAccount->raw(function($collection) use ($telemarketerId, $status, $limit, $websiteId) {
+
+            $query = [
+                [
+                    '$lookup' => [
+                        "from" => "database_" . $websiteId,
+                        "localField" => "database._id",
+                        "foreignField" => "_id",
+                        "pipeline" => [],
+                        "as" => "database"
+                    ]
+                ]
+            ];
+
+            array_push($query, [
+                '$match' => [
+                    '$and' => [
+                        ["database.telemarketer._id" => DataComponent::initializeObjectId($telemarketerId)],
+                        ["database.crm._id" => "0"],
+                        ["database.status" => $status],
+                    ]
+                ]
+            ]);
+
+            array_push($query, [
+                '$limit' => $limit
+            ]);
+
+            array_push($query, [
+                '$count' => "count"
+            ]);
+
+            return $collection->aggregate($query, ["allowDiskUse" => true]);
+
+        });
+
+    }
+
+    public static function countNewDataGroupTable($groupId, $status, $limit, $websiteId) {
+
+        $databaseAccount = new DatabaseAccount();
+        $databaseAccount->setTable("databaseAccount_" . $websiteId);
+
+        return $databaseAccount->raw(function($collection) use ($groupId, $status, $limit, $websiteId) {
+
+            $query = [
+                [
+                    '$lookup' => [
+                        "from" => "database_" . $websiteId,
+                        "localField" => "database._id",
+                        "foreignField" => "_id",
+                        "pipeline" => [],
+                        "as" => "database"
+                    ]
+                ]
+            ];
+
+            array_push($query, [
+                '$match' => [
+                    '$and' => [
+                        ["database.group._id" => DataComponent::initializeObjectId($groupId)],
+                        ["database.crm._id" => "0"],
+                        ["database.telemarketer._id" => "0"],
+                        ["database.status" => $status],
+                    ]
+                ]
+            ]);
+
+            array_push($query, [
+                '$limit' => $limit
+            ]);
+
+            array_push($query, [
+                '$count' => "count"
+            ]);
+
+            return $collection->aggregate($query, ["allowDiskUse" => true]);
+
+        });
+
+    }
+
+    public static function countNewDataWorksheetTable($status, $limit, $websiteId) {
+
+        $databaseAccount = new DatabaseAccount();
+        $databaseAccount->setTable("databaseAccount_" . $websiteId);
+
+        return $databaseAccount->raw(function($collection) use ($status, $limit, $websiteId) {
+
+            $query = [
+                [
+                    '$lookup' => [
+                        "from" => "database_" . $websiteId,
+                        "localField" => "database._id",
+                        "foreignField" => "_id",
+                        "pipeline" => [],
+                        "as" => "database"
+                    ]
+                ]
+            ];
+
+            array_push($query, [
+                '$match' => [
+                    '$and' => [
+                        ["database.crm._id" => "0"],
+                        ["database.telemarketer._id" => "0"],
+                        ["database.status" => $status]
+                    ]
+                ]
+            ]);
+
+            array_push($query, [
+                '$limit' => $limit
+            ]);
+
+            array_push($query, [
+                '$count' => "count"
+            ]);
+
+            return $collection->aggregate($query, ["allowDiskUse" => true]);
+
+        });
+
+    }
+
 
     public static function delete($data) {
 
@@ -162,6 +334,246 @@ class DatabaseAccountModel {
 
     }
 
+    public static function findNewDataCrmTable($crmId, $status, $limit, $sorts, $start, $websiteId) {
+
+        $databaseAccount = new DatabaseAccount();
+        $databaseAccount->setTable("databaseAccount_" . $websiteId);
+
+        return $databaseAccount->raw(function($collection) use ($crmId, $status, $limit, $sorts, $start, $websiteId) {
+
+            $query = [
+                [
+                    '$lookup' => [
+                        "from" => "database_" . $websiteId,
+                        "localField" => "database._id",
+                        "foreignField" => "_id",
+                        "pipeline" => [],
+                        "as" => "database"
+                    ]
+                ],
+                [
+                    '$addFields' => [
+                        "website" => [
+                            "_id" => $websiteId
+                        ]
+                    ]
+                ]
+            ];
+
+            array_push($query, [
+                '$match' => [
+                    '$and' => [
+                        ["database.crm._id" => DataComponent::initializeObjectId($crmId)],
+                        ["database.status" => $status]
+                    ]
+                ]
+            ]);
+
+            foreach($sorts as $sort) {
+
+                array_push($query, [
+                    '$sort' => [
+                        $sort["field"] => $sort["direction"]
+                    ]
+                ]);
+
+            }
+
+            array_push($query, [
+                '$skip' => $start
+            ]);
+
+            array_push($query, [
+                '$limit' => $limit
+            ]);
+
+            return $collection->aggregate($query, ["allowDiskUse" => true]);
+
+        });
+
+    }
+
+    public static function findNewDataTeleTable($teleId, $status, $limit, $sorts, $start, $websiteId) {
+
+        $databaseAccount = new DatabaseAccount();
+        $databaseAccount->setTable("databaseAccount_" . $websiteId);
+
+        return $databaseAccount->raw(function($collection) use ($teleId, $status, $limit, $sorts, $start, $websiteId) {
+
+            $query = [
+                [
+                    '$lookup' => [
+                        "from" => "database_" . $websiteId,
+                        "localField" => "database._id",
+                        "foreignField" => "_id",
+                        "pipeline" => [],
+                        "as" => "database"
+                    ]
+                ],
+                [
+                    '$addFields' => [
+                        "website" => [
+                            "_id" => $websiteId
+                        ]
+                    ]
+                ]
+            ];
+
+            array_push($query, [
+                '$match' => [
+                    '$and' => [
+                        ["database.telemarketer._id" => DataComponent::initializeObjectId($teleId)],
+                        ["database.status" => $status],
+                        ["database.crm._id" => "0"]
+                    ]
+                ]
+            ]);
+
+            foreach($sorts as $sort) {
+
+                array_push($query, [
+                    '$sort' => [
+                        $sort["field"] => $sort["direction"]
+                    ]
+                ]);
+
+            }
+
+            array_push($query, [
+                '$skip' => $start
+            ]);
+
+            array_push($query, [
+                '$limit' => $limit
+            ]);
+
+            return $collection->aggregate($query, ["allowDiskUse" => true]);
+
+        });
+
+    }
+
+    public static function findNewDataGroupTable($groupId, $status, $limit, $sorts, $start, $websiteId) {
+
+        $databaseAccount = new DatabaseAccount();
+        $databaseAccount->setTable("databaseAccount_" . $websiteId);
+
+        return $databaseAccount->raw(function($collection) use ($groupId, $status, $limit, $sorts, $start, $websiteId) {
+
+            $query = [
+                [
+                    '$lookup' => [
+                        "from" => "database_" . $websiteId,
+                        "localField" => "database._id",
+                        "foreignField" => "_id",
+                        "pipeline" => [],
+                        "as" => "database"
+                    ]
+                ],
+                [
+                    '$addFields' => [
+                        "website" => [
+                            "_id" => $websiteId
+                        ]
+                    ]
+                ]
+            ];
+
+            array_push($query, [
+                '$match' => [
+                    '$and' => [
+                        ["database.group._id" => DataComponent::initializeObjectId($groupId)],
+                        ["database.crm._id" => "0"],
+                        ["database.telemarketer._id" => "0"],
+                        ["database.status" => $status],
+                    ]
+                ]
+            ]);
+
+            foreach($sorts as $sort) {
+
+                array_push($query, [
+                    '$sort' => [
+                        $sort["field"] => $sort["direction"]
+                    ]
+                ]);
+
+            }
+
+            array_push($query, [
+                '$skip' => $start
+            ]);
+
+            array_push($query, [
+                '$limit' => $limit
+            ]);
+
+            return $collection->aggregate($query, ["allowDiskUse" => true]);
+
+        });
+
+    }
+
+    public static function findNewDataWorksheetTable($status, $limit, $sorts, $start, $websiteId) {
+
+        $databaseAccount = new DatabaseAccount();
+        $databaseAccount->setTable("databaseAccount_" . $websiteId);
+
+        return $databaseAccount->raw(function($collection) use ($status, $limit, $sorts, $start, $websiteId) {
+
+            $query = [
+                [
+                    '$lookup' => [
+                        "from" => "database_" . $websiteId,
+                        "localField" => "database._id",
+                        "foreignField" => "_id",
+                        "pipeline" => [],
+                        "as" => "database"
+                    ]
+                ],
+                [
+                    '$addFields' => [
+                        "website" => [
+                            "_id" => $websiteId
+                        ]
+                    ]
+                ]
+            ];
+
+            array_push($query, [
+                '$match' => [
+                    '$and' => [
+                        ["database.crm._id" => "0"],
+                        ["database.telemarketer._id" => "0"],
+                        ["database.status" => $status]
+                    ]
+                ]
+            ]);
+
+            foreach($sorts as $sort) {
+
+                array_push($query, [
+                    '$sort' => [
+                        $sort["field"] => $sort["direction"]
+                    ]
+                ]);
+
+            }
+
+            array_push($query, [
+                '$skip' => $start
+            ]);
+
+            array_push($query, [
+                '$limit' => $limit
+            ]);
+
+            return $collection->aggregate($query, ["allowDiskUse" => true]);
+
+        });
+
+    }
+
 
     public static function findOneByDatabaseId($databaseId, $websiteId) {
 
@@ -173,7 +585,6 @@ class DatabaseAccountModel {
         ])->first();
 
     }
-
 
     public static function findOneById($id, $websiteId) {
 

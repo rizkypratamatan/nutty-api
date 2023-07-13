@@ -94,6 +94,11 @@ Route::group(["middleware" => ["authentication"]], function() {
 
     Route::post("/worksheet/crm", [WorksheetController::class, "getCrmData"]);
     Route::post("/worksheet/result", [WorksheetController::class, "resultTable"]);
+    Route::post("/worksheet/initializeData", [WorksheetController::class, "initializeData"]);
+
+    Route::post("/worksheet/process-wa", [WorksheetController::class, "processWa"]);
+    Route::post("/worksheet/process-sms", [WorksheetController::class, "processSms"]);
+    Route::post("/worksheet/process-email", [WorksheetController::class, "processEmail"]);
 
     //website
     Route::post('/get-websites', [WebsiteController::class, 'getWebsites'])->name('get-websites');

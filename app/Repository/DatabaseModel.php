@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Components\AuthenticationComponent;
 use App\Components\DataComponent;
 use App\Models\Database;
+use DB;
 
 
 class DatabaseModel {
@@ -96,6 +97,36 @@ class DatabaseModel {
 
     }
 
+    public static function findListWorksheetCrm($crmId, $status, $limit, $offset, $websiteId) {
+        // echo $crmId."<br>";
+        // echo $status."<br>";
+        // echo $limit."<br>";
+        // echo $offset."<br>";
+        // echo $websiteId;die;
+        $database = new Database();
+        $database->setTable("database_" . $websiteId);
+
+        $data = $database->where([
+                            ["crm.username", $crmId],
+                            ["status", $status]
+                        ])
+                        ->take($limit)
+                        ->skip($offset)
+                        ->orderBy('created.timestamp', 'desc')
+                        ->get();
+        
+        $total_data = $database->where([
+                            ["crm.username", "=", $crmId],
+                            ["status", "=", $status]
+                        ])
+                        ->orderBy('created.timestamp', 'desc')
+                        ->count();
+
+        return ["data" => $data,
+                "total_data" => $total_data];
+
+    }
+
 
     public static function findOneWorksheetGroup($groupId, $status, $websiteId) {
 
@@ -108,6 +139,34 @@ class DatabaseModel {
             ["status", "=", $status],
             ["telemarketer._id", "=", "0"]
         ])->first();
+
+    }
+    public static function findListWorksheetGroup($groupId, $status, $limit, $offset, $websiteId) {
+
+        $database = new Database();
+        $database->setTable("database_" . $websiteId);
+
+        $data = $database->where([
+                    ["crm._id", "=", "0"],
+                    ["group._id", "=", $groupId],
+                    ["status", "=", $status],
+                    ["telemarketer._id", "=", "0"]
+                ])
+                ->take($limit)
+                ->skip($offset)
+                ->orderBy('created.timestamp', 'desc')
+                ->get();
+        
+        $total_data = $database->where([
+                    ["crm._id", "=", "0"],
+                    ["group._id", "=", $groupId],
+                    ["status", "=", $status],
+                    ["telemarketer._id", "=", "0"]
+                ])
+                ->count();
+
+        return ["data" => $data,
+                "total_data" => $total_data];
 
     }
 
@@ -124,6 +183,33 @@ class DatabaseModel {
         ])->first();
 
     }
+    
+    public static function findListWorksheetTelemarketer($telemarketerId, $status, $limit, $offset, $websiteId) {
+
+        $database = new Database();
+        $database->setTable("database_" . $websiteId);
+        $data = $database->where([
+                            ["crm._id", "=", "0"],
+                            ["status", "=", $status],
+                            ["telemarketer.username", "=", $telemarketerId]
+                        ])
+                        ->take($limit)
+                        ->skip($offset)
+                        ->orderBy('created.timestamp', 'desc')
+                        ->get();
+        
+        $total_data = $database->where([
+                            ["crm._id", "=", "0"],
+                            ["status", "=", $status],
+                            ["telemarketer.username", "=", $telemarketerId]
+                        ])
+                        ->get();
+            
+
+        return ["data" => $data,
+                "total_data" => $total_data];
+
+    }
 
 
     public static function findOneWorksheetWebsite($status, $websiteId) {
@@ -136,6 +222,32 @@ class DatabaseModel {
             ["status", "=", $status],
             ["telemarketer._id", "=", "0"]
         ])->first();
+
+    }
+    
+    public static function findListWorksheetWebsite($status, $limit, $offset, $websiteId) {
+
+        $database = new Database();
+        $database->setTable("database_" . $websiteId);
+
+        $data = $database->where([
+                                ["crm._id", "=", "0"],
+                                ["status", "=", $status],
+                                ["telemarketer._id", "=", "0"]
+                            ])
+                            ->take($limit)
+                            ->skip($offset)
+                            ->orderBy('created.timestamp', 'desc')
+                            ->get();
+
+        $total_data = $database->where([
+                            ["crm._id", "=", "0"],
+                            ["status", "=", $status],
+                            ["telemarketer._id", "=", "0"]
+                        ])
+                        ->get();
+
+        return ["data" => $data, "total_data" => $total_data];
 
     }
 

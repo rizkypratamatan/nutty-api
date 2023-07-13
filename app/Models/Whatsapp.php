@@ -74,7 +74,7 @@ class Whatsapp extends Model
         "modified->user->_id",
     ];
 
-    protected $table = "whatsapp_chats";
+    protected $table = "whatsappLogs";
 
     public $timestamps = false;
 

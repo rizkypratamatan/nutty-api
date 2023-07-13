@@ -5,19 +5,25 @@ namespace App\Services;
 use App\Components\DataComponent;
 use App\Models\DatabaseAccount;
 use App\Models\DatabaseLog;
+use App\Models\MessageTemplate;
 use App\Models\ReportUser;
 use App\Models\ReportWebsite;
+use App\Models\SmsQueue;
 use App\Models\User;
+use App\Models\WaQueue;
 use App\Repository\DatabaseAccountModel;
 use App\Repository\DatabaseAttemptModel;
 use App\Repository\DatabaseLogModel;
 use App\Repository\DatabaseModel;
+use App\Repository\MessageTemplateModel;
 use App\Repository\PlayerAttemptModel;
 use App\Repository\ReportUserModel;
 use App\Repository\ReportWebsiteModel;
+use App\Repository\SMSModel;
 use App\Repository\UserGroupModel;
 use App\Repository\UserModel;
 use App\Repository\WebsiteModel;
+use App\Services\Gateway\SMSService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 use MongoDB\BSON\UTCDateTime;
@@ -95,6 +101,63 @@ class WorksheetService {
 
         return $result;
 
+    }
+
+    public static function newDataFindTable($request) {
+
+        $result = new stdClass();
+        $auth = DataComponent::initializeAccount($request);
+        $result->total_data = 0;
+
+        $sorts = [
+            [
+                "field" => "created.timestamp",
+                "direction" => 1
+            ]
+        ];
+
+        if($auth->type == "CRM") {
+            
+            $count = DatabaseAccountModel::countNewDataCrmTable($auth['_id'], 'Available', 100, $request->websiteId);
+            if(!$count->isEmpty()) {
+                $result->total_data = $count[0]->count;
+            }
+            $result->data = DatabaseAccountModel::findNewDataCrmTable($auth['_id'], "Available", $request->limit, $sorts, $request->offset, $request->websiteId);
+
+
+        } else if($auth->type == "Telemarketer") {
+
+            // $resp = DatabaseModel::countNewDataTeleTable($auth['_id'], 'Available', $request->limit, $request->offset, $request->websiteId);
+            // $result->data = $resp['data'];
+            // $result->total_data = $resp['total_data'];
+            $count = DatabaseAccountModel::countNewDataTeleTable($auth['_id'], 'Available', 100, $request->websiteId);
+            if(!$count->isEmpty()) {
+
+                $result->total_data = $count[0]->count;
+
+            }
+            $result->data = DatabaseAccountModel::findNewDataTeleTable($auth['_id'], "Available", $request->limit, $sorts, $request->offset, $request->websiteId);
+
+        }
+        if($result->total_data == 0) {
+            // $resp = DatabaseModel::findListWorksheetGroup($auth->group["_id"],'Available', $request->limit, $request->offset, $request->websiteId);
+            $count = DatabaseAccountModel::countNewDataGroupTable($auth['_id'], 'Available', 100, $request->websiteId);
+            if(!$count->isEmpty()) {
+                $result->total_data = $count[0]->count;
+            }
+            $result->data = DatabaseAccountModel::findNewDataGroupTable($auth['_id'], "Available", $request->limit, $sorts, $request->offset, $request->websiteId);
+
+            if($result->total_data == 0) {
+                // $resp = DatabaseModel::findListWorksheetWebsite("Available", $request->limit, $request->offset, $request->websiteId);
+                $count = DatabaseAccountModel::countNewDataWorksheetTable('Available', 100, $request->websiteId);
+                if(!$count->isEmpty()) {
+                    $result->total_data = $count[0]->count;
+                }
+                $result->data = DatabaseAccountModel::findNewDataWorksheetTable("Available", $request->limit, $sorts, $request->offset, $request->websiteId);
+            }
+        }
+
+        return $result;
     }
 
 
@@ -232,29 +295,29 @@ class WorksheetService {
 
         $account = DataComponent::initializeAccount($request);
 
-        if($request->session()->has("websiteId")) {
+        if($request->websiteId) {
 
-            $websiteById = WebsiteModel::findOneById($request->session()->get("websiteId"));
+            $websiteById = WebsiteRepository::findOneById($request->websiteId);
 
             if(!empty($websiteById)) {
 
                 if($account->type == "CRM") {
 
-                    $result->database = DatabaseModel::findOneWorksheetCrm($account->_id, "Available", $websiteById->_id);
+                    $result->database = DatabaseRepository::findOneWorksheetCrm($account->_id, "Available", $websiteById->_id);
 
                 } else if($account->type == "Telemarketer") {
 
-                    $result->database = DatabaseModel::findOneWorksheetTelemarketer("Available", $account->_id, $websiteById->_id);
+                    $result->database = DatabaseRepository::findOneWorksheetTelemarketer("Available", $account->_id, $websiteById->_id);
 
                 }
 
                 if(empty($result->database)) {
 
-                    $result->database = DatabaseModel::findOneWorksheetGroup($account->group["_id"], "Available", $websiteById->_id);
+                    $result->database = DatabaseRepository::findOneWorksheetGroup($account->group["_id"], "Available", $websiteById->_id);
 
                     if(empty($result->database)) {
 
-                        $result->database = DatabaseModel::findOneWorksheetWebsite("Available", $websiteById->_id);
+                        $result->database = DatabaseRepository::findOneWorksheetWebsite("Available", $websiteById->_id);
 
                     }
 
@@ -262,9 +325,9 @@ class WorksheetService {
 
                 if(!empty($result->database)) {
 
-                    $result->databaseAccount = DatabaseAccountModel::findOneByDatabaseId($result->database->_id, $websiteById->_id);
+                    $result->databaseAccount = DatabaseAccountRepository::findOneByDatabaseId($result->database->_id, $websiteById->_id);
 
-                    $databaseLogByDatabaseIdUserId = DatabaseLogModel::findLastByDatabaseIdUserId($result->database->_id, $account->_id, $websiteById->_id);
+                    $databaseLogByDatabaseIdUserId = DatabaseLogRepository::findLastByDatabaseIdUserId($result->database->_id, $account->_id, $websiteById->_id);
 
                     if(!empty($databaseLogByDatabaseIdUserId)) {
 
@@ -285,9 +348,9 @@ class WorksheetService {
 
                     }
 
-                    DatabaseModel::update($account, $result->database, $websiteById->_id);
+                    DatabaseRepository::update($account, $result->database, $websiteById->_id);
 
-                    $result->databaseAccount = DatabaseAccountModel::findOneByDatabaseId($result->database->_id, $websiteById->_id);
+                    $result->databaseAccount = DatabaseAccountRepository::findOneByDatabaseId($result->database->_id, $websiteById->_id);
 
                     $databaseLog = new DatabaseLog();
                     $databaseLog->database = [
@@ -305,7 +368,7 @@ class WorksheetService {
                         "_id" => DataComponent::initializeObjectId($websiteById->_id),
                         "name" => $websiteById->name
                     ];
-                    $result->databaseLog = DatabaseLogModel::insert($account, $databaseLog, $websiteById->_id);
+                    $result->databaseLog = DatabaseLogRepository::insert($account, $databaseLog, $websiteById->_id);
 
                     $result->response = "Worksheet data initialized";
                     $result->result = true;
@@ -324,7 +387,7 @@ class WorksheetService {
 
         } else {
 
-            $result->userGroup = UserGroupModel::findOneById($account->group["_id"]);
+            $result->userGroup = UserGroupRepository::findOneById($account->group["_id"]);
 
             $result->response = "Worksheet data initialized";
             $result->result = true;
@@ -567,7 +630,7 @@ class WorksheetService {
 
         $account = DataComponent::initializeAccount($request);
 
-        $databaseById = DatabaseModel::findOneById($request->id, $request->session()->get("websiteId"));
+        $databaseById = DatabaseModel::findOneById($request->id, $request->websiteId);
 
         if(!empty($databaseById)) {
 
@@ -596,7 +659,7 @@ class WorksheetService {
 
         $database->name = $request->name;
         $database->status = "Processed";
-        DatabaseModel::update($account, $database, $request->session()->get("websiteId"));
+        DatabaseModel::update($account, $database, $request->websiteId);
 
         $request->account = [
             "username" => strtolower($request->account["username"])
@@ -608,7 +671,7 @@ class WorksheetService {
 
         }
 
-        $websiteById = WebsiteModel::findOneById($request->session()->get("websiteId"));
+        $websiteById = WebsiteModel::findOneById($request->websiteId);
 
         if(!empty($websiteById)) {
 
@@ -766,6 +829,340 @@ class WorksheetService {
         return $result;
 
     }
+
+    public static function processSms($request){
+        $result = new stdClass();
+        $result->response = "Failed to Process Broadcast SMS";
+        $result->result = false;
+        $total_data = 0;
+        $data = [];
+        $limit = 100;
+        $offset = 0;
+        $dataQueueSms = [];
+        $auth = DataComponent::initializeAccount($request);
+
+        if($request->website){
+            $websiteById = WebsiteModel::findOneById($request->website); 
+
+            if($request->status == 'Available'){
+                if($auth->type == "CRM") {
+                
+                    $count = DatabaseAccountModel::countNewDataCrmTable($auth['_id'], 'Available', $limit, $websiteById->_id);
+                    if(!$count->isEmpty()) {
+                        $total_data = $count[0]->count;
+                    }
+                    $data = DatabaseAccountModel::findNewDataCrmTable($auth['_id'], "Available", $limit, [], $offset, $websiteById->_id);
+        
+        
+                } else if($auth->type == "Telemarketer") {
+        
+                    $count = DatabaseAccountModel::countNewDataTeleTable($auth['_id'], 'Available', $limit, $websiteById->_id);
+                    if(!$count->isEmpty()) {
+                        $total_data = $count[0]->count;
+                    }
+                    $data = DatabaseAccountModel::findNewDataTeleTable($auth['_id'], "Available", $limit, [], $offset, $websiteById->_id);
+        
+                }
+                if($total_data == 0) {
+                    $count = DatabaseAccountModel::countNewDataGroupTable($auth['_id'], 'Available', $limit, $websiteById->_id);
+                    if(!$count->isEmpty()) {
+                        $total_data = $count[0]->count;
+                    }
+                    $data = DatabaseAccountModel::findNewDataGroupTable($auth['_id'], "Available", $limit, [], $offset, $websiteById->_id);
+    
+                    if($total_data == 0) {
+                        
+                        $count = DatabaseAccountModel::countNewDataWorksheetTable('Available', $limit, $websiteById->_id);
+                        if(!$count->isEmpty()) {
+                            $total_data = $count[0]->count;
+                        }
+                        $data = DatabaseAccountModel::findNewDataWorksheetTable("Available", $limit, [], $offset, $websiteById->_id);
+                    }
+                }
+            }else{
+                $depositLastTimestamp = new UTCDateTime(Carbon::now()->subDays($request->days));
+                $count = DatabaseAccountModel::countCrmTable($auth['_id'], $depositLastTimestamp, $limit, $websiteById->_id);
+                if(!$count->isEmpty()) {
+                    $total_data = $count[0]->count;
+                }
+    
+                $data = DatabaseAccountModel::findCrmTable($auth['_id'], $depositLastTimestamp, $limit, [], $offset, $websiteById->_id);
+            }
+        
+
+            if($total_data > 0){
+                
+                foreach($data as $val){
+
+                    $database = DatabaseModel::findOneById($val->database[0]['_id']->__toString(),$websiteById->_id);
+                    // print_r(json_encode($database));die;
+    
+                    if(!empty($database)) {
+                    
+                        $databaseAccount = DatabaseAccountModel::findOneByDatabaseId($database->_id, $websiteById->_id);
+
+                        $databaseLogByDatabaseIdUserId = DatabaseLogModel::findLastByDatabaseIdUserId($database->_id, $auth->_id, $websiteById->_id);
+                        if(!empty($databaseLogByDatabaseIdUserId)) {
+                            $database->reference = $databaseLogByDatabaseIdUserId->reference;
+                        }
+
+                        $database->status = "Reserved";                        
+
+                        if($auth->type == "Telemarketer") {
+
+                            $database->telemarketer = [
+                                "_id" => $auth->_id,
+                                "avatar" => $auth->avatar,
+                                "name" => $auth->name,
+                                "username" => $auth->username
+                            ];
+
+                        }
+
+                        DatabaseModel::update($auth, $database, $websiteById->_id);
+
+                        $databaseAccount = DatabaseAccountModel::findOneByDatabaseId($database->_id, $websiteById->_id);
+
+                        $databaseLog = new DatabaseLog();
+                        $databaseLog->database = [
+                            "_id" => DataComponent::initializeObjectId($database->_id),
+                            "name" => $database->name
+                        ];
+                        $databaseLog->status = "Pending";
+                        $databaseLog->user = [
+                            "_id" => DataComponent::initializeObjectId($auth->_id),
+                            "avatar" => $auth->avatar,
+                            "name" => $auth->name,
+                            "username" => $auth->username
+                        ];
+                        $databaseLog->website = [
+                            "_id" => DataComponent::initializeObjectId($websiteById->_id),
+                            "name" => $websiteById->name
+                        ];
+                        $databaseLog = DatabaseLogModel::insert($auth, $databaseLog, $websiteById->_id);
+                        // array_push($numbers, $database->contact['phone']);
+                        if(isset($database->lastSmsDate)){
+                            $date1 = new DateTime($database->lastSmsDate);
+                            $date2 = new DateTime(date("Y-m-d"));
+                            $interval = $date1->diff($date2);
+                            if($interval->days >= 3){
+                                //queue sms message
+                                $dataQueueSms = new SmsQueue();
+                                $dataQueueSms->website =  [
+                                    "_id" => DataComponent::initializeObjectId($websiteById->_id),
+                                    "name" => $websiteById->name
+                                ];
+                                $dataQueueSms->database =  [
+                                    "_id" => DataComponent::initializeObjectId($database->_id),
+                                    "name" => $database->name
+                                ];
+                                $dataQueueSms->number = $database->contact['phone'];
+                                $dataMsg = new MessageTemplateModel($request);
+                                $dataMsg = $dataMsg->getRandomMessage($auth);
+                                $dataQueueSms->message = $dataMsg->format;
+                                $dataQueueSms->created = DataComponent::initializeTimestamp($auth);
+                                $dataQueueSms->modified = DataComponent::initializeTimestamp($auth);
+                                $dataQueueSms->save();
+                            }
+                        }else{
+                            //queue sms message
+                            $dataQueueSms = new SmsQueue();
+                            $dataQueueSms->website =  [
+                                "_id" => DataComponent::initializeObjectId($websiteById->_id),
+                                "name" => $websiteById->name
+                            ];
+                            $dataQueueSms->database =  [
+                                "_id" => DataComponent::initializeObjectId($database->_id),
+                                "name" => $database->name
+                            ];
+                            $dataQueueSms->number = $database->contact['phone'];
+                            $dataMsg = new MessageTemplateModel($request);
+                            $dataMsg = $dataMsg->getRandomMessage($auth);
+                            $dataQueueSms->message = $dataMsg->format;
+                            $dataQueueSms->created = DataComponent::initializeTimestamp($auth);
+                            $dataQueueSms->modified = DataComponent::initializeTimestamp($auth);
+                            $dataQueueSms->save();
+                        }
+                    }
+                }
+
+                $result->result = true;
+                $result->response = "SMS Broadcast Processesed";
+
+            }else{
+                $result->response = "There is no data to broadcast";
+            }
+        }
+        return $result;
+    }
+
+    public static function processWA($request){
+        $result = new stdClass();
+        $result->response = "Failed to Process Broadcast WA";
+        $result->result = false;
+        $total_data = 0;
+        $data = [];
+        $limit = 100;
+        $offset = 0;
+        $dataQueueWA = [];
+        $auth = DataComponent::initializeAccount($request);
+
+        if($request->website){
+            $websiteById = WebsiteModel::findOneById($request->website); 
+
+            if($request->status == 'Available'){
+                if($auth->type == "CRM") {
+                
+                    $count = DatabaseAccountModel::countNewDataCrmTable($auth['_id'], 'Available', $limit, $websiteById->_id);
+                    if(!$count->isEmpty()) {
+                        $total_data = $count[0]->count;
+                    }
+                    $data = DatabaseAccountModel::findNewDataCrmTable($auth['_id'], "Available", $limit, [], $offset, $websiteById->_id);
+        
+        
+                } else if($auth->type == "Telemarketer") {
+        
+                    $count = DatabaseAccountModel::countNewDataTeleTable($auth['_id'], 'Available', $limit, $websiteById->_id);
+                    if(!$count->isEmpty()) {
+                        $total_data = $count[0]->count;
+                    }
+                    $data = DatabaseAccountModel::findNewDataTeleTable($auth['_id'], "Available", $limit, [], $offset, $websiteById->_id);
+        
+                }
+                if($total_data == 0) {
+                    $count = DatabaseAccountModel::countNewDataGroupTable($auth['_id'], 'Available', $limit, $websiteById->_id);
+                    if(!$count->isEmpty()) {
+                        $total_data = $count[0]->count;
+                    }
+                    $data = DatabaseAccountModel::findNewDataGroupTable($auth['_id'], "Available", $limit, [], $offset, $websiteById->_id);
+    
+                    if($total_data == 0) {
+                        
+                        $count = DatabaseAccountModel::countNewDataWorksheetTable('Available', $limit, $websiteById->_id);
+                        if(!$count->isEmpty()) {
+                            $total_data = $count[0]->count;
+                        }
+                        $data = DatabaseAccountModel::findNewDataWorksheetTable("Available", $limit, [], $offset, $websiteById->_id);
+                    }
+                }
+            }else{
+                $depositLastTimestamp = new UTCDateTime(Carbon::now()->subDays($request->days));
+                $count = DatabaseAccountModel::countCrmTable($auth['_id'], $depositLastTimestamp, $limit, $websiteById->_id);
+                if(!$count->isEmpty()) {
+                    $total_data = $count[0]->count;
+                }
+    
+                $data = DatabaseAccountModel::findCrmTable($auth['_id'], $depositLastTimestamp, $limit, [], $offset, $websiteById->_id);
+            }
+        
+
+            if($total_data > 0){
+                foreach($data as $val){
+
+                    $database = DatabaseModel::findOneById($val->database[0]['_id']->__toString(),$websiteById->_id);
+                    // print_r(json_encode($database));die;
+    
+                    if(!empty($database)) {
+                    
+                        $databaseAccount = DatabaseAccountModel::findOneByDatabaseId($database->_id, $websiteById->_id);
+
+                        $databaseLogByDatabaseIdUserId = DatabaseLogModel::findLastByDatabaseIdUserId($database->_id, $auth->_id, $websiteById->_id);
+                        if(!empty($databaseLogByDatabaseIdUserId)) {
+                            $database->reference = $databaseLogByDatabaseIdUserId->reference;
+                        }
+
+                        $database->status = "Reserved";                        
+
+                        if($auth->type == "Telemarketer") {
+
+                            $database->telemarketer = [
+                                "_id" => $auth->_id,
+                                "avatar" => $auth->avatar,
+                                "name" => $auth->name,
+                                "username" => $auth->username
+                            ];
+
+                        }
+
+                        DatabaseModel::update($auth, $database, $websiteById->_id);
+
+                        $databaseAccount = DatabaseAccountModel::findOneByDatabaseId($database->_id, $websiteById->_id);
+
+                        $databaseLog = new DatabaseLog();
+                        $databaseLog->database = [
+                            "_id" => DataComponent::initializeObjectId($database->_id),
+                            "name" => $database->name
+                        ];
+                        $databaseLog->status = "Pending";
+                        $databaseLog->user = [
+                            "_id" => DataComponent::initializeObjectId($auth->_id),
+                            "avatar" => $auth->avatar,
+                            "name" => $auth->name,
+                            "username" => $auth->username
+                        ];
+                        $databaseLog->website = [
+                            "_id" => DataComponent::initializeObjectId($websiteById->_id),
+                            "name" => $websiteById->name
+                        ];
+                        $databaseLog = DatabaseLogModel::insert($auth, $databaseLog, $websiteById->_id);
+                        // array_push($numbers, $database->contact['phone']);
+                        
+                        if(isset($database->lastWaDate)){
+                            $date1 = new DateTime($database->lastWaDate);
+                            $date2 = new DateTime(date("Y-m-d"));
+                            $interval = $date1->diff($date2);
+                            if($interval->days >= 3){
+                                //queue wa message
+                                $dataQueueWA = new WaQueue();
+                                $dataQueueWA->website =  [
+                                    "_id" => DataComponent::initializeObjectId($websiteById->_id),
+                                    "name" => $websiteById->name
+                                ];
+                                $dataQueueWA->database =  [
+                                    "_id" => DataComponent::initializeObjectId($database->_id),
+                                    "name" => $database->name
+                                ];
+                                $dataQueueWA->number = $database->contact['phone'];
+                                $dataMsg = new MessageTemplateModel($request);
+                                $dataMsg = $dataMsg->getRandomMessage($auth);
+                                $dataQueueWA->message = $dataMsg->format;
+                                $dataQueueWA->created = DataComponent::initializeTimestamp($auth);
+                                $dataQueueWA->modified = DataComponent::initializeTimestamp($auth);
+                                $dataQueueWA->save();
+                            }
+                        }else{
+                            //queue wa message
+                            $dataQueueWA = new WaQueue();
+                            $dataQueueWA->website =  [
+                                "_id" => DataComponent::initializeObjectId($websiteById->_id),
+                                "name" => $websiteById->name
+                            ];
+                            $dataQueueWA->database =  [
+                                "_id" => DataComponent::initializeObjectId($database->_id),
+                                "name" => $database->name
+                            ];
+                            $dataQueueWA->number = $database->contact['phone'];
+                            $dataMsg = new MessageTemplateModel($request);
+                            $dataMsg = $dataMsg->getRandomMessage($auth);
+                            $dataQueueWA->message = $dataMsg->format;
+                            $dataQueueWA->created = DataComponent::initializeTimestamp($auth);
+                            $dataQueueWA->modified = DataComponent::initializeTimestamp($auth);
+                            $dataQueueWA->save();
+                        }
+                        
+                    }
+                }
+
+                $result->result = true;
+                $result->response = "WA Broadcast Processesed";
+
+            }else{
+                $result->response = "There is no data to broadcast";
+            }
+        }
+        return $result;
+    }
+
 
 
 }
