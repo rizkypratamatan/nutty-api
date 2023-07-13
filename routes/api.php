@@ -10,6 +10,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\MessageTemplateController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ReportWebsiteController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SettingApiController;
 use App\Http\Controllers\SmsLogController;
@@ -130,6 +131,9 @@ Route::group(["middleware" => ["authentication"]], function() {
     Route::post('/delete-report', [ReportController::class, 'deleteReport'])->name('delete-report');
     Route::post('/update-report', [ReportController::class, 'updateReport'])->name('update-report');
     Route::post('/get-report-by-id', [ReportController::class, 'getReportById'])->name('get-report-by-id');
+    Route::post('/user-report', [ReportController::class, 'userReport'])->name('user-report');
+
+    Route::post('/website-report', [ReportWebsiteController::class, 'websiteReport'])->name('website-report');
     
     //role
     Route::post('/get-all-role', [RoleController::class, 'getRole'])->name('get-all-role');
