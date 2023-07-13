@@ -13,69 +13,67 @@ use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 use stdClass;
 
-class DataComponent {
+class DataComponent
+{
 
-    public static function checkNucode($request, $nucode, $validation) {
+    public static function checkNucode($request, $nucode, $validation)
+    {
 
         $user = AuthenticationComponent::toUser($request);
-        if($user) {
+        if ($user) {
 
-            if($user->nucode != "system") {
+            if ($user->nucode != "system") {
 
-                if($user->nucode != $nucode) {
+                if ($user->nucode != $nucode) {
 
                     array_push($validation, false);
-
                 }
-
             }
-
         }
 
         return $validation;
-
     }
 
-    public static function initializeClient($nukey) {
+    public static function initializeClient($nukey)
+    {
 
         $result = null;
 
-        if(Storage::exists("clients/" . $nukey)) {
+        if (Storage::exists("clients/" . $nukey)) {
 
             $result = json_decode(Storage::get("clients/" . $nukey . "/access.nu"));
             $result->encryption->privateKey = Storage::get("clients/" . $nukey . "/private.key");
             $result->encryption->publicKey = Storage::get("clients/" . $nukey . "/public.key");
-
         }
 
         return $result;
-
     }
 
 
-    public static function initializeResponse($response) {
+    public static function initializeResponse($response)
+    {
 
         $result = new \stdClass();
         $result->response = $response;
         $result->result = false;
 
         return $result;
-
     }
 
-    public static function checkPrivilege($request, $privilege, $action) {
+    public static function checkPrivilege($request, $privilege, $action)
+    {
 
         $user = AuthenticationComponent::toUser($request);
         $result = [
-            "message" => strtoupper($user->username)." Unauthorized to ".strtoupper($action)." ".strtoupper($privilege), 
+            "message" => strtoupper($user->username) . " Unauthorized to " . strtoupper($action) . " " . strtoupper($privilege),
             "code" => 403
-        ];    
+        ];
 
-        if(!empty($user)) {
+        if (!empty($user)) {
 
             $start = 0;
 
-            switch($action) {
+            switch ($action) {
                 case "view":
                     $start = 0;
 
@@ -93,121 +91,102 @@ class DataComponent {
 
                     break;
             }
-            
-            if(isset($user->privilege[$privilege])){
-                if(substr($user->privilege[$privilege], $start, 1) == "7") {
-                    $result["message"] = strtoupper($user->username)." Authorized to ".strtoupper($action)." ".strtoupper($privilege);
+
+            if (isset($user->privilege[$privilege])) {
+                if (substr($user->privilege[$privilege], $start, 1) == "7") {
+                    $result["message"] = strtoupper($user->username) . " Authorized to " . strtoupper($action) . " " . strtoupper($privilege);
                     $result["code"] = 200;
                     LogComponent::response($request, $result);
                 }
-            }else{
-                $result["message"] = strtoupper($user->username)." Authorized to ".strtoupper($action)." ".strtoupper($privilege);
+            } else {
+                $result["message"] = strtoupper($user->username) . " Authorized to " . strtoupper($action) . " " . strtoupper($privilege);
                 $result["code"] = 200;
                 LogComponent::response($request, $result);
             }
         }
 
-        if($result["code"] == 403){
+        if ($result["code"] == 403) {
             LogComponent::response($request, $result);
             throw new AuthorizationException($result["message"], 403);
         }
     }
 
-    public static function initializeCollectionByNucode($nucode) {
+    public static function initializeCollectionByNucode($nucode)
+    {
 
-        if(!Schema::hasTable("databaseAttempt_" . $nucode)) {
+        if (!Schema::hasTable("databaseAttempt_" . $nucode)) {
 
-            Schema::create("databaseAttempt_" . $nucode, function(Blueprint $table) {
-
-                self::createDatabaseAttemptIndex($table);
-
-            });
-
-        } else {
-
-            Schema::table("databaseAttempt_" . $nucode, function(Blueprint $table) {
+            Schema::create("databaseAttempt_" . $nucode, function (Blueprint $table) {
 
                 self::createDatabaseAttemptIndex($table);
-
             });
+        } else {
 
+            Schema::table("databaseAttempt_" . $nucode, function (Blueprint $table) {
+
+                self::createDatabaseAttemptIndex($table);
+            });
         }
 
-        if(!Schema::hasTable("databaseImport_" . $nucode)) {
+        if (!Schema::hasTable("databaseImport_" . $nucode)) {
 
-            Schema::create("databaseImport_" . $nucode, function(Blueprint $table) {
+            Schema::create("databaseImport_" . $nucode, function (Blueprint $table) {
 
                 self::createDatabaseImportIndex($table);
-
             });
-
         } else {
 
-            Schema::table("databaseImport_" . $nucode, function(Blueprint $table) {
+            Schema::table("databaseImport_" . $nucode, function (Blueprint $table) {
 
                 self::createDatabaseImportIndex($table);
-
             });
-
         }
 
-        if(!Schema::hasTable("databaseImportAction_" . $nucode)) {
+        if (!Schema::hasTable("databaseImportAction_" . $nucode)) {
 
-            Schema::create("databaseImportAction_" . $nucode, function(Blueprint $table) {
+            Schema::create("databaseImportAction_" . $nucode, function (Blueprint $table) {
 
                 self::createDatabaseImportActionIndex($table);
-
             });
-
         } else {
 
-            Schema::table("databaseImportAction_" . $nucode, function(Blueprint $table) {
+            Schema::table("databaseImportAction_" . $nucode, function (Blueprint $table) {
 
                 self::createDatabaseImportActionIndex($table);
-
             });
-
         }
 
-        if(!Schema::hasTable("playerAttempt_" . $nucode)) {
+        if (!Schema::hasTable("playerAttempt_" . $nucode)) {
 
-            Schema::create("playerAttempt_" . $nucode, function(Blueprint $table) {
+            Schema::create("playerAttempt_" . $nucode, function (Blueprint $table) {
 
                 self::createPlayerAttemptIndex($table);
-
             });
-
         } else {
 
-            Schema::table("playerAttempt_" . $nucode, function(Blueprint $table) {
+            Schema::table("playerAttempt_" . $nucode, function (Blueprint $table) {
 
                 self::createPlayerAttemptIndex($table);
-
             });
-
         }
 
-        if(!Schema::hasTable("report_" . $nucode)) {
+        if (!Schema::hasTable("report_" . $nucode)) {
 
-            Schema::create("report_" . $nucode, function(Blueprint $table) {
+            Schema::create("report_" . $nucode, function (Blueprint $table) {
 
                 self::createReportIndex($table);
-
             });
-
         } else {
 
-            Schema::table("report_" . $nucode, function(Blueprint $table) {
+            Schema::table("report_" . $nucode, function (Blueprint $table) {
 
                 self::createReportIndex($table);
-
             });
-
         }
-
     }
 
-    public static function createReportIndex($table) {
+    public static function createReportIndex($table)
+    {
 
         $table->date("date")->index();
         $table->integer("total")->index();
@@ -217,28 +196,28 @@ class DataComponent {
         $table->string("user.username")->index();
         $table->date("created.timestamp")->index();
         $table->date("modified.timestamp")->index();
-
     }
 
-    public static function createPlayerAttemptIndex($table) {
+    public static function createPlayerAttemptIndex($table)
+    {
 
         $table->integer("total")->index();
         $table->string("username")->index();
         $table->date("created.timestamp")->index();
         $table->date("modified.timestamp")->index();
-
     }
 
-    public static function createDatabaseImportActionIndex($table) {
+    public static function createDatabaseImportActionIndex($table)
+    {
 
         $table->string("databaseImport._id")->unique();
         $table->string("databaseImport.file")->index();
         $table->date("created.timestamp")->index();
         $table->date("modified.timestamp")->index();
-
     }
 
-    public static function createDatabaseAttemptIndex($table) {
+    public static function createDatabaseAttemptIndex($table)
+    {
 
         $table->string("contact.email")->index();
         $table->string("contact.line")->index();
@@ -250,10 +229,10 @@ class DataComponent {
         $table->integer("total")->index();
         $table->date("created.timestamp")->index();
         $table->date("modified.timestamp")->index();
-
     }
 
-    public static function createDatabaseImportIndex($table) {
+    public static function createDatabaseImportIndex($table)
+    {
 
         $table->string("file")->index();
         $table->string("group._id")->index();
@@ -264,88 +243,72 @@ class DataComponent {
         $table->string("website.name")->index();
         $table->date("created.timestamp")->index();
         $table->date("modified.timestamp")->index();
-
     }
 
 
-    public static function initializeCollectionByWebsite($websiteId) {
+    public static function initializeCollectionByWebsite($websiteId)
+    {
 
-        if(!Schema::hasTable("database_" . $websiteId)) {
+        if (!Schema::hasTable("database_" . $websiteId)) {
 
-            Schema::create("database_" . $websiteId, function(Blueprint $table) {
-
-                self::createDatabaseIndex($table);
-
-            });
-
-        } else {
-
-            Schema::table("database_" . $websiteId, function(Blueprint $table) {
+            Schema::create("database_" . $websiteId, function (Blueprint $table) {
 
                 self::createDatabaseIndex($table);
-
             });
+        } else {
 
+            Schema::table("database_" . $websiteId, function (Blueprint $table) {
+
+                self::createDatabaseIndex($table);
+            });
         }
-        
-        if(!Schema::hasTable("databaseAccount_" . $websiteId)) {
 
-            Schema::create("databaseAccount_" . $websiteId, function(Blueprint $table) {
+        if (!Schema::hasTable("databaseAccount_" . $websiteId)) {
+
+            Schema::create("databaseAccount_" . $websiteId, function (Blueprint $table) {
 
                 self::createDatabaseAccountIndex($table);
-
             });
-
         } else {
 
-            Schema::table("databaseAccount_" . $websiteId, function(Blueprint $table) {
+            Schema::table("databaseAccount_" . $websiteId, function (Blueprint $table) {
 
                 self::createDatabaseAccountIndex($table);
-
             });
-
         }
 
-        if(!Schema::hasTable("databaseLog_" . $websiteId)) {
+        if (!Schema::hasTable("databaseLog_" . $websiteId)) {
 
-            Schema::create("databaseLog_" . $websiteId, function(Blueprint $table) {
+            Schema::create("databaseLog_" . $websiteId, function (Blueprint $table) {
 
                 self::createDatabaseLogIndex($table);
-
             });
-
         } else {
 
-            Schema::table("databaseLog_" . $websiteId, function(Blueprint $table) {
+            Schema::table("databaseLog_" . $websiteId, function (Blueprint $table) {
 
                 self::createDatabaseLogIndex($table);
-
             });
-
         }
 
-        if(!Schema::hasTable("nexusPlayerTransaction_" . $websiteId)) {
+        if (!Schema::hasTable("nexusPlayerTransaction_" . $websiteId)) {
 
-            Schema::create("nexusPlayerTransaction_" . $websiteId, function(Blueprint $table) {
+            Schema::create("nexusPlayerTransaction_" . $websiteId, function (Blueprint $table) {
 
                 self::createNexusPlayerTransactionIndex($table);
-
             });
-
         } else {
 
-            Schema::table("nexusPlayerTransaction_" . $websiteId, function(Blueprint $table) {
+            Schema::table("nexusPlayerTransaction_" . $websiteId, function (Blueprint $table) {
 
                 self::createNexusPlayerTransactionIndex($table);
-
             });
-
         }
-
     }
 
 
-    public static function createDatabaseIndex($table) {
+    public static function createDatabaseIndex($table)
+    {
 
         $table->string("city")->index();
         $table->string("contact.email")->index();
@@ -380,7 +343,8 @@ class DataComponent {
         $table->date("modified.timestamp")->index();
     }
 
-    public static function createDatabaseAccountIndex($table) {
+    public static function createDatabaseAccountIndex($table)
+    {
 
         $table->string("database._id")->unique();
         $table->string("database.name")->index();
@@ -408,10 +372,10 @@ class DataComponent {
         $table->string("withdrawal.total.amount")->index();
         $table->date("created.timestamp")->index();
         $table->date("modified.timestamp")->index();
-
     }
 
-    public static function createDatabaseLogIndex($table) {
+    public static function createDatabaseLogIndex($table)
+    {
 
         $table->string("database._id")->index();
         $table->string("database.name")->index();
@@ -423,10 +387,10 @@ class DataComponent {
         $table->string("user.username")->index();
         $table->date("created.timestamp")->index();
         $table->date("modified.timestamp")->index();
-
     }
 
-    public static function createNexusPlayerTransactionIndex($table) {
+    public static function createNexusPlayerTransactionIndex($table)
+    {
 
         $table->string("adjustment.reference")->index();
         $table->decimal("amount.final")->index();
@@ -448,10 +412,10 @@ class DataComponent {
         $table->string("transaction.code")->index();
         $table->string("transaction.type")->index();
         $table->string("username")->index();
-
     }
 
-    public static function initializeTimestamp($account) {
+    public static function initializeTimestamp($account)
+    {
 
         $mytime = Carbon::now();
         return [
@@ -464,30 +428,29 @@ class DataComponent {
                 "username" => $account->username
             ]
         ];
-
     }
 
-    public static function initializeObject($data) {
+    public static function initializeObject($data)
+    {
 
         return json_decode(json_encode($data));
-
     }
 
-    public static function initializeObjectId($id) {
+    public static function initializeObjectId($id)
+    {
 
         $result = "0";
 
-        if($id != "0") {
+        if ($id != "0") {
 
             $result = new ObjectId($id);
-
         }
 
         return $result;
-
     }
 
-    public static function initializeSystemAccount() {
+    public static function initializeSystemAccount()
+    {
 
         $result = new stdClass();
         $result->_id = "0";
@@ -498,81 +461,65 @@ class DataComponent {
         $result->username = "system";
 
         return $result;
-
     }
 
-    public static function initializeCollectionByAccount($accountId) {
+    public static function initializeCollectionByAccount($accountId)
+    {
 
-        if(!Schema::hasTable("whatsappLogs_" . $accountId)) {
+        if (!Schema::hasTable("whatsappLogs_" . $accountId)) {
 
-            Schema::create("whatsappLogs_" . $accountId, function(Blueprint $table) {
-
-                self::createWhatsappLogsIndex($table);
-
-            });
-
-        } else {
-
-            Schema::table("whatsappLogs_" . $accountId, function(Blueprint $table) {
+            Schema::create("whatsappLogs_" . $accountId, function (Blueprint $table) {
 
                 self::createWhatsappLogsIndex($table);
-
             });
+        } else {
 
+            Schema::table("whatsappLogs_" . $accountId, function (Blueprint $table) {
+
+                self::createWhatsappLogsIndex($table);
+            });
         }
-        
-        if(!Schema::hasTable("smsLogs_" . $accountId)) {
 
-            Schema::create("smsLogs_" . $accountId, function(Blueprint $table) {
+        if (!Schema::hasTable("smsLogs_" . $accountId)) {
+
+            Schema::create("smsLogs_" . $accountId, function (Blueprint $table) {
 
                 self::createSmsLogsIndex($table);
-
             });
-
         } else {
 
-            Schema::table("smsLogs_" . $accountId, function(Blueprint $table) {
+            Schema::table("smsLogs_" . $accountId, function (Blueprint $table) {
 
                 self::createSmsLogsIndex($table);
-
             });
-
         }
 
-        if(!Schema::hasTable("emailLogs_" . $accountId)) {
+        if (!Schema::hasTable("emailLogs_" . $accountId)) {
 
-            Schema::create("emailLogs_" . $accountId, function(Blueprint $table) {
+            Schema::create("emailLogs_" . $accountId, function (Blueprint $table) {
 
                 self::createEmailLogsIndex($table);
-
             });
-
         } else {
 
-            Schema::table("emailLogs_" . $accountId, function(Blueprint $table) {
+            Schema::table("emailLogs_" . $accountId, function (Blueprint $table) {
 
                 self::createEmailLogsIndex($table);
-
             });
-
         }
 
-        if(!Schema::hasTable("message_templates_" . $accountId)) {
+        if (!Schema::hasTable("message_templates_" . $accountId)) {
 
-            Schema::create("message_templates_" . $accountId, function(Blueprint $table) {
+            Schema::create("message_templates_" . $accountId, function (Blueprint $table) {
 
                 self::createMessageTemplatesIndex($table);
-
             });
-
         } else {
 
-            Schema::table("message_templates_" . $accountId, function(Blueprint $table) {
+            Schema::table("message_templates_" . $accountId, function (Blueprint $table) {
 
                 self::createMessageTemplatesIndex($table);
-
             });
-
         }
 
         // if(!Schema::hasTable("contact_groups_" . $accountId)) {
@@ -613,7 +560,8 @@ class DataComponent {
 
     }
 
-    public static function createWhatsappLogsIndex($table) {
+    public static function createWhatsappLogsIndex($table)
+    {
 
         $table->integer("account")->index();
         $table->string("campaign")->index();
@@ -646,7 +594,8 @@ class DataComponent {
         $table->string("modified.user.username")->index();
     }
 
-    public static function createSmsLogsIndex($table) {
+    public static function createSmsLogsIndex($table)
+    {
 
         $table->string("mode")->index();
         $table->string("phone")->index();
@@ -667,7 +616,8 @@ class DataComponent {
         $table->string("modified.user.username")->index();
     }
 
-    public static function createEmailLogsIndex($table) {
+    public static function createEmailLogsIndex($table)
+    {
         $table->string("from_name")->index();
         $table->string("from_email")->index();
         $table->string("to_email")->index();
@@ -692,7 +642,8 @@ class DataComponent {
         $table->string("modified.user.username")->index();
     }
 
-    public static function createMessageTemplatesIndex($table) {
+    public static function createMessageTemplatesIndex($table)
+    {
         $table->string("name")->index();
         $table->text("format")->index();
         $table->date("created.timestamp")->index();
@@ -737,54 +688,52 @@ class DataComponent {
     //     $table->string("modified.user.username")->index();
     // }
 
-    public static function initializeAccount($request) {
+    public static function initializeAccount($request)
+    {
 
         $result = AuthenticationComponent::toUser($request);
         return $result;
-
     }
 
-    public static function initializeTableData($account, $model) {
+    public static function initializeTableData($account, $model)
+    {
 
-        if($account->nucode != "system") {
+        if ($account->nucode != "system") {
 
             $model = $model->where([
                 ["nucode", "=", $account->nucode]
             ]);
-
         }
 
         return $model;
-
     }
 
 
-    public static function initializeTableQuery($model, $tableFilterColumns, $tableFilterOrders, $defaultOrders) {
+    public static function initializeTableQuery($model, $tableFilterColumns, $tableFilterOrders, $defaultOrders)
+    {
 
         $query = [];
 
-        foreach($tableFilterColumns as $column) {
+        foreach ($tableFilterColumns as $column) {
 
-            if(!empty($column->search->value)) {
+            if (!empty($column->search->value)) {
 
-                if($column->search->regex) {
+                if ($column->search->regex) {
 
                     array_push($query, [
                         $column->name,
                         "LIKE",
                         "%" . $column->search->value . "%"
                     ]);
-
                 } else {
 
-                    if($column->search->value == "true" || $column->search->value == "false") {
+                    if ($column->search->value == "true" || $column->search->value == "false") {
 
                         array_push($query, [
                             $column->name,
                             "=",
                             filter_var($column->search->value, FILTER_VALIDATE_BOOLEAN)
                         ]);
-
                     } else {
 
                         array_push($query, [
@@ -792,44 +741,35 @@ class DataComponent {
                             "=",
                             $column->search->value
                         ]);
-
                     }
-
                 }
-
             }
-
         }
 
         $model = $model->where($query);
 
-        if($tableFilterOrders[0]->column == 0) {
+        if ($tableFilterOrders[0]->column == 0) {
 
-            if(strtoupper($tableFilterOrders[0]->dir) == "ASC" || strtoupper($tableFilterOrders[0]->dir) == "DESC") {
+            if (strtoupper($tableFilterOrders[0]->dir) == "ASC" || strtoupper($tableFilterOrders[0]->dir) == "DESC") {
 
-                foreach($defaultOrders as $order) {
+                foreach ($defaultOrders as $order) {
 
                     $model = $model->orderBy($order, strtoupper($tableFilterOrders[0]->dir));
-
                 }
-
             }
-
         } else {
 
-            if(strtoupper($tableFilterOrders[0]->dir) == "ASC" || strtoupper($tableFilterOrders[0]->dir) == "DESC") {
+            if (strtoupper($tableFilterOrders[0]->dir) == "ASC" || strtoupper($tableFilterOrders[0]->dir) == "DESC") {
 
                 $model = $model->orderBy($tableFilterOrders[0]->column->data, strtoupper($tableFilterOrders[0]->dir));
-
             }
-
         }
 
         return $model;
-
     }
 
-    public static function initializeFilterDateRange($dateRange, $defaultEnd, $defaultStart) {
+    public static function initializeFilterDateRange($dateRange, $defaultEnd, $defaultStart)
+    {
 
         $result = new stdClass();
         $result->end = $defaultEnd;
@@ -837,28 +777,66 @@ class DataComponent {
         $result->result = false;
         $result->start = $defaultStart;
 
-        if(!empty($dateRange)) {
+        if (!empty($dateRange)) {
 
             $date = explode(" to ", $dateRange);
 
-            if(count($date) == 1) {
+            if (count($date) == 1) {
 
                 $result->start = new UTCDateTime(Carbon::parse($date[0])->format("U") * 1000);
-
-            } else if(count($date) == 2) {
+            } else if (count($date) == 2) {
 
                 $result->start = new UTCDateTime(Carbon::parse($date[0])->format("U") * 1000);
                 $result->end = new UTCDateTime(Carbon::parse($date[1])->format("U") * 1000);
-
             }
-
         }
 
         $result->response = "Filter date range initialized";
         $result->result = true;
 
         return $result;
-
     }
 
+    public static function initializeReportFilterDateRange($date, $query)
+    {
+
+        if (!is_null($date)) {
+
+            $date = explode(" to ", $date);
+
+            if (count($date) == 1) {
+
+                array_push($query, [
+                    '$match' => [
+                        "date" => new UTCDateTime(Carbon::parse($date[0])->format("U") * 1000)
+                    ]
+                ]);
+            } else if (count($date) == 2) {
+
+                array_push($query, [
+                    '$match' => [
+                        "date" => [
+                            '$gte' => new UTCDateTime(Carbon::parse($date[0])->format("U") * 1000),
+                            '$lte' => new UTCDateTime(Carbon::parse($date[1])->format("U") * 1000)
+                        ]
+                    ]
+                ]);
+            }
+        }
+
+        return $query;
+    }
+
+    public static function initializePage($start, $length)
+    {
+
+        $result = $start / $length;
+
+        if ($result < 1) {
+
+            $result = 1;
+        }
+
+        return $result;
+    }
 }

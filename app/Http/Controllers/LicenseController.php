@@ -6,6 +6,7 @@ use App\Components\AuthenticationComponent;
 use App\Components\DataComponent;
 use App\Components\LogComponent;
 use App\Repository\LicenseModel;
+use App\Services\LicenseService;
 use Illuminate\Http\Request;
 
 class LicenseController extends Controller
@@ -21,12 +22,13 @@ class LicenseController extends Controller
         if ($validation->result) {
 
             //check privilege
-            DataComponent::checkPrivilege($request, "license", "delete");
+            // DataComponent::checkPrivilege($request, "license", "delete");
 
-            $userModel =  new LicenseModel($request);
-            $user = $userModel->deleteLicense($request->id);
+            // $userModel =  new LicenseModel($request);
+            // $account = AuthenticationComponent::toUser($request);
+            $data = LicenseModel::deleteLicense($request->id);
 
-            if ($user) {
+            if ($data) {
                 $response = [
                     'result' => true,
                     'response' => 'success delete license',
@@ -114,18 +116,25 @@ class LicenseController extends Controller
 
         if ($validation->result) {
             //check privilege
-            DataComponent::checkPrivilege($request, "license", "view");
+            // DataComponent::checkPrivilege($request, "license", "view");
             
             $limit = !empty($request->limit)?$request->limit:10;
             $offset = !empty($request->offset)?$request->offset:0;
-            $userModel =  new LicenseModel($request);
-            $user = $userModel->getLicense($limit, $offset);
+            $filter = [];
+
+            $filter['nucode'] = !empty($request->nucode)?$request->nucode:"";
+            $auth = AuthenticationComponent::toUser($request);
+
+            $model =  new LicenseModel($request);
+            $data = $model->getLicense($auth, $limit, $offset, $filter);
 
             $response = [
                 'result' => true,
                 'response' => 'Get All License',
-                'dataUser' => $user
+                // 'dataUser' => $data
             ];
+
+            $response = array_merge($data, $response);
            
             
         } else {
@@ -166,4 +175,23 @@ class LicenseController extends Controller
 
         return response()->json($response, 200);
     }
+
+    public function getTable(Request $request){
+        $validation = AuthenticationComponent::validate($request);
+        LogComponent::response($request, $validation);
+
+        if ($validation->result) {
+            //check privilege
+            DataComponent::checkPrivilege($request, "license", "view");
+            
+            return response()->json(LicenseService::getTable($request), 200);
+           
+            
+        } else {
+            $response = $validation;
+        }
+
+        return response()->json($response, 200);
+    }
+
 }
