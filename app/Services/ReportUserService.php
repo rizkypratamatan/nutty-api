@@ -10,10 +10,12 @@ use MongoDB\BSON\UTCDateTime;
 use stdClass;
 
 
-class ReportUserService {
+class ReportUserService
+{
 
 
-    public static function detailFindTable($request) {
+    public static function detailFindTable($request)
+    {
 
         $result = new stdClass();
         $result->draw = $request->draw;
@@ -27,11 +29,11 @@ class ReportUserService {
         $result->data = ReportUserModel::findByUserIdBetweenDate($filterDateRange->end, $request->limit, $account->nucode, DataComponent::initializePage($request->offset, $request->limit), $filterDateRange->start, $request->userId);
 
         return $result;
-
     }
 
 
-    public static function findFilter($request, $userId) {
+    public static function findFilter($request, $userId)
+    {
 
         $result = new stdClass();
         $result->filterDate = "";
@@ -42,21 +44,20 @@ class ReportUserService {
 
         $result->report = ReportUserModel::findOneByUserId($account->nucode, $userId);
 
-        if($request->session()->has("reportDateRangeFilter")) {
+        if ($request->session()->has("reportDateRangeFilter")) {
 
             $result->filterDate = $request->session()->get("reportDateRangeFilter");
-
         }
 
         $result->response = "Filter user report data found";
         $result->result = true;
 
         return $result;
-
     }
 
 
-    public static function findTable($request) {
+    public static function findTable($request)
+    {
 
         $result = new stdClass();
         $result->draw = $request->draw;
@@ -64,37 +65,25 @@ class ReportUserService {
 
         $account = DataComponent::initializeAccount($request);
 
-        $countUserTable = ReportUserModel::countUserTable($request->_id, $request->name, $account->nucode, $request->username);
+        $countUserTable = ReportUserModel::countUserTable($request->date, $request->name, $account->nucode, $request->username);
 
-        if(!$countUserTable->isEmpty()) {
+        if (!$countUserTable->isEmpty()) {
 
             $result->recordsTotal = $countUserTable[0]->count;
-
         }
 
         $result->recordsFiltered = $result->recordsTotal;
 
-        $result->data = ReportUserModel::findUserTable($request->_id, $request->limit, $request->name, $account->nucode, $request->offset, $request->username);
+        $result->data = ReportUserModel::findUserTable($request->date, $request->limit, $request->name, $account->nucode, $request->offset, $request->username);
 
-        if($account->nucode != "system") {
+        if ($account->nucode != "system") {
 
             $result->userGroups = UserGroupModel::findByNucodeStatus($account->nucode, "Active");
-
         } else {
 
             $result->userGroups = UserGroupModel::findByStatus("Active");
-
-        }
-
-        if(!empty($request->_id)) {
-
-            $request->session()->put("reportDateRangeFilter", $request->_id);
-
         }
 
         return $result;
-
     }
-
-
 }
