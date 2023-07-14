@@ -8,6 +8,7 @@ use Jenssegers\Mongodb\Eloquent\Model;
 class Sms extends Model
 {
     use HasFactory;
+    
     protected $attributes = [
         "mode" => 'devices',
         "phone" => "",
@@ -15,7 +16,7 @@ class Sms extends Model
         "device" => "",
         "sim" => 1,
         "priority" => 1,
-        "shortener" => "",
+        "status" => "",
         "created" => [
             "timestamp" => "",
             "user" => [
@@ -43,17 +44,15 @@ class Sms extends Model
         "device",
         "sim",
         "priority",
-        "shortener",
+        "status",
         "created->timestamp",
         "created->user->_id",
         "modified->timestamp",
         "modified->user->_id",
     ];
 
-    protected $table = "sms_messages";
+    protected $table = "smsLogs";
 
     public $timestamps = false;
-
-    protected $casts = ['created.timestamp' => 'datetime:d.m.Y'];
 
 }

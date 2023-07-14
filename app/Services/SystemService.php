@@ -2,26 +2,35 @@
 
 namespace App\Services;
 
+use App\Components\AuthenticationComponent;
 use App\Components\DataComponent;
 use App\Jobs\DatabaseAccountSyncJob;
 use App\Jobs\DeleteOldTransactionJob;
 use App\Jobs\PlayerTransactionJob;
 use App\Jobs\PlayerTransactionSyncJob;
 use App\Jobs\ReportDepositJob;
+use App\Models\SmsQueue;
 use App\Models\UnclaimedDepositQueue;
+use App\Models\WaQueue;
 use App\Repository\DatabaseAccountModel;
 use App\Repository\DatabaseLogModel;
+use App\Repository\DatabaseModel;
 use App\Repository\NexusPlayerTransactionModel;
 use App\Repository\ReportUserModel;
 use App\Repository\ReportWebsiteModel;
+use App\Repository\SMSModel;
 use App\Repository\SyncQueueModel;
 use App\Repository\UnclaimedDepositQueueModel;
 use App\Repository\UnclaimedDepositModel;
 use App\Repository\UserModel;
 use App\Repository\WebsiteModel;
+use App\Repository\WhatsappModel;
+use App\Services\Gateway\SMSService;
+use App\Services\Gateway\WhatsappService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use MongoDB\BSON\UTCDateTime;
+use MongoDB\Operation\Watch;
 use stdClass;
 
 
@@ -480,5 +489,135 @@ class SystemService {
 
     }
 
+    public static function processSmsQueue(){
 
+        
+        //get device
+        $service = new SMSService();
+        $device = $service->getDevices();
+
+        
+
+        if($device['status'] == 200){
+            $accountCount = count($device['data']);
+            $smsQueueCount = SmsQueue::where('status', 'queue')->count();
+            
+            if($accountCount > 0){
+                if($smsQueueCount > 0){
+                    $limit = $accountCount * 3;
+                    $smsQueue = SmsQueue::where('status', 'queue')
+                                                ->take($limit)
+                                                ->offset(0)
+                                                ->orderBy('created.timestamp', 'asc')
+                                                ->get()
+                                                ->toArray();
+                    
+                    if ($smsQueueCount > 3) {
+                        //
+                        if ($smsQueueCount <= $accountCount) {
+                            $accountCount = $smsQueueCount;
+                            $devider = $smsQueueCount / $accountCount;
+                        } else {
+                            $devider = round($limit / $accountCount);
+                        }
+        
+                        $smsQueue = array_chunk($smsQueue, $devider);
+                    } else {
+                        $accountCount = 1;
+                    }
+        
+                    for ($i = 0; $i < $accountCount; $i++) {
+                        $device_id = $device['data'][$i]['unique'];
+                        foreach($smsQueue[$i] as $val){
+                            $account = UserModel::findOneById($val['created']['user']['_id']->__toString());
+                            $message = $service->initializeData($val['message'], $device_id, $val['number']);
+                            $response = $service->sendSms($message);
+                            $result = SMSModel::insert($message, $account);
+
+                            //update database
+                            $database = DatabaseModel::findOneById($val['database']['_id']->__toString(), $val['website']['_id']->__toString());
+                            $database->status = "FollowUp";
+                            $database->lastSmsDate = date("Y-m-d");
+                            $database->save();
+
+                            //remove queue
+                            SmsQueue::destroy($val['_id']);
+                        } 
+                    }
+                    
+                    Log::info("No SMS Queue Found");  
+                }else{
+                    Log::info("No SMS Queue Found");    
+                }
+
+            }else{
+                Log::info("No SMS Account Found");
+            }
+        }else{
+            Log::info("Failed to get Device");
+        }
+    }
+
+    public static function processWaQueue(){
+        //get device
+        $service = new WhatsappService();
+        $waAccount = $service->getAccounts();
+        
+        if($waAccount['status'] == 200){
+            $accountCount = count($waAccount['data']);
+            $dataQueueCount = WaQueue::where('status', 'queue')->count();
+            
+            if($accountCount > 0){
+                if($dataQueueCount > 0){
+                    $limit = $accountCount * 3;
+                    $dataQueue = WaQueue::where('status', 'queue')
+                                                ->take($limit)
+                                                ->offset(0)
+                                                ->orderBy('created.timestamp', 'asc')
+                                                ->get()
+                                                ->toArray();
+                    if ($dataQueueCount > 3) {
+                        if ($dataQueueCount <= $accountCount) {
+                            $accountCount = $dataQueueCount;
+                            $devider = $dataQueueCount / $accountCount;
+                        } else {
+                            $devider = round($limit / $accountCount);
+                        }
+        
+                        $dataQueue = array_chunk($dataQueue, $devider);
+                    } else {
+                        $accountCount = 1;
+                    }
+        
+                    for ($i = 0; $i < $accountCount; $i++) {
+                        $device_id = $waAccount['data'][$i]['id'];
+                        foreach($dataQueue[$i] as $val){
+                            $account = UserModel::findOneById($val['created']['user']['_id']->__toString());
+                            $message = $service->initializeData($val['message'], $device_id, $val['number']);
+                            $response = $service->send($message);
+                            $result = WhatsappModel::insert($message, $account);
+
+                            //update database
+                            $database = DatabaseModel::findOneById($val['database']['_id']->__toString(), $val['website']['_id']->__toString());
+                            $database->status = "FollowUp";
+                            $database->lastWaDate = date("Y-m-d");
+                            $database->save();
+
+                            //remove queue
+                            WaQueue::destroy($val['_id']);
+                        } 
+                    }
+                    
+                    Log::info("No WA Queue Found");  
+                }else{
+                    Log::info("No WA Queue Found");    
+                }
+
+            }else{
+                Log::info("No WA Account Found");
+            }
+        }else{
+            Log::info("Failed to get Account");
+        }
+    }
 }

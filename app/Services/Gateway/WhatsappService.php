@@ -2,6 +2,7 @@
 
 namespace App\Services\Gateway;
 
+use App\Models\Whatsapp;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -141,6 +142,51 @@ class WhatsappService {
         ];
 
         return $chat;
+    }
+
+    public function initializeData($message, $device_id, $recipient)
+    {
+        $data = new Whatsapp();
+        $data->account = $device_id;
+        $data->recipient = $recipient;
+        $data->type = "text";
+        $data->message = $message;
+        return $data;
+    }
+
+    public function send($data)
+    {
+        //send to gateway
+        $chat = [
+            "account" => $data->account,
+            "recipient" => $data->recipient,
+            "type" => $data->type,
+            "message" => $data->message,
+            "secret" => $this->secret
+        ];
+        
+        $end_point = "/api/send/whatsapp";
+        Log::info("Request Send WA Single : ". json_encode($chat));
+        // $response = Http::post($this->base_url.$end_point, $chat);
+        // $resp = json_decode($response);
+
+        $cURL = curl_init($this->base_url.$end_point);
+        curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($cURL, CURLOPT_POSTFIELDS, $chat);
+        $response = curl_exec($cURL);
+        curl_close($cURL);
+
+        $resp = json_decode($response);
+        
+        if($resp->status = 200){
+            $resp->status = true;
+            Log::info("Response Send WA Single ".$this->base_url.$end_point." : ". $response);
+        }else{
+            $resp->status = false;
+            Log::error("Response Send WA Single ".$this->base_url.$end_point." : ". $response);
+        }
+
+        return $resp;
     }
 
 

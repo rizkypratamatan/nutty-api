@@ -50,6 +50,18 @@ class Kernel extends ConsoleKernel
             Log::info("Sync website transaction scheduler executed");
 
         })->everyFiveMinutes();
+
+        // $schedule->command('email:send')->everyFiveMinutes();
+        $schedule->command('sms:send')->everyFifteenMinutes();
+        $schedule->command('wa:send')->everyThirtyMinutes();
+        
+        // $schedule->call(function() {
+
+        //     SystemService::processSmsQueue();
+
+        //     Log::info("Process Sms Queue executed");
+
+        // })->hourly();
     }
 
     /**
