@@ -5,9 +5,13 @@ namespace App\Http\Controllers;
 use App\Components\AuthenticationComponent;
 use App\Components\DataComponent;
 use App\Components\LogComponent;
+use App\Models\License;
 use App\Repository\LicenseModel;
 use App\Services\LicenseService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use MongoDB\BSON\UTCDateTime;
+use stdClass;
 
 class LicenseController extends Controller
 {
@@ -79,31 +83,47 @@ class LicenseController extends Controller
 
     public function addLicense(Request $request)
     {
-        $validation = AuthenticationComponent::validate($request);
-        LogComponent::response($request, $validation);
+        // $validation = AuthenticationComponent::validate($request);
+        // LogComponent::response($request, $validation);
 
-        if ($validation->result) {
-            //check privilege
-            DataComponent::checkPrivilege($request, "license", "add");
-            $auth = AuthenticationComponent::toUser($request);
+        // if ($validation->result) {
+        //     //check privilege
+        //     DataComponent::checkPrivilege($request, "license", "add");
 
-            $userModel =  new LicenseModel($request);
-            $user = $userModel->addLicense($request);
+            $account = AuthenticationComponent::toUser($request);
 
-            if ($user) {
-                $response = [
-                    'result' => true,
-                    'response' => 'success add license',
-                ];
-            } else {
-                $response = [
-                    'result' => false,
-                    'response' => 'failed add license',
-                ];
-            }
-        } else {
-            $response = $validation;
-        }
+            $license = new License();
+            $license->nucode = $request->nucode;
+            $license->package = [
+                "expired" => new UTCDateTime(),
+                "payment" => [
+                    "last" => new UTCDateTime(),
+                    "next" => new UTCDateTime()
+                ],
+                "start" => new UTCDateTime(),
+                "status" => "Trial",
+                "trial" => new UTCDateTime(Carbon::now()->addDays(30))
+            ];
+            $license->user = [
+                "primary" => [
+                    "_id" => DataComponent::initializeObjectId("64aba39eb4a6305167001eb2"),
+                    "avatar" => "",
+                    "name" => "",
+                    "username" => ""
+                ],
+                "total" => 1
+            ];
+            LicenseModel::insert($account, $license);
+
+            
+            $response = [
+                'result' => true,
+                'response' => 'success add license',
+            ];
+
+        // } else {
+        //     $response = $validation;
+        // }
 
         return response()->json($response, 200);
     
@@ -154,14 +174,14 @@ class LicenseController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "license", "view");
 
-            $userModel =  new LicenseModel($request);
-            $user = $userModel->getLicenseById($request->id);
+            $account = AuthenticationComponent::toUser($request);
+            $data = LicenseModel::getLicenseById($request->id, $account);
 
-            if ($user) {
+            if ($data) {
                 $response = [
                     'result' => true,
                     'response' => 'success get license by id',
-                    'dataUser' => $user
+                    'dataUser' => $data
                 ];
             } else {
                 $response = [
