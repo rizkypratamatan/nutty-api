@@ -4,14 +4,16 @@ namespace App\Repository;
 
 use App\Components\DataComponent;
 use App\Models\ReportUser;
-
+use App\Models\ReportWebsite;
+use Illuminate\Support\Facades\Log;
+use MongoDB\BSON\Regex;
 
 class ReportWebsiteModel {
 
 
     public static function findOneByDateWebsiteId($date, $nucode, $websiteId) {
 
-        $reportWebsite = new ReportUser();
+        $reportWebsite = new ReportWebsite();
         $reportWebsite->setTable("reportWebsite_" . $nucode);
 
         return $reportWebsite->where([
@@ -24,7 +26,7 @@ class ReportWebsiteModel {
 
     public static function findWebsiteTable($date, $nucode, $websiteId) {
 
-        $reportWebsite = new ReportUser();
+        $reportWebsite = new ReportWebsite();
         $reportWebsite->setTable("reportWebsite_" . $nucode);
 
         return $reportWebsite->raw(function($collection) use ($date, $nucode, $websiteId) {
@@ -35,7 +37,7 @@ class ReportWebsiteModel {
 
                 array_push($query, [
                     '$match' => [
-                        "website._id" => $websiteId
+                        "website.name" => new Regex($websiteId)
                     ]
                 ]);
 
@@ -91,6 +93,32 @@ class ReportWebsiteModel {
         $data->setTable("reportWebsite_" . $account->nucode);
 
         return $data->save();
+
+    }
+
+    public static function countByWebsiteIdBetweenDate($endDate, $nucode, $startDate, $websiteId) {
+
+        $reportWebsite = new ReportWebsite();
+        $reportWebsite->setTable("reportWebsite_" . $nucode);
+
+        return $reportWebsite->where([
+            ["date", ">=", $startDate],
+            ["date", "<=", $endDate],
+            ["website._id", "=", $websiteId]
+        ])->count("_id");
+
+    }
+
+    public static function findByWebsiteIdBetweenDate($endDate, $length, $nucode, $page, $startDate, $websiteId) {
+
+        $reportWebsite = new ReportWebsite();
+        $reportWebsite->setTable("reportWebsite_" . $nucode);
+
+        return $reportWebsite->where([
+            ["date", ">=", $startDate],
+            ["date", "<=", $endDate],
+            ["website._id", "=", $websiteId]
+        ])->forPage($page, $length)->get();
 
     }
 
