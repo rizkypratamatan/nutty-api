@@ -8,6 +8,7 @@ use App\Components\LogComponent;
 use App\Repository\ReportWebsiteModel;
 use App\Services\ReportWebsiteService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use stdClass;
 
 
