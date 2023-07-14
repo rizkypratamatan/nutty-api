@@ -78,6 +78,4 @@ class Whatsapp extends Model
 
     public $timestamps = false;
 
-    protected $casts = ['created.timestamp' => 'datetime:d.m.Y'];
-
 }
