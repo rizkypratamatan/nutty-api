@@ -3,6 +3,7 @@
 namespace App\Services\Gateway;
 
 use App\Mail\EmailBroadcast;
+use App\Models\Email;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -12,7 +13,6 @@ class EmailService {
 
     public function sendEmail($recipient, $data)
     {
-
         if($data['schedule_status'] == "now"){
             Mail::to($recipient)
             // ->cc($moreUsers)
@@ -39,5 +39,19 @@ class EmailService {
         return $chat;
     }
 
+    public function initializeDataEmail($subject, $message, $email, $attc="", $initiated_time="", $schedule_status="now"){
+        $data = new Email();
+        $data->from_name = "Nutty CRM";
+        $data->from_email = "system@nutty.com";
+        $data->to_email = $email;
+        $data->subject = $subject;
+        $data->message = $message;
+        $data->attachment = $attc;
+        $data->status = "processed";
+        $data->initiated_time = ($initiated_time)?$initiated_time:date("Y-m-d H:i:s");
+        $data->schedule_status = $schedule_status;
+
+        return $data;
+    }
 
 }

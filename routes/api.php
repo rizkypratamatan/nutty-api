@@ -10,7 +10,6 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\MessageTemplateController;
 use App\Http\Controllers\ReportController;
-use App\Http\Controllers\ReportWebsiteController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SettingApiController;
 use App\Http\Controllers\SmsLogController;
@@ -40,6 +39,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //login
 Route::post('/login', [LoginController::class, 'userLogin'])->name('login');
 Route::post('/logout', [LoginController::class, 'userLogout'])->name('logout');
+
+Route::post('/add-license', [LicenseController::class, 'addLicense'])->name('add-license');
 
 //whatsapp
 Route::group(['prefix' => 'whatsapp'], function(){
@@ -96,6 +97,8 @@ Route::group(["middleware" => ["authentication"]], function() {
     Route::post("/worksheet/crm", [WorksheetController::class, "getCrmData"]);
     Route::post("/worksheet/result", [WorksheetController::class, "resultTable"]);
     Route::post("/worksheet/initializeData", [WorksheetController::class, "initializeData"]);
+    Route::post("/worksheet/call/initialize-data", [WorksheetController::class, "callInitializeData"]);
+    Route::post("/worksheet/update", [WorksheetController::class, "update"]);
 
     Route::post("/worksheet/process-wa", [WorksheetController::class, "processWa"]);
     Route::post("/worksheet/process-sms", [WorksheetController::class, "processSms"]);
@@ -125,7 +128,7 @@ Route::group(["middleware" => ["authentication"]], function() {
     //license
     Route::post('/delete-license', [LicenseController::class, 'deleteLicense'])->name('delete-license');
     Route::post('/update-license', [LicenseController::class, 'updateLicense'])->name('update-license');
-    Route::post('/add-license', [LicenseController::class, 'addLicense'])->name('add-license');
+    
     Route::post('/get-license', [LicenseController::class, 'getLicense'])->name('get-license');
     Route::post('/get-license-by-id', [LicenseController::class, 'getLicenseById'])->name('get-license-by-id');
     Route::post('/get-table', [LicenseController::class, 'getTable'])->name('get-table');
@@ -136,10 +139,6 @@ Route::group(["middleware" => ["authentication"]], function() {
     Route::post('/delete-report', [ReportController::class, 'deleteReport'])->name('delete-report');
     Route::post('/update-report', [ReportController::class, 'updateReport'])->name('update-report');
     Route::post('/get-report-by-id', [ReportController::class, 'getReportById'])->name('get-report-by-id');
-    Route::post('/user-report', [ReportController::class, 'userReport'])->name('user-report');
-
-    Route::post('/website-report', [ReportWebsiteController::class, 'websiteReport'])->name('website-report');
-    Route::post('/website-report-by-id', [ReportWebsiteController::class, 'websiteReportById'])->name('website-report');
     
     //role
     Route::post('/get-all-role', [RoleController::class, 'getRole'])->name('get-all-role');
