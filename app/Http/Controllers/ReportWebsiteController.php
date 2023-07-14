@@ -70,4 +70,23 @@ class ReportWebsiteController extends Controller
             return response()->json(DataComponent::initializeAccessDenied(), 200);
         }
     }
+
+    public function websiteReportById(Request $request)
+    {
+        $validation = AuthenticationComponent::validate($request);
+        LogComponent::response($request, $validation);
+
+        if ($validation->result) {
+
+            //check privilege
+            DataComponent::checkPrivilege($request, "report", "view");
+
+            return response()->json(ReportWebsiteService::detailFindTable($request), 200);
+
+        } else {
+            $response = $validation;
+        }
+
+        return response()->json($response, 200);
+    }
 }

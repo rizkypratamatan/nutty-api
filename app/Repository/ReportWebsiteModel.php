@@ -96,5 +96,31 @@ class ReportWebsiteModel {
 
     }
 
+    public static function countByWebsiteIdBetweenDate($endDate, $nucode, $startDate, $websiteId) {
+
+        $reportWebsite = new ReportWebsite();
+        $reportWebsite->setTable("reportWebsite_" . $nucode);
+
+        return $reportWebsite->where([
+            ["date", ">=", $startDate],
+            ["date", "<=", $endDate],
+            ["website._id", "=", $websiteId]
+        ])->count("_id");
+
+    }
+
+    public static function findByWebsiteIdBetweenDate($endDate, $length, $nucode, $page, $startDate, $websiteId) {
+
+        $reportWebsite = new ReportWebsite();
+        $reportWebsite->setTable("reportWebsite_" . $nucode);
+
+        return $reportWebsite->where([
+            ["date", ">=", $startDate],
+            ["date", "<=", $endDate],
+            ["website._id", "=", $websiteId]
+        ])->forPage($page, $length)->get();
+
+    }
+
 
 }

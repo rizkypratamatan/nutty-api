@@ -139,6 +139,7 @@ Route::group(["middleware" => ["authentication"]], function() {
     Route::post('/user-report', [ReportController::class, 'userReport'])->name('user-report');
 
     Route::post('/website-report', [ReportWebsiteController::class, 'websiteReport'])->name('website-report');
+    Route::post('/website-report-by-id', [ReportWebsiteController::class, 'websiteReportById'])->name('website-report');
     
     //role
     Route::post('/get-all-role', [RoleController::class, 'getRole'])->name('get-all-role');
