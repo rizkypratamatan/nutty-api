@@ -525,6 +525,9 @@ class WorksheetService {
             }
 
         }
+        // echo $filterWebsite." ok ";
+        // print_r($websiteIds);die;
+
 
         $filterPhone = preg_replace("/[^0-9]/", '', $filterPhone);
         $filterWhatsapp = preg_replace("/[^0-9]/", '', $filterWhatsapp);
@@ -545,9 +548,9 @@ class WorksheetService {
                 }
 
                 if($retrieve) {
-
+                    
                     $countResultTable = DatabaseLogModel::countDatabaseAccountTable($filterDateRange->end, $filterDateRange->start, $filterName, $filterPhone, $filterStatus, $filterUser, $filterUsername, $value, $filterWhatsapp);
-
+                    
                     if(!$countResultTable->isEmpty()) {
 
                         $count += $countResultTable[0]->count;

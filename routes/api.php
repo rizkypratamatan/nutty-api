@@ -123,14 +123,15 @@ Route::group(["middleware" => ["authentication"]], function() {
     Route::post('/delete-user', [UserController::class, 'deleteUser'])->name('delete-user');
     Route::post('/get-user-by-id', [UserController::class, 'getUserById'])->name('get-user-by-id');
     Route::post('/get-all-user', [UserController::class, 'getAllUser'])->name('get-all-user');
+    Route::post('/user/initialize-data', [UserController::class, 'initializeData'])->name('user.initializeData');
+    
     
     //license
-    Route::post('/delete-license', [LicenseController::class, 'deleteLicense'])->name('delete-license');
-    Route::post('/update-license', [LicenseController::class, 'updateLicense'])->name('update-license');
-    Route::post('/add-license', [LicenseController::class, 'addLicense'])->name('add-license');
-    Route::post('/get-license', [LicenseController::class, 'getLicense'])->name('get-license');
-    Route::post('/get-license-by-id', [LicenseController::class, 'getLicenseById'])->name('get-license-by-id');
-    Route::post('/get-table', [LicenseController::class, 'getTable'])->name('get-table');
+    Route::post('/license/delete', [LicenseController::class, 'deleteLicense'])->name('delete-license');
+    Route::post('/license/update', [LicenseController::class, 'update'])->name('update-license');
+    Route::post('/license/get', [LicenseController::class, 'getLicense'])->name('get-license');
+    Route::post('/license/get-by-id', [LicenseController::class, 'getLicenseById'])->name('get-license-by-id');
+    Route::post('/license/initialize-data', [LicenseController::class, 'initializeData'])->name('license.initialize-data');
     
     //report
     Route::post('/report', [ReportController::class, 'userReport'])->name('report');
@@ -141,7 +142,7 @@ Route::group(["middleware" => ["authentication"]], function() {
     Route::post('/user-report', [ReportController::class, 'userReport'])->name('user-report');
 
     Route::post('/website-report', [ReportWebsiteController::class, 'websiteReport'])->name('website-report');
-    Route::post('/website-report-by-id', [ReportWebsiteController::class, 'websiteReportById'])->name('website-report');
+    Route::post('/website-report-by-id', [ReportWebsiteController::class, 'websiteReportById'])->name('website-report-by-id');
     
     //role
     Route::post('/get-all-role', [RoleController::class, 'getRole'])->name('get-all-role');

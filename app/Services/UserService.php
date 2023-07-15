@@ -155,7 +155,6 @@ class UserService
 
             $result->response = "User data inserted";
             $result->result = true;
-
         }
 
         return $result;
@@ -212,13 +211,17 @@ class UserService
             $userRole->name = "Super Administrator";
             $userRole->nucode = $request->nucode;
             $userRole->privilege = [
-                "database" => "7777",
-                "report" => "7777",
-                "user" => "7777",
-                "userGroup" => "7777",
-                "userRole" => "7777",
-                "website" => "7777",
-                "worksheet" => "7777"
+                "database"=> "7777",
+                "report"=> "7777",
+                "user"=> "7777",
+                "userGroup"=> "7777",
+                "userRole"=> "7777",
+                "website"=> "7777",
+                "worksheet"=> "7777",
+                "worksheetCrm"=> "7777",
+                "setting"=> "7777",
+                "settingApi"=> "7777",
+                "tools"=> "7777"
             ];
             $userRole->status = "Active";
             $userRoleLast = UserRoleModel::insert($account, $userRole);
@@ -253,13 +256,17 @@ class UserService
                     "recovery" => Crypt::encryptString($request->password["main"])
                 ];
                 $user->privilege = [
-                    "database" => "7777",
-                    "report" => "7777",
-                    "user" => "7777",
-                    "userGroup" => "7777",
-                    "userRole" => "7777",
-                    "website" => "7777",
-                    "worksheet" => "7777"
+                    "database"=> "7777",
+                    "report"=> "7777",
+                    "user"=> "7777",
+                    "userGroup"=> "7777",
+                    "userRole"=> "7777",
+                    "website"=> "7777",
+                    "worksheet"=> "7777",
+                    "worksheetCrm"=> "7777",
+                    "setting"=> "7777",
+                    "settingApi"=> "7777",
+                    "tools"=> "7777"
                 ];
                 $user->role = [
                     "_id" => DataComponent::initializeObjectId($userRoleLast->_id),

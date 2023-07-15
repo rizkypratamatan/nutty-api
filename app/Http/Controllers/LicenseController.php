@@ -22,91 +22,14 @@ class LicenseController extends Controller
         if ($validation->result) {
 
             //check privilege
-            // DataComponent::checkPrivilege($request, "license", "delete");
+            DataComponent::checkPrivilege($request, "license", "delete");
 
-            // $userModel =  new LicenseModel($request);
-            // $account = AuthenticationComponent::toUser($request);
-            $data = LicenseModel::deleteLicense($request->id);
-
-            if ($data) {
-                $response = [
-                    'result' => true,
-                    'response' => 'success delete license',
-                ];
-            } else {
-                $response = [
-                    'result' => false,
-                    'response' => 'failed delete license',
-                ];
-            }
+            return response()->json(LicenseService::delete($request), 200);
         } else {
             $response = $validation;
         }
 
         return response()->json($response, 200);
-    }
-
-    public function updateLicense(Request $request)
-    {
-        $validation = AuthenticationComponent::validate($request);
-        LogComponent::response($request, $validation);
-
-        if ($validation->result) {
-            //check privilege
-            DataComponent::checkPrivilege($request, "license", "edit");
-            $auth = AuthenticationComponent::toUser($request);
-
-            $userModel =  new LicenseModel($request);
-            $user = $userModel->updateLicense($request);
-
-            if ($user) {
-                $response = [
-                    'result' => true,
-                    'response' => 'success update license',
-                ];
-            } else {
-                $response = [
-                    'result' => false,
-                    'response' => 'failed update license',
-                ];
-            }
-        } else {
-            $response = $validation;
-        }
-
-        return response()->json($response, 200);
-    }
-
-    public function addLicense(Request $request)
-    {
-        $validation = AuthenticationComponent::validate($request);
-        LogComponent::response($request, $validation);
-
-        if ($validation->result) {
-            //check privilege
-            DataComponent::checkPrivilege($request, "license", "add");
-            $auth = AuthenticationComponent::toUser($request);
-
-            $userModel =  new LicenseModel($request);
-            $user = $userModel->addLicense($request);
-
-            if ($user) {
-                $response = [
-                    'result' => true,
-                    'response' => 'success add license',
-                ];
-            } else {
-                $response = [
-                    'result' => false,
-                    'response' => 'failed add license',
-                ];
-            }
-        } else {
-            $response = $validation;
-        }
-
-        return response()->json($response, 200);
-    
     }
 
     public function getLicense(Request $request)
@@ -154,19 +77,19 @@ class LicenseController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "license", "view");
 
-            $userModel =  new LicenseModel($request);
-            $user = $userModel->getLicenseById($request->id);
+            $model =  new LicenseModel($request);
+            $data = $model->getLicenseById($request->id);
 
-            if ($user) {
+            if ($data) {
                 $response = [
                     'result' => true,
-                    'response' => 'success get license by id',
-                    'dataUser' => $user
+                    'response' => 'License Found',
+                    'data' => $data
                 ];
             } else {
                 $response = [
                     'result' => false,
-                    'response' => 'failed get license by id',
+                    'response' => 'License Not Found',
                 ];
             }
         } else {
@@ -187,6 +110,40 @@ class LicenseController extends Controller
             return response()->json(LicenseService::getTable($request), 200);
            
             
+        } else {
+            $response = $validation;
+        }
+
+        return response()->json($response, 200);
+    }
+
+    public function initializeData(Request $request) {
+
+        $validation = AuthenticationComponent::validate($request);
+        LogComponent::response($request, $validation);
+
+        if ($validation->result) {
+
+            //check privilege
+            DataComponent::checkPrivilege($request, "license", "view");
+            return response()->json(LicenseService::initializeData($request), 200);
+        } else {
+            $response = $validation;
+        }
+        return response()->json($response, 200);
+
+    }
+
+
+    public function update(Request $request) {
+
+        $validation = AuthenticationComponent::validate($request);
+        LogComponent::response($request, $validation);
+
+        if ($validation->result) {
+            //check privilege
+            DataComponent::checkPrivilege($request, "license", "edit");
+            return response()->json(LicenseService::update($request), 200);
         } else {
             $response = $validation;
         }

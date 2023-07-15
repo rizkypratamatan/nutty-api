@@ -4,12 +4,12 @@ namespace App\Services;
 
 use App\Components\DataComponent;
 use App\Models\License;
-use App\Repositories\LicenseRepository;
-use App\Repositories\UserGroupRepository;
-use App\Repositories\UserLogRepository;
-use App\Repositories\UserRepository;
-use App\Repositories\UserRoleRepository;
-use App\Repositories\WebsiteRepository;
+use App\Repository\LicenseModel;
+use App\Repository\UserGroupModel;
+use App\Repository\UserLogModel;
+use App\Repository\UserModel;
+use App\Repository\UserRoleModel;
+use App\Repository\WebsiteModel;
 use Illuminate\Support\Facades\Schema;
 use stdClass;
 
@@ -17,60 +17,58 @@ use stdClass;
 class LicenseService {
 
 
-    // public static function delete($request) 
-    // {
-
-    //     $result = new stdClass();
-    //     $result->response = "Failed to delete license data";
-    //     $result->result = false;
-
-    //     $websitesByNucode = WebsiteRepository::findByNucode($request->nucode);
-
-    //     foreach($websitesByNucode as $value) {
-
-    //         Schema::dropIfExists("database_" . $value->_id);
-    //         Schema::dropIfExists("databaseAccount_" . $value->_id);
-    //         Schema::dropIfExists("databaseLog_" . $value->_id);
-
-    //     }
-
-    //     Schema::dropIfExists("databaseAttempt_" . $request->nucode);
-    //     Schema::dropIfExists("databaseImport_" . $request->nucode);
-    //     Schema::dropIfExists("databaseImportAction_" . $request->nucode);
-    //     Schema::dropIfExists("playerAttempt_" . $request->nucode);
-    //     Schema::dropIfExists("report_" . $request->nucode);
-
-    //     UserGroupRepository::deleteByNucode($request->nucode);
-    //     UserLogRepository::deleteByNucode($request->nucode);
-    //     UserRepository::deleteByNucode($request->nucode);
-    //     UserRoleRepository::deleteByNucode($request->nucode);
-    //     WebsiteRepository::deleteByNucode($request->nucode);
-
-    //     $licenseByNucode = LicenseRepository::findOneByNucode($request->nucode);
-
-    //     if(!empty($licenseByNucode)) {
-
-    //         LicenseRepository::delete($licenseByNucode);
-
-    //         $result->response = "License data deleted";
-    //         $result->result = true;
-
-    //     } else {
-
-    //         $result->response = "License data doesn't exist";
-
-    //     }
-
-    //     return $result;
-
-    // }
-
-
-    public static function getTable($request) 
-    {
+    public static function delete($request) {
 
         $result = new stdClass();
-        // $result->draw = $request->draw;
+        $result->response = "Failed to delete license data";
+        $result->result = false;
+
+        $websitesByNucode = WebsiteModel::findByNucode($request->nucode);
+
+        foreach($websitesByNucode as $value) {
+
+            Schema::dropIfExists("database_" . $value->_id);
+            Schema::dropIfExists("databaseAccount_" . $value->_id);
+            Schema::dropIfExists("databaseLog_" . $value->_id);
+
+        }
+
+        Schema::dropIfExists("databaseAttempt_" . $request->nucode);
+        Schema::dropIfExists("databaseImport_" . $request->nucode);
+        Schema::dropIfExists("databaseImportAction_" . $request->nucode);
+        Schema::dropIfExists("playerAttempt_" . $request->nucode);
+        Schema::dropIfExists("reportUser_" . $request->nucode);
+
+        UserGroupModel::deleteByNucode($request->nucode);
+        UserLogModel::deleteByNucode($request->nucode);
+        UserModel::deleteByNucode($request->nucode);
+        UserRoleModel::deleteByNucode($request->nucode);
+        WebsiteModel::deleteByNucode($request->nucode);
+
+        $licenseByNucode = LicenseModel::findOneByNucode($request->nucode);
+
+        if(!empty($licenseByNucode)) {
+
+            LicenseModel::delete($licenseByNucode);
+
+            $result->response = "License data deleted";
+            $result->result = true;
+
+        } else {
+
+            $result->response = "License data doesn't exist";
+
+        }
+
+        return $result;
+
+    }
+
+
+    public static function findTable($request) {
+
+        $result = new stdClass();
+        $result->draw = $request->draw;
 
         $defaultOrder = ["created.timestamp"];
         $licenses = DataComponent::initializeTableQuery(new License(), DataComponent::initializeObject($request->columns), DataComponent::initializeObject($request->order), $defaultOrder);
@@ -85,88 +83,85 @@ class LicenseService {
     }
 
 
-    // public static function initializeData($request) 
-    // {
+    public static function initializeData($request) {
 
-    //     $result = new stdClass();
-    //     $result->response = "Failed to initialize license data";
-    //     $result->result = false;
+        $result = new stdClass();
+        $result->response = "Failed to initialize license data";
+        $result->result = false;
 
-    //     $account = DataComponent::initializeAccount($request);
+        $account = DataComponent::initializeAccount($request);
 
-    //     $result->license = LicenseRepository::findOneById($request->id);
+        $result->license = LicenseModel::findOneById($request->id);
 
-    //     $result->response = "User data initialized";
-    //     $result->result = true;
+        $result->response = "User data initialized";
+        $result->result = true;
 
-    //     return $result;
+        return $result;
 
-    // }
-
-
-    // public static function update($request) 
-    // {
-
-    //     $result = new stdClass();
-    //     $result->response = "Failed to update license data";
-    //     $result->result = false;
-
-    //     $validation = self::validateData($request);
-
-    //     if($validation->result) {
-
-    //         LicenseRepository::update(DataComponent::initializeAccount($request), $validation->license);
-
-    //         $result->response = "License data updated";
-    //         $result->result = true;
-
-    //     }
-
-    //     return $result;
-
-    // }
+    }
 
 
-    // public static function validateData($request) 
-    // {
+    public static function update($request) {
 
-    //     $result = new stdClass();
-    //     $result->response = "Failed to validate license data";
-    //     $result->result = false;
+        $result = new stdClass();
+        $result->response = "Failed to update license data";
+        $result->result = false;
 
-    //     $validation = DataComponent::checkNucode($request, "system", []);
+        $validation = self::validateData($request);
 
-    //     $result->license = new License();
+        if($validation->result) {
 
-    //     if(!is_null($request->id)) {
+            LicenseModel::update(DataComponent::initializeAccount($request), $validation->license);
 
-    //         $result->license = LicenseRepository::findOneById($request->id);
+            $result->response = "License data updated";
+            $result->result = true;
 
-    //         if(empty($result->license)) {
+        }
 
-    //             array_push($validation, false);
+        return $result;
 
-    //             $result->response = "License doesn't exist";
+    }
 
-    //         }
 
-    //     }
+    public static function validateData($request) {
 
-    //     $result->license->user = [
-    //         "primary" => $result->license->user["primary"],
-    //         "total" => intval($request->user["total"])
-    //     ];
+        $result = new stdClass();
+        $result->response = "Failed to validate license data";
+        $result->result = false;
 
-    //     if(empty($validation)) {
+        $validation = DataComponent::checkNucode($request, "system", []);
 
-    //         $result->response = "License data validated";
-    //         $result->result = true;
+        $result->license = new License();
 
-    //     }
+        if(!is_null($request->id)) {
 
-    //     return $result;
+            $result->license = LicenseModel::findOneById($request->id);
 
-    // }
+            if(empty($result->license)) {
+
+                array_push($validation, false);
+
+                $result->response = "License doesn't exist";
+
+            }
+
+        }
+
+        $result->license->user = [
+            "primary" => $result->license->user["primary"],
+            "total" => intval($request->user["total"])
+        ];
+
+        if(empty($validation)) {
+
+            $result->response = "License data validated";
+            $result->result = true;
+
+        }
+
+        return $result;
+
+    }
 
 
 }

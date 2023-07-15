@@ -65,20 +65,6 @@ class UserController extends Controller
             DataComponent::checkPrivilege($request, "user", "add");
             return response()->json(UserService::insert($request), 200);
 
-            // $userModel =  new UserModel();
-            // $user = $userModel->addUser($request);
-
-            // if ($user) {
-            //     $response = [
-            //         'result' => true,
-            //         'response' => 'success add user',
-            //     ];
-            // } else {
-            //     $response = [
-            //         'result' => false,
-            //         'response' => 'failed add user',
-            //     ];
-            // }
         } else {
             $response = $validation;
         }
@@ -98,21 +84,7 @@ class UserController extends Controller
         if ($validation->result) {
              //check privilege
              DataComponent::checkPrivilege($request, "user", "edit");
-
-            $userModel =  new UserModel();
-            $user = $userModel->updateUserById($request);
-
-            if ($user) {
-                $response = [
-                    'result' => true,
-                    'response' => 'success update user',
-                ];
-            } else {
-                $response = [
-                    'result' => false,
-                    'response' => 'failed update user',
-                ];
-            }
+             return response()->json(UserService::update($request), 200);
         } else {
             $response = $validation;
         }
@@ -133,21 +105,22 @@ class UserController extends Controller
 
             //check privilege
             DataComponent::checkPrivilege($request, "user", "delete");
+            return response()->json(UserService::delete($request), 200);
 
-            $userModel =  new UserModel();
-            $user = $userModel->deleteUser($request->id);
+            // $userModel =  new UserModel();
+            // $user = $userModel->deleteUser($request->id);
 
-            if ($user) {
-                $response = [
-                    'result' => true,
-                    'response' => 'success delete user',
-                ];
-            } else {
-                $response = [
-                    'result' => false,
-                    'response' => 'failed delete user',
-                ];
-            }
+            // if ($user) {
+            //     $response = [
+            //         'result' => true,
+            //         'response' => 'success delete user',
+            //     ];
+            // } else {
+            //     $response = [
+            //         'result' => false,
+            //         'response' => 'failed delete user',
+            //     ];
+            // }
         } else {
             $response = $validation;
         }
@@ -183,6 +156,27 @@ class UserController extends Controller
                     'response' => 'failed get user',
                 ];
             }
+        } else {
+            $response = $validation;
+        }
+
+        return response()->json($response, 200);
+    }
+
+    public function initializeData(Request $request)
+
+    {
+        // print_r($request->all());die();
+
+        $validation = AuthenticationComponent::validate($request);
+        LogComponent::response($request, $validation);
+
+        if ($validation->result) {
+
+            //check privilege
+            DataComponent::checkPrivilege($request, "user", "view");
+            return response()->json(UserService::initializeData($request), 200);
+
         } else {
             $response = $validation;
         }

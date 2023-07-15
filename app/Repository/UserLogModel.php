@@ -96,4 +96,28 @@ class UserLogModel
         ])->whereIn("type", $types)->orderBy("created.timestamp", "DESC")->first();
 
     }
+
+    public static function delete($data) {
+
+        return $data->delete();
+
+    }
+
+
+    public static function deleteByNucode($nucode) {
+
+        return UserLog::where("nucode", $nucode)->delete();
+
+    }
+
+    public static function insert($account, $data) {
+
+        $data->created = DataComponent::initializeTimestamp($account);
+        $data->modified = $data->created;
+
+        $data->save();
+
+        return $data;
+
+    }
 }

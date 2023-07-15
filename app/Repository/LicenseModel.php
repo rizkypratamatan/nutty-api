@@ -13,100 +13,8 @@ use Illuminate\Support\Facades\DB;
 
 class LicenseModel
 {
-    protected $service;
-    protected $user;
-    protected $request;
-
-    public function __construct(Request $request)
-    {   
-        // $this->user = AuthenticationComponent::toUser($request);
-        $this->request = $request;
-    }
-
-    public static function deleteLicense($id)
-    {
-
-        // return License::where('_id', $id)->delete();
-
-        return DB::table("license")->where("_id", $id)->delete();
-    }
-
-    public function updateLicense($data)
-    {
-        $mytime = Carbon::now();
-
-        $arr = [
-            'nucode' => $data->nucode,
-            'package' => [
-                'expired' => $data->expired,
-                'payment' => [
-                    'last' => $data->last,
-                    'next' => $data->next
-                ],
-                'start' => $data->start,
-                'status' => $data->status,
-                'trial' => $data->trial
-            ],
-            'user' => [
-                'primary' => [
-                    // '_id' => '0',
-                    'avatar' => $data->avatar,
-                    'name' => $data->name,
-                    'username' => $data->username
-                ],
-                'total' => 0
-            ],
-            // 'created' => [
-            //     'timestamp' => $mytime->toDateTimeString(),
-            //     'user' => [
-            //         '_id' => '0',
-            //         'username' => 'System'
-            //     ]
-            // ],
-            "modified" => DataComponent::initializeTimestamp($this->user)
-        ];
-
-        return DB::table('user')
-            ->where('_id', $data->id)->update($arr);
-    }
-
-    public function addLicense($data)
-    {
-
-        $arr = [
-            'nucode' => $data->nucode,
-            'package' => [
-                'expired' => $data->expired,
-                'payment' => [
-                    'last' => $data->last,
-                    'next' => $data->next
-                ],
-                'start' => $data->start,
-                'status' => $data->status,
-                'trial' => $data->trial
-            ],
-            'user' => [
-                'primary' => [
-                    // '_id' => '0',
-                    'avatar' => $data->avatar,
-                    'name' => $data->name,
-                    'username' => $data->username
-                ],
-                'total' => 0
-            ],
-            "created" => DataComponent::initializeTimestamp($this->user),
-            "modified" => DataComponent::initializeTimestamp($this->user)
-        ];
-
-        return DB::table('license')
-            ->insert($arr);
-    }
-
     public function getLicense($auth, $limit=10, $offset=0, $filter = [])
-    
     {
-        // $user = AuthenticationComponent::toUser($this->request);
-
         $response = [
             "data" => null,
             "total_data" => 0
@@ -143,6 +51,46 @@ class LicenseModel
         return License::where([
             ["nucode", "=", $nucode]
         ])->first();
+
+    }
+
+    public static function delete($data) {
+
+        return $data->delete();
+
+    }
+
+
+    public static function findOneById($id) {
+
+        return License::where([
+            ["_id", "=", $id]
+        ])->first();
+
+    }
+
+
+    public static function insert($account, $data) {
+
+        $data->created = DataComponent::initializeTimestamp($account);
+        $data->modified = $data->created;
+
+        $data->save();
+
+        return $data;
+
+    }
+
+
+    public static function update($account, $data) {
+
+        if($account != null) {
+
+            $data->modified = DataComponent::initializeTimestamp($account);
+
+        }
+
+        return $data->save();
 
     }
 

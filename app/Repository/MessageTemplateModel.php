@@ -9,15 +9,6 @@ use Illuminate\Support\Facades\DB;
 
 class MessageTemplateModel
 {
-    protected $service;
-    protected $user;
-    protected $request;
-
-    public function __construct($request)
-    {
-        // $this->service = new SMSService();
-        $this->request = $request;
-    }
 
     public function getAll($auth, $limit=10, $offset=0, $filter = [])
 
@@ -35,7 +26,7 @@ class MessageTemplateModel
         if(!empty($filter['name'])){
             $data = $data->where('name', 'LIKE', $filter['name']."%");
             $countData = $countData->where('name', 'LIKE', $filter['name']."%");
-            }
+        }
 
         $data = $data->orderBy('_id', 'DESC')->get();
         $counData = $countData->count();
@@ -76,12 +67,11 @@ class MessageTemplateModel
                     ->first();
     }
 
-    public static function updateById($data, $account, )
+    public static function updateById($data, $account)
     {
         $arr = [
             "name" => $data->name,
             "format" => $data->format,
-            "created" => DataComponent::initializeTimestamp($account),
             "modified" => DataComponent::initializeTimestamp($account)
         ];
 
@@ -101,12 +91,5 @@ class MessageTemplateModel
 
         return $data;
     }
-
-    // {
-    //     $user = AuthenticationComponent::toUser($this->request);
-    //     return DB::table("message_templates_" . $user->_id)
-    //         ->where('_id', $id)
-    //         ->first();
-    // }
 
 }

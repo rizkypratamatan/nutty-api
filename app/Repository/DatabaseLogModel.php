@@ -19,11 +19,14 @@ class DatabaseLogModel
 
             $query = self::lookupDatabaseAccountTable([], $websiteId);
 
-            array_push($query, [
-                '$match' => [
-                    "user._id" => DataComponent::initializeObjectId($userId)
-                ]
-            ]);
+            if($userId){
+                array_push($query, [
+                    '$match' => [
+                        "user._id" => DataComponent::initializeObjectId($userId)
+                    ]
+                ]);
+            }
+            
 
             $query = self::filterDatabaseAccountTable($createdDateEnd, $createdDateStart, $name, $phone, $query, $status, $username, $whatsapp);
 
@@ -129,11 +132,14 @@ class DatabaseLogModel
 
             $query = self::lookupDatabaseAccountTable([], $websiteId);
 
-            array_push($query, [
-                '$match' => [
-                    "user._id" => DataComponent::initializeObjectId($userId)
-                ]
-            ]);
+            if($userId){
+                array_push($query, [
+                    '$match' => [
+                        "user._id" => DataComponent::initializeObjectId($userId)
+                    ]
+                ]);
+            }
+            
 
             $query = self::filterDatabaseAccountTable($createdDateEnd, $createdDateStart, $name, $phone, $query, $status, $username, $whatsapp);
 
