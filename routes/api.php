@@ -41,6 +41,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::post('/login', [LoginController::class, 'userLogin'])->name('login');
 Route::post('/logout', [LoginController::class, 'userLogout'])->name('logout');
 
+Route::post('/add-license', [LicenseController::class, 'addLicense'])->name('add-license');
+
 //whatsapp
 Route::group(['prefix' => 'whatsapp'], function(){
     //testting only
@@ -138,9 +140,9 @@ Route::group(["middleware" => ["authentication"]], function() {
     Route::post('/add-report', [ReportController::class, 'addReport'])->name('add-report');
     Route::post('/delete-report', [ReportController::class, 'deleteReport'])->name('delete-report');
     Route::post('/update-report', [ReportController::class, 'updateReport'])->name('update-report');
-    Route::post('/get-report-by-id', [ReportController::class, 'getReportById'])->name('get-report-by-id');
     Route::post('/user-report', [ReportController::class, 'userReport'])->name('user-report');
-
+    Route::post('/get-report-by-id', [ReportController::class, 'getReportById'])->name('get-report-by-id');
+    
     Route::post('/website-report', [ReportWebsiteController::class, 'websiteReport'])->name('website-report');
     Route::post('/website-report-by-id', [ReportWebsiteController::class, 'websiteReportById'])->name('website-report-by-id');
     

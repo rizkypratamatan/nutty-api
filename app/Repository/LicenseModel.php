@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Components\AuthenticationComponent;
+use App\Components\DataComponent;
 use App\Models\License;
 use App\Models\User;
 use App\Models\UserGroup;
@@ -20,8 +21,8 @@ class LicenseModel
             "total_data" => 0
         ];
 
-        $data = DB::table("license" . $auth->_id)->take($limit)->skip($offset);
-        $countData = DB::table("license" . $auth->_id);
+        $data = License::take($limit)->skip($offset);
+        $countData = new License();
 
         if (!empty($filter['nucode'])) {
             $data = $data->where('nucode', 'LIKE', "%" . $filter['nucode'] . "%");
@@ -39,10 +40,13 @@ class LicenseModel
         return $response;
     }
 
-    public function getLicenseById($id)
+    public static function getLicenseById($id, $account)
     {
 
-        return License::where('_id', $id)->first();
+        // return License::where('_id', $id)->first();
+        return DB::table("license".$account->_id)
+                    ->where("_id", $id)
+                    ->first();
     }
 
     public static function findOneByNucode($nucode) 

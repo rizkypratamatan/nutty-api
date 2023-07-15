@@ -18,7 +18,7 @@ class ReportUserService
     {
 
         $result = new stdClass();
-        $result->draw = $request->draw;
+        // $result->draw = $request->draw;
 
         $account = DataComponent::initializeAccount($request);
 

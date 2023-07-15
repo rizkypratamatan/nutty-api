@@ -5,9 +5,13 @@ namespace App\Http\Controllers;
 use App\Components\AuthenticationComponent;
 use App\Components\DataComponent;
 use App\Components\LogComponent;
+use App\Models\License;
 use App\Repository\LicenseModel;
 use App\Services\LicenseService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use MongoDB\BSON\UTCDateTime;
+use stdClass;
 
 class LicenseController extends Controller
 {
@@ -77,8 +81,8 @@ class LicenseController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "license", "view");
 
-            $model =  new LicenseModel($request);
-            $data = $model->getLicenseById($request->id);
+            $account = AuthenticationComponent::toUser($request);
+            $data = LicenseModel::getLicenseById($request->id, $account);
 
             if ($data) {
                 $response = [
