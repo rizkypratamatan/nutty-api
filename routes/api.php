@@ -191,6 +191,6 @@ Route::group(["middleware" => ["authentication"]], function() {
     Route::post('/import-database-history', [DatabaseImportController::class, 'history'])->name('import-database-history');
 
     // register
-    Route::post('/register', [RegisterController::class, 'addRegister'])->name('register');
+    Route::post('/register', [RegisterController::class, 'register'])->name('register');
 
 });

@@ -518,7 +518,7 @@ class SystemService {
                                                 ->toArray();
                     
                     if ($smsQueueCount > 3) {
-                        //
+                        
                         if ($smsQueueCount <= $accountCount) {
                             $accountCount = $smsQueueCount;
                             $devider = $smsQueueCount / $accountCount;
@@ -533,7 +533,8 @@ class SystemService {
         
                     for ($i = 0; $i < $accountCount; $i++) {
                         $device_id = $device['data'][$i]['unique'];
-                        if(count($smsQueue) > 1){
+                        
+                        if(!isset($smsQueue[$i]['message'])){
                             foreach($smsQueue[$i] as $val){
                                 $account = UserModel::findOneById($val['created']['user']['_id']->__toString());
                                 $message = $service->initializeData($val['message'], $device_id, $val['number']);
@@ -579,8 +580,6 @@ class SystemService {
 
                                 //remove queue
                                 SmsQueue::destroy($val['_id']);
-
-                                
                             } 
                         }else{
                             $account = UserModel::findOneById($smsQueue[$i]['created']['user']['_id']->__toString());
@@ -673,10 +672,10 @@ class SystemService {
                     } else {
                         $accountCount = 1;
                     }
-        
+                    
                     for ($i = 0; $i < $accountCount; $i++) {
                         $device_id = $waAccount['data'][$i]['id'];
-                        if(count($dataQueue) > 1){
+                        if(!isset($dataQueue[$i]['message'])){
                             foreach($dataQueue[$i] as $val){
                                 $account = UserModel::findOneById($val['created']['user']['_id']->__toString());
                                 $message = $service->initializeData($val['message'], $device_id, $val['number']);

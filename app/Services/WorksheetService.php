@@ -1052,7 +1052,7 @@ class WorksheetService {
                     // print_r(json_encode($database));die;
     
                     if(!empty($database)) {
-                        if(isset($database->lastWaDate)){
+                        if(!isset($database->lastWaDate)){
                             $database->lastWaDate = "1970-01-01";
                         }
 
@@ -1185,26 +1185,30 @@ class WorksheetService {
                     }
                 }
             }else{
+                
                 $depositLastTimestamp = new UTCDateTime(Carbon::now()->subDays($request->days));
                 $count = DatabaseAccountModel::countCrmTable($auth['_id'], $depositLastTimestamp, $limit, $websiteById->_id);
+                
                 if(!$count->isEmpty()) {
                     $total_data = $count[0]->count;
                 }
     
                 $data = DatabaseAccountModel::findCrmTable($auth['_id'], $depositLastTimestamp, $limit, [], $offset, $websiteById->_id);
+                
             }
         
 
             if($total_data > 0){
+                
                 foreach($data as $val){
 
                     $database = DatabaseModel::findOneById($val->database[0]['_id']->__toString(),$websiteById->_id);
                     // print_r(json_encode($database));die;
     
                     if(!empty($database)) {
-                        if(isset($database->lastEmailDate)){
+                        
+                        if(!isset($database->lastEmailDate)){
                             $database->lastEmailDate = "1970-01-01";
-                            
                         }
 
                         $date1 = new \DateTime($database->lastEmailDate);

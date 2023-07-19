@@ -53,7 +53,9 @@ class Kernel extends ConsoleKernel
 
         // $schedule->command('email:send')->everyFiveMinutes();
         $schedule->command('sms:send')->everyFifteenMinutes();
+
         $schedule->command('wa:send')->everyThirtyMinutes();
+        
         $schedule->command('emailWorksheet:send')->everyThreeMinutes();
         
         // $schedule->call(function() {
