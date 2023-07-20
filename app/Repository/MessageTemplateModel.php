@@ -27,6 +27,10 @@ class MessageTemplateModel
             $data = $data->where('name', 'LIKE', $filter['name']."%");
             $countData = $countData->where('name', 'LIKE', $filter['name']."%");
         }
+        if(!empty($filter['type'])){
+            $data = $data->where('type', 'LIKE', $filter['type']."%");
+            $countData = $countData->where('type', 'LIKE', $filter['type']."%");
+        }
 
         $data = $data->orderBy('_id', 'DESC')->get();
         $counData = $countData->count();
@@ -47,6 +51,7 @@ class MessageTemplateModel
         $arr = [
             "name" => $data->name,
             "format" => $data->format,
+            "type" => $data->type,
             "created" => DataComponent::initializeTimestamp($account),
             "modified" => DataComponent::initializeTimestamp($account)
         ];
@@ -72,6 +77,7 @@ class MessageTemplateModel
         $arr = [
             "name" => $data->name,
             "format" => $data->format,
+            "type" => $data->type,
             "modified" => DataComponent::initializeTimestamp($account)
         ];
 

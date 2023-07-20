@@ -21,6 +21,7 @@ class MessageTemplateController extends Controller
             $filter = [];
 
             $filter['name'] = !empty($request->name)?$request->name:0;
+            $filter['type'] = !empty($request->type)?$request->type:0;
             $auth = AuthenticationComponent::toUser($request);
 
             // $data = MessageTemplateModel::getAll($auth, $limit, $offset, $account);

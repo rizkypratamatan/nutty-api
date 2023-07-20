@@ -12,6 +12,7 @@ class MessageTemplate extends Model
 
         "name" => "",
         "format" => "", 
+        "type" => "", 
         "created" => [
             "timestamp" => "",
             "user" => [
@@ -31,6 +32,7 @@ class MessageTemplate extends Model
     protected $fillable = [
         "name",
         "format",      
+        "type",      
         "created->timestamp",
         "created->user->_id",
         "created->user->username",
