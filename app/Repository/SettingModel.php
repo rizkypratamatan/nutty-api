@@ -22,7 +22,7 @@ class SettingModel
 
         $counData = $data->count();
         if($counData > 0){
-            $data = $data->first();
+            $data = $data->get();
         }else{
             $data = "";
         }
@@ -53,5 +53,11 @@ class SettingModel
         }
 
         return $data->save();
+    }
+
+    public static function getSettingByName($name)
+    {
+        return Setting::where('name', $name)
+            ->first();
     }
 }

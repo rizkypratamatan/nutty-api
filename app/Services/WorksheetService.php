@@ -20,6 +20,7 @@ use App\Repository\MessageTemplateModel;
 use App\Repository\PlayerAttemptModel;
 use App\Repository\ReportUserModel;
 use App\Repository\ReportWebsiteModel;
+use App\Repository\SettingModel;
 use App\Repository\SMSModel;
 use App\Repository\UserGroupModel;
 use App\Repository\UserModel;
@@ -910,7 +911,10 @@ class WorksheetService {
                         $date2 = new \DateTime(date("Y-m-d"));
                         $interval = $date1->diff($date2);
 
-                        if($interval->days >= 3){
+                        $settings = SettingModel::getSettingByName('interval_sms');
+                        $interval_setting = isset($settings->value) ? $settings->value : 3;
+
+                        if($interval->days >= $interval_setting){
                     
                             $databaseAccount = DatabaseAccountModel::findOneByDatabaseId($database->_id, $websiteById->_id);
 
@@ -1059,7 +1063,11 @@ class WorksheetService {
                         $date1 = new \DateTime($database->lastWaDate);
                         $date2 = new \DateTime(date("Y-m-d"));
                         $interval = $date1->diff($date2);
-                        if($interval->days >= 3){
+
+                        $settings = SettingModel::getSettingByName('interval_wa');
+                        $interval_setting = isset($settings->value) ? $settings->value : 3;
+
+                        if($interval->days >= $interval_setting){
                     
                             $databaseAccount = DatabaseAccountModel::findOneByDatabaseId($database->_id, $websiteById->_id);
 
@@ -1214,7 +1222,11 @@ class WorksheetService {
                         $date1 = new \DateTime($database->lastEmailDate);
                         $date2 = new \DateTime(date("Y-m-d"));
                         $interval = $date1->diff($date2);
-                        if($interval->days >= 3){
+
+                        $settings = SettingModel::getSettingByName('interval_email');
+                        $interval_setting = isset($settings->value) ? $settings->value : 1;
+
+                        if($interval->days >= $interval_setting){
 
                             $databaseAccount = DatabaseAccountModel::findOneByDatabaseId($database->_id, $websiteById->_id);
 

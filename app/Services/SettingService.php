@@ -104,42 +104,57 @@ class SettingService
         $result->response = "Failed to update setting data";
         $result->result = false;
 
-        $validation = self::validateData($request);
+        // $validation = self::validateData($request);
 
-        if ($validation->result) {
+        $old_data = $request->all();
+        unset($old_data['platform']);
+        unset($old_data['timestamp']);
+        unset($old_data['token']);
 
-            SettingModel::update(DataComponent::initializeAccount($request), $validation->setting);
+        foreach ($old_data as $key => $val) {
+            $validation = self::validateData($request, $key, $val);
 
-            $result->response = "Setting data updated";
-            $result->result = true;
+            if ($validation->result) {
+
+                if ($validation->flag == 'update') {
+                    SettingModel::update(DataComponent::initializeAccount($request), $validation->setting);
+                } else {
+                    SettingModel::insert(DataComponent::initializeAccount($request), $validation->setting);
+                }
+            }
         }
+
+        $result->response = "Setting data updated";
+        $result->result = true;
 
         return $result;
     }
 
 
-    public static function validateData($request)
+    public static function validateData($request, $key, $value)
     {
 
         $result = new stdClass();
         $result->response = "Failed to validate setting data";
         $result->result = false;
+        $result->flag = 'update';
 
         $validation = DataComponent::checkNucode($request, "system", []);
 
-        $result->setting = new Setting();
+        // $result->setting = new Setting();
 
-        // if (!is_null($request->id)) {
+        $check_setting = Setting::where('name', $key);
 
-        //     $result->setting = SettingModel::findOneById($request->id);
-
-        // if (empty($result->setting)) {
-
-        //     array_push($validation, false);
-
-        //     $result->response = "Setting doesn't exist";
-        // }
-        // }
+        if ($check_setting->count() > 0) {
+            $result->setting = $check_setting->first();
+            $result->setting->name = $key;
+            $result->setting->value = $value;
+        } else {
+            $result->setting = new Setting();
+            $result->setting->name = $key;
+            $result->setting->value = $value;
+            $result->flag = 'new';
+        }
 
         if (empty($validation)) {
 
