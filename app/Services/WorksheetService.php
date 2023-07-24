@@ -966,7 +966,7 @@ class WorksheetService {
                             ];
                             $dataQueueSms->number = $database->contact['phone'];
                             $dataMsg = new MessageTemplateModel($request);
-                            $dataMsg = $dataMsg->getRandomMessage($auth);
+                            $dataMsg = $dataMsg->getRandomMessage($auth, "Sms");
                             $dataQueueSms->message = $dataMsg->format;
                             $dataQueueSms->created = DataComponent::initializeTimestamp($auth);
                             $dataQueueSms->modified = DataComponent::initializeTimestamp($auth);
@@ -1115,7 +1115,7 @@ class WorksheetService {
                             ];
                             $dataQueueWA->number = $database->contact['phone'];
                             $dataMsg = new MessageTemplateModel($request);
-                            $dataMsg = $dataMsg->getRandomMessage($auth);
+                            $dataMsg = $dataMsg->getRandomMessage($auth, "WA");
                             $dataQueueWA->message = $dataMsg->format;
                             $dataQueueWA->created = DataComponent::initializeTimestamp($auth);
                             $dataQueueWA->modified = DataComponent::initializeTimestamp($auth);
@@ -1273,7 +1273,7 @@ class WorksheetService {
                             ];
                             $dataQueueEmail->email = $database->contact['email'];
                             $dataMsg = new MessageTemplateModel($request);
-                            $dataMsg = $dataMsg->getRandomMessage($auth);
+                            $dataMsg = $dataMsg->getRandomMessage($auth, "Email");
                             $dataQueueEmail->subject = $dataMsg->name;
                             $dataQueueEmail->body = $dataMsg->format;
                             $dataQueueEmail->created = DataComponent::initializeTimestamp($auth);

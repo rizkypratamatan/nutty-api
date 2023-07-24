@@ -86,14 +86,14 @@ class MessageTemplateModel
                 ->update($arr);
     }
 
-    public static function getRandomMessage($account){
+    public static function getRandomMessage($account, $type=""){
         $data = new MessageTemplate();
         $data->setTable('message_templates_'.$account->_id);
 
-        $total_data = $data->count();
+        $total_data = $data->where('type', $type)->count();
         $randomNumber = rand(0, ($total_data-1));
 
-        $data = $data->take(1)->skip($randomNumber)->first();
+        $data = $data->where('type', $type)->take(1)->skip($randomNumber)->first();
 
         return $data;
     }

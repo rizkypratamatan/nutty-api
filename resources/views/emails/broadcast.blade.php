@@ -8,7 +8,7 @@
 </head>
 <body>
     <div style="width:100%">
-        {{ $data['message'] }}
+        {!! $data['message'] !!}
     </div>
 </body>
 </html>
