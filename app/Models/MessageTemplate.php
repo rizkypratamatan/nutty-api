@@ -11,8 +11,8 @@ class MessageTemplate extends Model
     protected $attributes = [
 
         "name" => "",
-        "format" => "", 
         "type" => "", 
+        "format" => "", 
         "created" => [
             "timestamp" => "",
             "user" => [

@@ -50,8 +50,8 @@ class MessageTemplateModel
 
         $arr = [
             "name" => $data->name,
-            "format" => $data->format,
             "type" => $data->type,
+            "format" => $data->format,
             "created" => DataComponent::initializeTimestamp($account),
             "modified" => DataComponent::initializeTimestamp($account)
         ];
@@ -76,8 +76,8 @@ class MessageTemplateModel
     {
         $arr = [
             "name" => $data->name,
-            "format" => $data->format,
             "type" => $data->type,
+            "format" => $data->format,
             "modified" => DataComponent::initializeTimestamp($account)
         ];
 
