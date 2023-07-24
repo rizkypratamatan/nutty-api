@@ -9,9 +9,8 @@ class Setting extends Model
 {
     use HasFactory;
     protected $attributes = [
-        "interval_sms" => "",
-        "interval_wa" => "",
-        "interval_email" => "",
+        "name" => "",
+        "value" => "",
         "created" => [
             "timestamp" => "",
             "user" => [
@@ -29,9 +28,8 @@ class Setting extends Model
     ];
 
     protected $fillable = [
-        "interval_sms",
-        "interval_wa",
-        "interval_email",
+        "name",
+        "value",
         "created->timestamp",
         "created->user->_id",
         "created->user->username",
