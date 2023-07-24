@@ -13,6 +13,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ReportWebsiteController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SettingApiController;
+use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SmsLogController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserGroupController;
@@ -44,24 +45,27 @@ Route::post('/logout', [LoginController::class, 'userLogout'])->name('logout');
 Route::post('/add-license', [LicenseController::class, 'addLicense'])->name('add-license');
 
 //whatsapp
-Route::group(['prefix' => 'whatsapp'], function(){
+Route::group(['prefix' => 'whatsapp'], function () {
     //testting only
     Route::post('test-send-single-chat', [WhatsappLogController::class, 'testSendSingleChat'])->name('test-send-single-chat');
     Route::post('test-send-bulk-chat', [WhatsappLogController::class, 'testSendBulkChat'])->name('test-send-bulk-chat');
-    
 });
 
 //sms testing only
-Route::group(['prefix' => 'sms'], function(){
+Route::group(['prefix' => 'sms'], function () {
     Route::post('send-test-bulk-message', [SmsLogController::class, 'sendTestBulkMessage'])->name('send-test-bulk-message');
     Route::post('send-test-single-message', [SmsLogController::class, 'sendTestSingleMessage'])->name('send-test-single-message');
 });
 
 
 
-Route::group(["middleware" => ["authentication"]], function() {
-     //Setting
-     Route::group(['prefix' => 'setting'], function(){
+Route::group(["middleware" => ["authentication"]], function () {
+    //Setting
+    Route::group(['prefix' => 'setting'], function () {
+        //setting
+        Route::post('get-setting', [SettingController::class, 'getAll'])->name('get-setting');
+        Route::post('update-setting', [SettingController::class, 'updateSetting'])->name('update-setting');
+
         //api
         Route::post('get-api', [SettingApiController::class, 'index'])->name('get-api');
         Route::post('update-api', [SettingApiController::class, 'update'])->name('update-api');
@@ -118,7 +122,7 @@ Route::group(["middleware" => ["authentication"]], function() {
     Route::post('/delete-user-group', [UserGroupController::class, 'deleteUserGroup'])->name('delete-user-group');
     Route::post('/get-user-group-by-id', [UserGroupController::class, 'getUserGroupById'])->name('get-user-group-by-id');
     Route::post('/update-user-group', [UserGroupController::class, 'updateUserGroupById'])->name('update-user-group');
-    
+
     //user
     Route::post('/add-user', [UserController::class, 'addUser'])->name('add-user');
     Route::post('/update-user', [UserController::class, 'updateUserById'])->name('update-user');
@@ -126,15 +130,15 @@ Route::group(["middleware" => ["authentication"]], function() {
     Route::post('/get-user-by-id', [UserController::class, 'getUserById'])->name('get-user-by-id');
     Route::post('/get-all-user', [UserController::class, 'getAllUser'])->name('get-all-user');
     Route::post('/user/initialize-data', [UserController::class, 'initializeData'])->name('user.initializeData');
-    
-    
+
+
     //license
     Route::post('/license/delete', [LicenseController::class, 'deleteLicense'])->name('delete-license');
     Route::post('/license/update', [LicenseController::class, 'update'])->name('update-license');
     Route::post('/license/get', [LicenseController::class, 'getLicense'])->name('get-license');
     Route::post('/license/get-by-id', [LicenseController::class, 'getLicenseById'])->name('get-license-by-id');
     Route::post('/license/initialize-data', [LicenseController::class, 'initializeData'])->name('license.initialize-data');
-    
+
     //report
     Route::post('/report', [ReportController::class, 'userReport'])->name('report');
     Route::post('/add-report', [ReportController::class, 'addReport'])->name('add-report');
@@ -142,10 +146,10 @@ Route::group(["middleware" => ["authentication"]], function() {
     Route::post('/update-report', [ReportController::class, 'updateReport'])->name('update-report');
     Route::post('/user-report', [ReportController::class, 'userReport'])->name('user-report');
     Route::post('/get-report-by-id', [ReportController::class, 'getReportById'])->name('get-report-by-id');
-    
+
     Route::post('/website-report', [ReportWebsiteController::class, 'websiteReport'])->name('website-report');
     Route::post('/website-report-by-id', [ReportWebsiteController::class, 'websiteReportById'])->name('website-report-by-id');
-    
+
     //role
     Route::post('/get-all-role', [RoleController::class, 'getRole'])->name('get-all-role');
     Route::post('/add-role', [RoleController::class, 'addRole'])->name('add-role');
@@ -154,7 +158,7 @@ Route::group(["middleware" => ["authentication"]], function() {
     Route::post('/update-role', [RoleController::class, 'updateRoleById'])->name('update-role');
 
     //whatsapp
-    Route::group(['prefix' => 'whatsapp'], function(){
+    Route::group(['prefix' => 'whatsapp'], function () {
         Route::post('get-chats', [WhatsappLogController::class, 'getChats'])->name('get-chats');
         Route::post('delete-chat', [WhatsappLogController::class, 'deleteChat'])->name('delete-chat');
         Route::post('get-chat-by-id', [WhatsappLogController::class, 'getChatById'])->name('get-chat-by-id');
@@ -162,7 +166,7 @@ Route::group(["middleware" => ["authentication"]], function() {
         Route::post('send-single-chat', [WhatsappLogController::class, 'sendSingleChat'])->name('send-single-chat');
     });
 
-    Route::group(['prefix' => 'sms'], function(){
+    Route::group(['prefix' => 'sms'], function () {
         Route::post('get-messages', [SmsLogController::class, 'getMessages'])->name('get-messages');
         Route::post('delete-message', [SmsLogController::class, 'deleteMessage'])->name('delete-message');
         Route::post('get-message-by-id', [SmsLogController::class, 'getMessageById'])->name('get-message-by-id');
@@ -170,7 +174,7 @@ Route::group(["middleware" => ["authentication"]], function() {
         Route::post('send-single-message', [SmsLogController::class, 'sendSingleMessage'])->name('send-single-message');
     });
 
-    Route::group(['prefix' => 'email'], function(){
+    Route::group(['prefix' => 'email'], function () {
         Route::post('get-emails', [EmailLogController::class, 'getMessages'])->name('get-email');
         Route::post('delete-email', [EmailLogController::class, 'deleteMessage'])->name('delete-email');
         Route::post('get-email-by-id', [EmailLogController::class, 'getMessageById'])->name('get-email-by-id');
@@ -192,5 +196,4 @@ Route::group(["middleware" => ["authentication"]], function() {
 
     // register
     Route::post('/register', [RegisterController::class, 'register'])->name('register');
-
 });
