@@ -2,63 +2,144 @@
 
 namespace App\Repository;
 
+use App\Components\DataComponent;
 use App\Models\UserGroup;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
 
-class UserGroupModel
-{
-    public function getAllUserGroup()
-    {
-        return UserGroup::get();
-    }
 
-    public function addUserGroup($data)
-    {
+class UserGroupModel {
 
-        $mytime = Carbon::now();
+    public function getAllUserGroup($limit=10, $offset=0, $filter = [])
+    {   
+        $data = UserGroup::take($limit)->skip($offset);
+        $countData = new UserGroup();
 
-        $arr = [
-            'description' => $data->description,
-            'name' => $data->name,
-            'status' => $data->status,
-            'type' => $data->type,
-            'created' => [
-                'timestamp' => $mytime->toDateTimeString()
-            ]
+        $response = [
+            "data" => null,
+            "total_data" => 0
         ];
 
-        return DB::table('userGroup')
-            ->insert($arr);
+        if(!empty($filter['name'])){
+            $data = $data->where('name', 'LIKE', $filter['name']."%");
+            $countData = $countData->where('name', 'LIKE', $filter['name']."%");
+        }
+
+        if(!empty($filter['website'])){
+            $data = $data->where('website.ids', 'all', [$filter['website']]);
+        }
+
+        if(!empty($filter['nucode'])){
+            $data = $data->where('nucode', $filter['nucode']);
+            $countData = $countData->where('nucode', $filter['nucode']);
+        }
+
+        if(!empty($filter['status'])){
+            $data = $data->where('status', $filter['status']);
+            $countData = $countData->where('status', $filter['status']);
+        }
+        $data = $data->get();
+        $counData = $countData->count();
+
+        $response['data'] = $data;
+        $response['total_data'] = $counData;
+
+        return $response;
     }
 
-    public static function deleteUserGroup($id)
-    {
+    public static function delete($data) {
 
-        return UserGroup::where('_id', $id)->delete();
+        return $data->delete();
+
     }
 
-    public function getUserGroupById($id)
-    {
 
-        return UserGroup::where('_id', $id)->first();
+    public static function deleteByNucode($nucode) {
+
+        return UserGroup::where("nucode", $nucode)->delete();
+
     }
 
-    public function updateUserGroupById($data)
-    {
-        $mytime = Carbon::now();
 
-        $arr = [
-            'description' => $data->description,
-            'name' => $data->name,
-            'status' => $data->status,
-            'type' => $data->type,
-            'modified' => [
-                'timestamp' => $mytime->toDateTimeString()
-            ]
-        ];
+    public static function findByNucodeStatus($nucode, $status) {
 
-        return DB::table('userGroup')
-            ->where('_id', $data->id)->update($arr);
+        return UserGroup::where([
+            ["nucode", "=", $nucode],
+            ["status", "=", $status]
+        ])->get();
+
     }
+
+
+    public static function findByStatus($status) {
+
+        return UserGroup::where([
+            ["status", "=", $status]
+        ])->get();
+
+    }
+
+
+    public static function findOneById($id) {
+
+        return UserGroup::where([
+            ["_id", "=", $id]
+        ])->first();
+
+    }
+
+
+    public static function findOneByIdStatus($id, $status) {
+
+        return UserGroup::where([
+            ["_id", "=", $id],
+            ["status", "=", $status]
+        ])->first();
+
+    }
+
+
+    public static function findOneByNameNucode($name, $nucode) {
+
+        return UserGroup::where([
+            ["name", "=", $name],
+            ["nucode", "=", $nucode]
+        ])->first();
+
+    }
+
+
+    public static function findOneByWebsiteIdsNotWebsiteNames($websiteId, $websiteName) {
+
+        return UserGroup::where([
+            ["website.ids", "=", $websiteId],
+            ["website.names", "!=", $websiteName]
+        ])->first();
+
+    }
+
+
+    public static function insert($account, $data) {
+
+        $data->created = DataComponent::initializeTimestamp($account);
+        $data->modified = $data->created;
+
+        $data->save();
+
+        return $data;
+
+    }
+
+
+    public static function update($account, $data) {
+
+        if($account != null) {
+
+            $data->modified = DataComponent::initializeTimestamp($account);
+
+        }
+
+        return $data->save();
+
+    }
+
+
 }

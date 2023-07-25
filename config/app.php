@@ -219,6 +219,9 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
+        Maatwebsite\Excel\ExcelServiceProvider::class,
+        Jenssegers\Mongodb\MongodbQueueServiceProvider::class,
+
     ],
 
     /*
@@ -234,7 +237,8 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         // 'ExampleClass' => App\Example\ExampleClass::class,
-        'AuthValidation' => App\Helpers\Authentication::class
+        'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+        'AuthValidation' => App\Helpers\Authentication::class,
     ])->toArray(),
 
 ];

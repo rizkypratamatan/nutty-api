@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Components\AuthenticationComponent;
+use App\Components\LogComponent;
 use App\Helpers\Authentication;
 use App\Http\Requests\Login\LoginRequest;
+use App\Repository\UserGroupModel;
 use App\Repository\UserLogModel;
 use App\Repository\UserModel;
 use App\Services\encryption\EncryptionService;
@@ -16,38 +19,75 @@ class LoginController extends Controller
 {
     public function userLogin(LoginRequest $request)
     {
-        $checkToken = Authentication::validate($request);        
-        if ($checkToken->original->result) {
-            $userModel =  new UserModel;
-            $user = $userModel->getUserByUsername($request->username);            
-            echo json_encode($checkToken); die();
-            $pass =  Crypt::decryptString($user['password']['main']);
+        $validation = AuthenticationComponent::validate($request);
+        LogComponent::response($request, $validation);
+        
+        if ($validation->result) {
             
-            if (Authentication::DecryptionPassword($request) == $pass) {
+            $userModel =  new UserModel();
+            $user = $userModel->getUserByUsername($request->username);            
+            
+            $pass =  Crypt::decryptString($user['password']['main']);
+            $groupModel = new UserGroupModel();
+            if ($request->password == $pass) {
                 $data = [
                     'id' => (string)$user['_id'],
                     'name' => $user['name'],
-                    'role' => $user['role']['name'],
+                    'username' => $user['username'],
+                    'role' => $user['role'],
+                    'group' => $user['group'],
+                    'website' => $user['group'],
+                    'privilege' => $user['privilege'],
                     'type' => $user['type'],
+                    'nucode' => $user['nucode']
                 ];
+                
+
+                if((!empty($user['group']) and strtolower($user['group']['name']) != "system")){
+                    $data['group'] = $groupModel->findOneById($user['group']['_id']);
+                }
 
                 $userLog = new UserLogModel();
-                $userLog->insertToLog($pass);
+                $tokenAuth = $userLog->insertToLog($user, "Login", null);
+
+                $data["token-auth"] = $tokenAuth;
 
                 $response = [
-                    'result' => 'true',
+                    'result' => true,
                     'response' => 'Login successful',
                     'dataUser' => $data
                 ];
             } else {
                 $response = [
-                    'result' => 'false',
-                    'response' => 'Login failed'
+                    'result' => false,
+                    'response' => 'Login failed!, Invalid Credential'
                 ];
             }
         } else {
-            $response = $checkToken->original;
+            $response = $validation;
         }
+        
+        return response()->json($response, 200);
+    }
+
+    public function userLogout(Request $request)
+    {
+        
+        $authentication = !empty($request->header('token-auth'))?$request->header('token-auth'):null;
+        $userLogByAuthenticationInType = UserLogModel::findOneByAuthentication($authentication);
+
+        if(!empty($userLogByAuthenticationInType)) {
+            $type = "Logout";
+            $userModel =  new UserModel;
+            $user = $userModel->getUserByUsername($userLogByAuthenticationInType->user['username']);
+            $userLog = new UserLogModel();
+            $tokenAuth = $userLog->insertToLog($user, $type, $authentication);    
+        }
+
+        $response = [
+            "result" => true
+        ];
+
         return response()->json($response, 200);
     }
 }
