@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 class WhatsappService {
 
     protected $base_url = "https://gateway.yakuzahost.com";
-    protected $secret = "6dab02e46a9294ffb90fde8bcb76de411ad56d6d";
+    protected $secret = "cb30d41b49b621ddb6eb5fa551e06933b6737e48";
 
     public function processSingleChat($chat)
     {
