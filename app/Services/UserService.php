@@ -148,13 +148,16 @@ class UserService
         $result->result = false;
 
         $validation = self::validateData($request);
-
+        
         if($validation->result) {
-
+            
             UserModel::insert(DataComponent::initializeAccount($request), $validation->user);
 
             $result->response = "User data inserted";
             $result->result = true;
+        }else{
+            $result->response = $validation->response;
+            $result->result = $validation->result;
         }
 
         return $result;
