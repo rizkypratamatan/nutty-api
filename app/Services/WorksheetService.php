@@ -475,9 +475,12 @@ class WorksheetService {
 
         if($account->username == "system" || $account->type == "Administrator") {
 
+            
+
             if($account->username == "system") {
 
                 $websiteIds = WebsiteModel::findIdAll();
+                
 
             } else if($account->type == "Administrator") {
 
@@ -532,9 +535,9 @@ class WorksheetService {
 
         $filterPhone = preg_replace("/[^0-9]/", '', $filterPhone);
         $filterWhatsapp = preg_replace("/[^0-9]/", '', $filterWhatsapp);
-
+        
         if(!empty($websiteIds)) {
-
+            
             $date = Carbon::now()->setHour(0)->setMinute(0)->setSecond(0)->setMicrosecond(0);
             $filterDateRange = DataComponent::initializeFilterDateRange($request->filter_date, new UTCDateTime($date->addDays(1)), new UTCDateTime($date));
 

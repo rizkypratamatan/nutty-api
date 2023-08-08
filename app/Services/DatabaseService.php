@@ -221,6 +221,9 @@ class DatabaseService {
         $website = WebsiteModel::findOneByIdNucodeStatus($request->website, $account->nucode, "Active");
 
         if(!empty($website)) {
+            $result->response = "tes";
+            $result->result = true;
+            return $result;
 
             $fileName = str_replace("." . $request->file->getClientOriginalExtension(), "", $request->file->getClientOriginalName());
             $i = 1;
