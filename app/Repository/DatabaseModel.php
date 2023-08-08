@@ -98,11 +98,6 @@ class DatabaseModel {
     }
 
     public static function findListWorksheetCrm($crmId, $status, $limit, $offset, $websiteId) {
-        // echo $crmId."<br>";
-        // echo $status."<br>";
-        // echo $limit."<br>";
-        // echo $offset."<br>";
-        // echo $websiteId;die;
         $database = new Database();
         $database->setTable("database_" . $websiteId);
 
@@ -119,7 +114,6 @@ class DatabaseModel {
                             ["crm.username", "=", $crmId],
                             ["status", "=", $status]
                         ])
-                        ->orderBy('created.timestamp', 'desc')
                         ->count();
 
         return ["data" => $data,
@@ -203,11 +197,10 @@ class DatabaseModel {
                             ["status", "=", $status],
                             ["telemarketer.username", "=", $telemarketerId]
                         ])
-                        ->get();
+                        ->count();
             
 
-        return ["data" => $data,
-                "total_data" => $total_data];
+        return ["data" => $data, "total_data" => $total_data];
 
     }
 
@@ -245,7 +238,7 @@ class DatabaseModel {
                             ["status", "=", $status],
                             ["telemarketer._id", "=", "0"]
                         ])
-                        ->get();
+                        ->count();
 
         return ["data" => $data, "total_data" => $total_data];
 

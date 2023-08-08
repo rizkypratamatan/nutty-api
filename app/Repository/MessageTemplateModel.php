@@ -98,4 +98,11 @@ class MessageTemplateModel
         return $data;
     }
 
+    public static function countByType($auth, $type){
+        return DB::table("message_templates_" . $auth->_id)
+                    ->where('type', 'LIKE', $type)
+                    ->count();
+
+    }
+
 }
