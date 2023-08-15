@@ -12,15 +12,20 @@ use MongoDB\BSON\UTCDateTime;
 class WebsiteModel
 {
 
-    public function getAllWebsite($limit=10, $offset=0, $filter)
+    public function getAllWebsite($nucode, $limit=10, $offset=0, $filter)
     {   
         $resp = [
             'data' => null,
             'total_data' => 0
         ];
 
-        $data = Website::take($limit)->skip($offset);
-        $counData = new Website();
+        if($nucode == 'system'){
+            $data = Website::take($limit)->skip($offset);
+            $counData = new Website();
+        }else{
+            $data = Website::take($limit)->skip($offset)->where('nucode', $nucode);
+            $counData = Website::where('nucode', $nucode);
+        }
 
         if(!empty($filter['name'])){
             $data = $data->where('name', 'LIKE', $filter['name']."%");
@@ -50,6 +55,13 @@ class WebsiteModel
     public function addWebsite($request)
     {
         $account = AuthenticationComponent::toUser($request);
+
+        if($account->nucode == "system"){
+            $nucode = $request->nucode;
+        }else{
+            $nucode = $account->nucode;
+        }
+
         $data = new Website();
         $data->api = [
                         "nexus" => [
@@ -60,7 +72,7 @@ class WebsiteModel
                     ];
         $data->description = $request->description;
         $data->name = $request->name;
-        $data->nucode = $request->nucode;
+        $data->nucode = $nucode;
         $data->start = new UTCDateTime(Carbon::createFromFormat("Y/m/d H:i:s", "1970/01/10 00:00:00"));
         $data->status = $request->status;
         $data->sync = "NoSync";

@@ -309,27 +309,27 @@ class WorksheetService {
 
         if($request->websiteId) {
 
-            $websiteById = WebsiteRepository::findOneById($request->websiteId);
+            $websiteById = WebsiteModel::findOneById($request->websiteId);
 
             if(!empty($websiteById)) {
 
                 if($account->type == "CRM") {
 
-                    $result->database = DatabaseRepository::findOneWorksheetCrm($account->_id, "Available", $websiteById->_id);
+                    $result->database = DatabaseModel::findOneWorksheetCrm($account->_id, "Available", $websiteById->_id);
 
                 } else if($account->type == "Telemarketer") {
 
-                    $result->database = DatabaseRepository::findOneWorksheetTelemarketer("Available", $account->_id, $websiteById->_id);
+                    $result->database = DatabaseModel::findOneWorksheetTelemarketer("Available", $account->_id, $websiteById->_id);
 
                 }
 
                 if(empty($result->database)) {
 
-                    $result->database = DatabaseRepository::findOneWorksheetGroup($account->group["_id"], "Available", $websiteById->_id);
+                    $result->database = DatabaseModel::findOneWorksheetGroup($account->group["_id"], "Available", $websiteById->_id);
 
                     if(empty($result->database)) {
 
-                        $result->database = DatabaseRepository::findOneWorksheetWebsite("Available", $websiteById->_id);
+                        $result->database = DatabaseModel::findOneWorksheetWebsite("Available", $websiteById->_id);
 
                     }
 
@@ -337,9 +337,9 @@ class WorksheetService {
 
                 if(!empty($result->database)) {
 
-                    $result->databaseAccount = DatabaseAccountRepository::findOneByDatabaseId($result->database->_id, $websiteById->_id);
+                    $result->databaseAccount = DatabaseAccountModel::findOneByDatabaseId($result->database->_id, $websiteById->_id);
 
-                    $databaseLogByDatabaseIdUserId = DatabaseLogRepository::findLastByDatabaseIdUserId($result->database->_id, $account->_id, $websiteById->_id);
+                    $databaseLogByDatabaseIdUserId = DatabaseLogModel::findLastByDatabaseIdUserId($result->database->_id, $account->_id, $websiteById->_id);
 
                     if(!empty($databaseLogByDatabaseIdUserId)) {
 
@@ -360,9 +360,9 @@ class WorksheetService {
 
                     }
 
-                    DatabaseRepository::update($account, $result->database, $websiteById->_id);
+                    DatabaseModel::update($account, $result->database, $websiteById->_id);
 
-                    $result->databaseAccount = DatabaseAccountRepository::findOneByDatabaseId($result->database->_id, $websiteById->_id);
+                    $result->databaseAccount = DatabaseAccountModel::findOneByDatabaseId($result->database->_id, $websiteById->_id);
 
                     $databaseLog = new DatabaseLog();
                     $databaseLog->database = [
@@ -380,7 +380,7 @@ class WorksheetService {
                         "_id" => DataComponent::initializeObjectId($websiteById->_id),
                         "name" => $websiteById->name
                     ];
-                    $result->databaseLog = DatabaseLogRepository::insert($account, $databaseLog, $websiteById->_id);
+                    $result->databaseLog = DatabaseLogModel::insert($account, $databaseLog, $websiteById->_id);
 
                     $result->response = "Worksheet data initialized";
                     $result->result = true;
@@ -399,7 +399,7 @@ class WorksheetService {
 
         } else {
 
-            $result->userGroup = UserGroupRepository::findOneById($account->group["_id"]);
+            $result->userGroup = UserGroupModel::findOneById($account->group["_id"]);
 
             $result->response = "Worksheet data initialized";
             $result->result = true;
@@ -940,7 +940,7 @@ class WorksheetService {
                             $date2 = new \DateTime(date("Y-m-d"));
                             $interval = $date1->diff($date2);
     
-                            $settings = SettingModel::getSettingByName('interval_sms');
+                            $settings = SettingModel::getSettingByName('interval_sms', $auth->nucode);
                             $interval_setting = isset($settings->value) ? $settings->value : 3;
     
                             if($interval->days >= $interval_setting){
@@ -1046,12 +1046,12 @@ class WorksheetService {
                             $date2 = new \DateTime(date("Y-m-d"));
                             $interval = $date1->diff($date2);
     
-                            $settings = SettingModel::getSettingByName('interval_sms');
+                            $settings = SettingModel::getSettingByName('interval_sms', $auth->nucode);
                             $interval_setting = isset($settings->value) ? $settings->value : 3;
     
                             if($interval->days >= $interval_setting){
                         
-                                $databaseAccount = DatabaseAccountModel::findOneByDatabaseId($database->_id, $websiteById->_id);
+                                // $databaseAccount = DatabaseAccountModel::findOneByDatabaseId($database->_id, $websiteById->_id);
     
                                 $databaseLogByDatabaseIdUserId = DatabaseLogModel::findLastByDatabaseIdUserId($database->_id, $auth->_id, $websiteById->_id);
                                 if(!empty($databaseLogByDatabaseIdUserId)) {
@@ -1073,7 +1073,7 @@ class WorksheetService {
     
                                 DatabaseModel::update($auth, $database, $websiteById->_id);
     
-                                $databaseAccount = DatabaseAccountModel::findOneByDatabaseId($database->_id, $websiteById->_id);
+                                // $databaseAccount = DatabaseAccountModel::findOneByDatabaseId($database->_id, $websiteById->_id);
     
                                 $databaseLog = new DatabaseLog();
                                 $databaseLog->database = [
@@ -1107,6 +1107,7 @@ class WorksheetService {
                                 $dataMsg = new MessageTemplateModel($request);
                                 $dataMsg = $dataMsg->getRandomMessage($auth, "Sms");
                                 $dataQueueSms->message = $dataMsg->format;
+                                $dataQueueSms->nucode = $auth->nucode;
                                 $dataQueueSms->created = DataComponent::initializeTimestamp($auth);
                                 $dataQueueSms->modified = DataComponent::initializeTimestamp($auth);
                                 $dataQueueSms->save();
@@ -1213,7 +1214,7 @@ class WorksheetService {
                             $date2 = new \DateTime(date("Y-m-d"));
                             $interval = $date1->diff($date2);
     
-                            $settings = SettingModel::getSettingByName('interval_wa');
+                            $settings = SettingModel::getSettingByName('interval_wa', $auth->nucode);
                             $interval_setting = isset($settings->value) ? $settings->value : 3;
     
                             if($interval->days >= $interval_setting){
@@ -1320,7 +1321,7 @@ class WorksheetService {
                             $date2 = new \DateTime(date("Y-m-d"));
                             $interval = $date1->diff($date2);
     
-                            $settings = SettingModel::getSettingByName('interval_wa');
+                            $settings = SettingModel::getSettingByName('interval_wa', $auth->nucode);
                             $interval_setting = isset($settings->value) ? $settings->value : 3;
     
                             if($interval->days >= $interval_setting){
@@ -1381,6 +1382,7 @@ class WorksheetService {
                                 $dataMsg = new MessageTemplateModel($request);
                                 $dataMsg = $dataMsg->getRandomMessage($auth, "WA");
                                 $dataQueueWA->message = $dataMsg->format;
+                                $dataQueueWA->nucode = $auth->nucode;
                                 $dataQueueWA->created = DataComponent::initializeTimestamp($auth);
                                 $dataQueueWA->modified = DataComponent::initializeTimestamp($auth);
                                 $dataQueueWA->save();
@@ -1489,7 +1491,7 @@ class WorksheetService {
                             $date2 = new \DateTime(date("Y-m-d"));
                             $interval = $date1->diff($date2);
     
-                            $settings = SettingModel::getSettingByName('interval_email');
+                            $settings = SettingModel::getSettingByName('interval_email', $auth->nucode);
                             $interval_setting = isset($settings->value) ? $settings->value : 1;
     
                             if($interval->days >= $interval_setting){
@@ -1602,7 +1604,7 @@ class WorksheetService {
                             $date2 = new \DateTime(date("Y-m-d"));
                             $interval = $date1->diff($date2);
     
-                            $settings = SettingModel::getSettingByName('interval_email');
+                            $settings = SettingModel::getSettingByName('interval_email', $auth->nucode);
                             $interval_setting = isset($settings->value) ? $settings->value : 1;
     
                             if($interval->days >= $interval_setting){
@@ -1650,8 +1652,6 @@ class WorksheetService {
                                 $databaseLog = DatabaseLogModel::insert($auth, $databaseLog, $websiteById->_id);
                                 // array_push($numbers, $database->contact['phone']);
                             
-                            
-                               
                                 //queue wa message
                                 $dataQueueEmail = new EmailQueue();
                                 $dataQueueEmail->website =  [
@@ -1667,11 +1667,11 @@ class WorksheetService {
                                 $dataMsg = $dataMsg->getRandomMessage($auth, "Email");
                                 $dataQueueEmail->subject = $dataMsg->name;
                                 $dataQueueEmail->body = $dataMsg->format;
+                                $dataQueueEmail->nucode = $auth->nucode;
                                 $dataQueueEmail->created = DataComponent::initializeTimestamp($auth);
                                 $dataQueueEmail->modified = DataComponent::initializeTimestamp($auth);
                                 $dataQueueEmail->save();
-                            }
-                            
+                            }   
                         }
                     }
     

@@ -84,7 +84,7 @@ class UserModel
             ->first();
     }
     
-    public function getAllUser($limit, $offset, $filter = [])
+    public function getAllUser($nucode, $limit, $offset, $filter = [])
     {
         //$username, $name, $nucode, $type, $group, $role, $status
         $response = [
@@ -92,8 +92,15 @@ class UserModel
             "total_data" => 0
         ];
 
-        $users = User::take($limit)->skip($offset);
-        $countData = new User();
+        if($nucode == "system"){
+            $users = User::take($limit)->skip($offset);
+            $countData = new User();
+        }else{
+            $users = User::take($limit)->skip($offset)->where('nucode', $nucode);
+            $countData = User::where('nucode', $nucode);
+        }
+
+        
 
         if(!empty($filter['username'])){
             $users = $users->where('username', $filter['username']);
@@ -361,6 +368,12 @@ class UserModel
         }
 
         return $data->save();
+
+    }
+
+    public static function getAvailableNucode(){
+        return User::distinct('nucode')->get();
+
 
     }
 

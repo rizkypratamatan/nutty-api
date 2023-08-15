@@ -77,18 +77,13 @@ class DatabaseService {
         $result->draw = $request->draw;
 
         $database = new Database();
-        $database->setTable("database_" . $request->columns[3]["search"]["value"]);
+        $database->setTable("database_" . $request->website);
 
-        $columns = $request->columns;
-        unset($columns[3]);
+        $databases = DatabaseModel::getAll($request);
 
-        $defaultOrder = ["created.timestamp"];
-        $databases = DataComponent::initializeTableQuery($database, DataComponent::initializeObject($columns), DataComponent::initializeObject($request->order), $defaultOrder);
+        $result->total_data = $databases["total_data"];
+        $result->data = $databases["data"];
 
-        $result->recordsTotal = $databases->count("_id");
-        $result->recordsFiltered = $result->recordsTotal;
-
-        $result->data = $databases->forPage(DataComponent::initializePage($request->start, $request->length), $request->length)->get();
 
         return $result;
 

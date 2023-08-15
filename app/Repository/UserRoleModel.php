@@ -12,10 +12,15 @@ use Illuminate\Support\Facades\DB;
 class UserRoleModel
 {
 
-    public function getRole($limit, $offset, $filter)
+    public function getRole($nucode, $limit, $offset, $filter)
     {
-        $data = UserRole::take($limit)->skip($offset);
-        $countData = new UserRole();
+        if($nucode == 'system'){
+            $data = UserRole::take($limit)->skip($offset);
+            $countData = new UserRole();
+        }else{
+            $data = UserRole::take($limit)->skip($offset)->where('nucode', $nucode);
+            $countData = UserRole::where('nucode', $nucode);
+        }
 
         $response = [
             "data" => null,
@@ -50,10 +55,16 @@ class UserRoleModel
     {
         $account = AuthenticationComponent::toUser($request);
 
+        if($account->nucode == "system"){
+            $nucode = $request->nucode;
+        }else{
+            $nucode = $account->nucode;
+        }
+
         $data = new UserRole();
         $data->description = $request->description;
         $data->name = $request->name;
-        $data->nucode = $request->nucode;
+        $data->nucode = $nucode;
         $data->privilege = [
             "database" => $request->privilege['database'],
             "report" => $request->privilege['report'],

@@ -22,6 +22,7 @@ use App\Repository\EmailModel;
 use App\Repository\NexusPlayerTransactionModel;
 use App\Repository\ReportUserModel;
 use App\Repository\ReportWebsiteModel;
+use App\Repository\SettingModel;
 use App\Repository\SMSModel;
 use App\Repository\SyncQueueModel;
 use App\Repository\UnclaimedDepositQueueModel;
@@ -496,196 +497,256 @@ class SystemService {
 
     public static function processSmsQueue(){
 
-        
-        //get device
-        $service = new SMSService();
-        $device = $service->getDevices();
+        //get availabel nucode
+        $nucodes = UserModel::getAvailableNucode();
 
-        
-
-        if($device['status'] == 200){
-            $accountCount = count($device['data']);
-            $smsQueueCount = SmsQueue::where('status', 'queue')->count();
-            
-            if($accountCount > 0){
+        foreach($nucodes as $nucode){
+            //get secret key gateway
+            $gw_secret = SettingModel::getSettingByName('gateway_secret', $nucode);
+            if($gw_secret){
+                $smsQueueCount = SmsQueue::where('status', 'queue')->where('nucode', $nucode)->count();
                 if($smsQueueCount > 0){
-                    $limit = $accountCount * 3;
-                    $smsQueue = SmsQueue::where('status', 'queue')
-                                                ->take($limit)
-                                                ->offset(0)
-                                                ->orderBy('created.timestamp', 'asc')
-                                                ->get()
-                                                ->toArray();
-                    
-                    if ($smsQueueCount > 3) {
-                        
-                        if ($smsQueueCount <= $accountCount) {
-                            $accountCount = $smsQueueCount;
-                            $devider = $smsQueueCount / $accountCount;
-                        } else {
-                            $devider = round($limit / $accountCount);
-                        }
-        
-                        $smsQueue = array_chunk($smsQueue, $devider);
-                    } else {
-                        $accountCount = 1;
-                    }
-        
-                    for ($i = 0; $i < $accountCount; $i++) {
-                        $device_id = $device['data'][$i]['unique'];
-                        
-                        if(!isset($smsQueue[$i]['message'])){
-                            foreach($smsQueue[$i] as $val){
-                                $account = UserModel::findOneById($val['created']['user']['_id']->__toString());
-                                $message = $service->initializeData($val['message'], $device_id, $val['number']);
-                                $response = $service->sendSms($message);
-                                $result = SMSModel::insert($message, $account);
+                    //get device
+                    $service = new SMSService();
+                    $device = $service->getDevices($gw_secret);
 
-                                $websitebyId = WebsiteModel::findOneById($val['website']['_id']->__toString());
-                                //update database
-                                $database = DatabaseModel::findOneById($val['database']['_id']->__toString(), $websitebyId->_id);
-                                $database->status = "Processed";
-                                $database->lastSmsDate = date("Y-m-d");
-                                $database->save();
-
-                                $databaseLog = DatabaseLogModel::findLastByDatabaseIdUserId($database->_id, $account->_id, $websitebyId->_id);
-
-                                if(!empty($databaseLog)) {
-
-                                    $databaseLog->status = "FollowUp";
-                                    DatabaseLogModel::update($account, $databaseLog, $websitebyId->_id);
-                
-                                } else {
-                                    $databaseLog = new DatabaseLog();
-                                    $databaseLog->database = [
-                                        "_id" => DataComponent::initializeObjectId($database->_id),
-                                        "name" => $database->name
-                                    ];
-                                    $databaseLog->status = "FollowUp";
-                                    $databaseLog->user = [
-                                        "_id" => DataComponent::initializeObjectId($account->_id),
-                                        "avatar" => $account->avatar,
-                                        "name" => $account->name,
-                                        "username" => $account->username
-                                    ];
-                                    $databaseLog->website = [
-                                        "_id" => DataComponent::initializeObjectId($websitebyId->_id),
-                                        "name" => $val['website']['name']
-                                    ];
-                                    DatabaseLogModel::insert($account, $databaseLog, $websitebyId->_id);
-                
-                                }
+                    if($device['status'] == 200){
+                        $accountCount = count($device['data']);
+                        if($accountCount > 0){
+                            $limit = $accountCount * 3;
+                            $smsQueue = SmsQueue::where('status', 'queue')
+                                                        ->where('nucode', $nucode)
+                                                        ->take($limit)
+                                                        ->offset(0)
+                                                        ->orderBy('created.timestamp', 'asc')
+                                                        ->get()
+                                                        ->toArray();
+                            
+                            if ($smsQueueCount > 3) {
                                 
-                                self::generateReport($account, new UTCDateTime(Carbon::now()->setHour(0)->setMinute(0)->setSecond(0)->setMicrosecond(0)), "FollowUp", $websitebyId);
+                                if ($smsQueueCount <= $accountCount) {
+                                    $accountCount = $smsQueueCount;
+                                    $devider = $smsQueueCount / $accountCount;
+                                } else {
+                                    $devider = round($limit / $accountCount);
+                                }
+                
+                                $smsQueue = array_chunk($smsQueue, $devider);
+                            } else {
+                                $accountCount = 1;
+                            }
+                
+                            for ($i = 0; $i < $accountCount; $i++) {
+                                $device_id = $device['data'][$i]['unique'];
+                                
+                                if(!isset($smsQueue[$i]['message'])){
+                                    foreach($smsQueue[$i] as $val){
+                                        $account = UserModel::findOneById($val['created']['user']['_id']->__toString());
+                                        $message = $service->initializeData($val['message'], $device_id, $val['number']);
+                                        $response = $service->sendSms($message);
+                                        $result = SMSModel::insert($message, $account);
 
-                                //remove queue
-                                SmsQueue::destroy($val['_id']);
-                            } 
+                                        $websitebyId = WebsiteModel::findOneById($val['website']['_id']->__toString());
+                                        //update database
+                                        $database = DatabaseModel::findOneById($val['database']['_id']->__toString(), $websitebyId->_id);
+                                        $database->status = "Processed";
+                                        $database->lastSmsDate = date("Y-m-d");
+                                        $database->save();
+
+                                        $databaseLog = DatabaseLogModel::findLastByDatabaseIdUserId($database->_id, $account->_id, $websitebyId->_id);
+
+                                        if(!empty($databaseLog)) {
+
+                                            $databaseLog->status = "FollowUp";
+                                            DatabaseLogModel::update($account, $databaseLog, $websitebyId->_id);
+                        
+                                        } else {
+                                            $databaseLog = new DatabaseLog();
+                                            $databaseLog->database = [
+                                                "_id" => DataComponent::initializeObjectId($database->_id),
+                                                "name" => $database->name
+                                            ];
+                                            $databaseLog->status = "FollowUp";
+                                            $databaseLog->user = [
+                                                "_id" => DataComponent::initializeObjectId($account->_id),
+                                                "avatar" => $account->avatar,
+                                                "name" => $account->name,
+                                                "username" => $account->username
+                                            ];
+                                            $databaseLog->website = [
+                                                "_id" => DataComponent::initializeObjectId($websitebyId->_id),
+                                                "name" => $val['website']['name']
+                                            ];
+                                            DatabaseLogModel::insert($account, $databaseLog, $websitebyId->_id);
+                        
+                                        }
+                                        
+                                        self::generateReport($account, new UTCDateTime(Carbon::now()->setHour(0)->setMinute(0)->setSecond(0)->setMicrosecond(0)), "FollowUp", $websitebyId);
+
+                                        //remove queue
+                                        SmsQueue::destroy($val['_id']);
+                                    } 
+                                }else{
+                                    $account = UserModel::findOneById($smsQueue[$i]['created']['user']['_id']->__toString());
+                                    $message = $service->initializeData($smsQueue[$i]['message'], $device_id, $smsQueue[$i]['number']);
+                                    $response = $service->sendSms($message);
+                                    $result = SMSModel::insert($message, $account);
+
+                                    $websitebyId = WebsiteModel::findOneById($smsQueue[$i]['website']['_id']->__toString());
+
+                                    //update database
+                                    $database = DatabaseModel::findOneById($smsQueue[$i]['database']['_id']->__toString(), $websitebyId->_id);
+                                    $database->status = "Processed";
+                                    $database->lastSmsDate = date("Y-m-d");
+                                    $database->save();
+
+                                    $databaseLog = DatabaseLogModel::findLastByDatabaseIdUserId($database->_id, $account->_id, $websitebyId->_id);
+
+                                        if(!empty($databaseLog)) {
+
+                                            $databaseLog->status = "FollowUp";
+                                            DatabaseLogModel::update($account, $databaseLog, $websitebyId->_id);
+                        
+                                        } else {
+                                            $databaseLog = new DatabaseLog();
+                                            $databaseLog->database = [
+                                                "_id" => DataComponent::initializeObjectId($database->_id),
+                                                "name" => $database->name
+                                            ];
+                                            $databaseLog->status = "FollowUp";
+                                            $databaseLog->user = [
+                                                "_id" => DataComponent::initializeObjectId($account->_id),
+                                                "avatar" => $account->avatar,
+                                                "name" => $account->name,
+                                                "username" => $account->username
+                                            ];
+                                            $databaseLog->website = [
+                                                "_id" => DataComponent::initializeObjectId($websitebyId->_id),
+                                                "name" => $smsQueue[$i]['website']['name']
+                                            ];
+                                            DatabaseLogModel::insert($account, $databaseLog, $websitebyId->_id);
+                        
+                                        }
+                                        self::generateReport($account, new UTCDateTime(Carbon::now()->setHour(0)->setMinute(0)->setSecond(0)->setMicrosecond(0)), "FollowUp", $websitebyId);
+                                        
+
+                                    //remove queue
+                                    SmsQueue::destroy($smsQueue[$i]['_id']);
+                                }   
+                            }
                         }else{
-                            $account = UserModel::findOneById($smsQueue[$i]['created']['user']['_id']->__toString());
-                            $message = $service->initializeData($smsQueue[$i]['message'], $device_id, $smsQueue[$i]['number']);
-                            $response = $service->sendSms($message);
-                            $result = SMSModel::insert($message, $account);
-
-                            $websitebyId = WebsiteModel::findOneById($smsQueue[$i]['website']['_id']->__toString());
-
-                            //update database
-                            $database = DatabaseModel::findOneById($smsQueue[$i]['database']['_id']->__toString(), $websitebyId->_id);
-                            $database->status = "Processed";
-                            $database->lastSmsDate = date("Y-m-d");
-                            $database->save();
-
-                            $databaseLog = DatabaseLogModel::findLastByDatabaseIdUserId($database->_id, $account->_id, $websitebyId->_id);
-
-                                if(!empty($databaseLog)) {
-
-                                    $databaseLog->status = "FollowUp";
-                                    DatabaseLogModel::update($account, $databaseLog, $websitebyId->_id);
-                
-                                } else {
-                                    $databaseLog = new DatabaseLog();
-                                    $databaseLog->database = [
-                                        "_id" => DataComponent::initializeObjectId($database->_id),
-                                        "name" => $database->name
-                                    ];
-                                    $databaseLog->status = "FollowUp";
-                                    $databaseLog->user = [
-                                        "_id" => DataComponent::initializeObjectId($account->_id),
-                                        "avatar" => $account->avatar,
-                                        "name" => $account->name,
-                                        "username" => $account->username
-                                    ];
-                                    $databaseLog->website = [
-                                        "_id" => DataComponent::initializeObjectId($websitebyId->_id),
-                                        "name" => $smsQueue[$i]['website']['name']
-                                    ];
-                                    DatabaseLogModel::insert($account, $databaseLog, $websitebyId->_id);
-                
-                                }
-                                self::generateReport($account, new UTCDateTime(Carbon::now()->setHour(0)->setMinute(0)->setSecond(0)->setMicrosecond(0)), "FollowUp", $websitebyId);
-                                
-
-                            //remove queue
-                            SmsQueue::destroy($smsQueue[$i]['_id']);
+                            Log::info("No SMS Account Found nucode ". $nucode);
                         }
-                        
+                    }else{
+                        Log::info("Failed to get Device Nucode ". $nucode);
                     }
+                    
                 }else{
-                    Log::info("No SMS Queue Found");    
+                    Log::info("No SMS Queue Found For Nucode ". $nucode);    
                 }
-
-            }else{
-                Log::info("No SMS Account Found");
             }
-        }else{
-            Log::info("Failed to get Device");
         }
     }
 
     public static function processWaQueue(){
-        //get device
-        $service = new WhatsappService();
-        $waAccount = $service->getAccounts();
-        
-        if($waAccount['status'] == 200){
-            $accountCount = count($waAccount['data']);
-            $dataQueueCount = WaQueue::where('status', 'queue')->count();
+
+        //get availabel nucode
+        $nucodes = UserModel::getAvailableNucode();
+
+        foreach($nucodes as $nucode){
+            $dataQueueCount = WaQueue::where('status', 'queue')
+                                        ->where('nucode', $nucode)
+                                        ->count();
+            $gw_secret = SettingModel::getSettingByName('gateway_secret', $nucode);
+            if($dataQueueCount > 0){
+
+                //get device
+                $service = new WhatsappService();
+                $waAccount = $service->getAccounts($gw_secret);
+                
+                if($waAccount['status'] == 200){
+                    $accountCount = count($waAccount['data']);
+                    if($accountCount > 0){
+                        $limit = $accountCount * 3;
+                        $dataQueue = WaQueue::where('status', 'queue')
+                                                    ->where('nucode', $nucode)
+                                                    ->take($limit)
+                                                    ->offset(0)
+                                                    ->orderBy('created.timestamp', 'asc')
+                                                    ->get()
+                                                    ->toArray();
+                        if ($dataQueueCount > 3) {
+                            if ($dataQueueCount <= $accountCount) {
+                                $accountCount = $dataQueueCount;
+                                $devider = $dataQueueCount / $accountCount;
+                            } else {
+                                $devider = round($limit / $accountCount);
+                            }
             
-            if($accountCount > 0){
-                if($dataQueueCount > 0){
-                    $limit = $accountCount * 3;
-                    $dataQueue = WaQueue::where('status', 'queue')
-                                                ->take($limit)
-                                                ->offset(0)
-                                                ->orderBy('created.timestamp', 'asc')
-                                                ->get()
-                                                ->toArray();
-                    if ($dataQueueCount > 3) {
-                        if ($dataQueueCount <= $accountCount) {
-                            $accountCount = $dataQueueCount;
-                            $devider = $dataQueueCount / $accountCount;
+                            $dataQueue = array_chunk($dataQueue, $devider);
                         } else {
-                            $devider = round($limit / $accountCount);
+                            $accountCount = 1;
                         }
-        
-                        $dataQueue = array_chunk($dataQueue, $devider);
-                    } else {
-                        $accountCount = 1;
-                    }
+                        
+                        for ($i = 0; $i < $accountCount; $i++) {
+                            $device_id = $waAccount['data'][$i]['id'];
+                            if(!isset($dataQueue[$i]['message'])){
+                                foreach($dataQueue[$i] as $val){
+                                    $account = UserModel::findOneById($val['created']['user']['_id']->__toString());
+                                    $message = $service->initializeData($val['message'], $device_id, $val['number']);
+                                    $response = $service->send($message, $gw_secret);
+                                    $result = WhatsappModel::insert($message, $account);
+
+                                    $websitebyId = WebsiteModel::findOneById($val['website']['_id']->__toString());
+
+                                    //update database
+                                    $database = DatabaseModel::findOneById($val['database']['_id']->__toString(), $websitebyId->_id);
+                                    $database->status = "Processed";
+                                    $database->lastWaDate = date("Y-m-d");
+                                    $database->save();
+
+                                    $databaseLog = DatabaseLogModel::findLastByDatabaseIdUserId($database->_id, $account->_id, $websitebyId->_id);
+
+                                    if(!empty($databaseLog)) {
+
+                                        $databaseLog->status = "FollowUp";
+                                        DatabaseLogModel::update($account, $databaseLog, $websitebyId->_id);
                     
-                    for ($i = 0; $i < $accountCount; $i++) {
-                        $device_id = $waAccount['data'][$i]['id'];
-                        if(!isset($dataQueue[$i]['message'])){
-                            foreach($dataQueue[$i] as $val){
-                                $account = UserModel::findOneById($val['created']['user']['_id']->__toString());
-                                $message = $service->initializeData($val['message'], $device_id, $val['number']);
-                                $response = $service->send($message);
+                                    } else {
+                                        $databaseLog = new DatabaseLog();
+                                        $databaseLog->database = [
+                                            "_id" => DataComponent::initializeObjectId($database->_id),
+                                            "name" => $database->name
+                                        ];
+                                        $databaseLog->status = "FollowUp";
+                                        $databaseLog->user = [
+                                            "_id" => DataComponent::initializeObjectId($account->_id),
+                                            "avatar" => $account->avatar,
+                                            "name" => $account->name,
+                                            "username" => $account->username
+                                        ];
+                                        $databaseLog->website = [
+                                            "_id" => DataComponent::initializeObjectId($websitebyId->_id),
+                                            "name" => $val['website']['name']
+                                        ];
+                                        DatabaseLogModel::insert($account, $databaseLog, $websitebyId->_id);
+                    
+                                    } 
+                                    self::generateReport($account, new UTCDateTime(Carbon::now()->setHour(0)->setMinute(0)->setSecond(0)->setMicrosecond(0)), "FollowUp", $websitebyId);
+
+                                    //remove queue
+                                    WaQueue::destroy($val['_id']);
+                                }    
+                            }else{
+                                $account = UserModel::findOneById($dataQueue[$i]['created']['user']['_id']->__toString());
+                                $message = $service->initializeData($dataQueue[$i]['message'], $device_id, $dataQueue[$i]['number']);
+                                $response = $service->send($message, $gw_secret);
                                 $result = WhatsappModel::insert($message, $account);
 
-                                $websitebyId = WebsiteModel::findOneById($val['website']['_id']->__toString());
-    
+                                $websitebyId = WebsiteModel::findOneById($dataQueue[$i]['website']['_id']->__toString());
+
                                 //update database
-                                $database = DatabaseModel::findOneById($val['database']['_id']->__toString(), $websitebyId->_id);
+                                $database = DatabaseModel::findOneById($dataQueue[$i]['database']['_id']->__toString(), $websitebyId->_id);
                                 $database->status = "Processed";
                                 $database->lastWaDate = date("Y-m-d");
                                 $database->save();
@@ -712,138 +773,102 @@ class SystemService {
                                     ];
                                     $databaseLog->website = [
                                         "_id" => DataComponent::initializeObjectId($websitebyId->_id),
-                                        "name" => $val['website']['name']
+                                        "name" => $dataQueue[$i]['website']['name']
                                     ];
                                     DatabaseLogModel::insert($account, $databaseLog, $websitebyId->_id);
                 
                                 } 
                                 self::generateReport($account, new UTCDateTime(Carbon::now()->setHour(0)->setMinute(0)->setSecond(0)->setMicrosecond(0)), "FollowUp", $websitebyId);
-    
+
                                 //remove queue
-                                WaQueue::destroy($val['_id']);
-                            }    
-                        }else{
-                            $account = UserModel::findOneById($dataQueue[$i]['created']['user']['_id']->__toString());
-                            $message = $service->initializeData($dataQueue[$i]['message'], $device_id, $dataQueue[$i]['number']);
-                            $response = $service->send($message);
-                            $result = WhatsappModel::insert($message, $account);
-
-                            $websitebyId = WebsiteModel::findOneById($dataQueue[$i]['website']['_id']->__toString());
-
-                            //update database
-                            $database = DatabaseModel::findOneById($dataQueue[$i]['database']['_id']->__toString(), $websitebyId->_id);
-                            $database->status = "Processed";
-                            $database->lastWaDate = date("Y-m-d");
-                            $database->save();
-
-                            $databaseLog = DatabaseLogModel::findLastByDatabaseIdUserId($database->_id, $account->_id, $websitebyId->_id);
-
-                            if(!empty($databaseLog)) {
-
-                                $databaseLog->status = "FollowUp";
-                                DatabaseLogModel::update($account, $databaseLog, $websitebyId->_id);
-            
-                            } else {
-                                $databaseLog = new DatabaseLog();
-                                $databaseLog->database = [
-                                    "_id" => DataComponent::initializeObjectId($database->_id),
-                                    "name" => $database->name
-                                ];
-                                $databaseLog->status = "FollowUp";
-                                $databaseLog->user = [
-                                    "_id" => DataComponent::initializeObjectId($account->_id),
-                                    "avatar" => $account->avatar,
-                                    "name" => $account->name,
-                                    "username" => $account->username
-                                ];
-                                $databaseLog->website = [
-                                    "_id" => DataComponent::initializeObjectId($websitebyId->_id),
-                                    "name" => $dataQueue[$i]['website']['name']
-                                ];
-                                DatabaseLogModel::insert($account, $databaseLog, $websitebyId->_id);
-            
-                            } 
-                            self::generateReport($account, new UTCDateTime(Carbon::now()->setHour(0)->setMinute(0)->setSecond(0)->setMicrosecond(0)), "FollowUp", $websitebyId);
-
-                            //remove queue
-                            WaQueue::destroy($dataQueue[$i]['_id']);
+                                WaQueue::destroy($dataQueue[$i]['_id']);
+                            }
                         }
+                    }else{
+                        Log::info("No WA Account Found nucode ". $nucode);
                     }
                 }else{
-                    Log::info("No WA Queue Found");    
+                    Log::info("Failed to get WA Account nucode ". $nucode);
                 }
-
             }else{
-                Log::info("No WA Account Found");
+                Log::info("No WA Queue Found for Nucode ". $nucode);    
             }
-        }else{
-            Log::info("Failed to get Account");
+                        
         }
     }
 
     public static function processEmailQueue(){
-        //get device
-        $service = new EmailService();
-        
-        $dataQueueCount = EmailQueue::where('status', 'queue')->count();
-        
-        if($dataQueueCount > 0){
-            $dataQueue = EmailQueue::where('status', 'queue')
-                                        ->take(10)
-                                        ->offset(0)
-                                        ->orderBy('created.timestamp', 'asc')
-                                        ->get()
-                                        ->toArray();
 
-            foreach($dataQueue as $val){
-                $account = UserModel::findOneById($val['created']['user']['_id']->__toString());
-                $message = $service->initializeDataEmail($val['subject'], $val['body'], $val['email']);
-                $response = $service->sendEmail($val['email'], $message->toArray());
-                $result = EmailModel::insert($message, $account);
+                //get availabel nucode
+        $nucodes = UserModel::getAvailableNucode();
+        foreach($nucodes as $nucode){
 
-                $websitebyId = WebsiteModel::findOneById($val['website']['_id']->__toString());
+            $setting = SettingModel::getSettingByNucode($nucode);
 
-                //update database
-                $database = DatabaseModel::findOneById($val['database']['_id']->__toString(), $websitebyId->_id);
-                $database->status = "Processed";
-                $database->lastEmailDate = date("Y-m-d");
-                $database->save();
+            $service = new EmailService();
+            $dataQueueCount = EmailQueue::where('status', 'queue')
+                                        ->where('nucode', $nucode)
+                                        ->count();
+            
+            if($dataQueueCount > 0){
+                $dataQueue = EmailQueue::where('status', 'queue')
+                                            ->where('nucode', $nucode)
+                                            ->take(10)
+                                            ->offset(0)
+                                            ->orderBy('created.timestamp', 'asc')
+                                            ->get()
+                                            ->toArray();
 
-                $databaseLog = DatabaseLogModel::findLastByDatabaseIdUserId($database->_id, $account->_id, $websitebyId->_id);
+                foreach($dataQueue as $val){
+                    $account = UserModel::findOneById($val['created']['user']['_id']->__toString());
+                    $message = $service->initializeDataEmail($val['subject'], $val['body'], $val['email'], $setting->from_name, $setting->from_email);
+                    $response = $service->sendEmail($val['email'], $message->toArray(), $setting);
+                    $result = EmailModel::insert($message, $account);
 
-                if(!empty($databaseLog)) {
+                    $websitebyId = WebsiteModel::findOneById($val['website']['_id']->__toString());
 
-                    $databaseLog->status = "FollowUp";
-                    DatabaseLogModel::update($account, $databaseLog, $websitebyId->_id);
+                    //update database
+                    $database = DatabaseModel::findOneById($val['database']['_id']->__toString(), $websitebyId->_id);
+                    $database->status = "Processed";
+                    $database->lastEmailDate = date("Y-m-d");
+                    $database->save();
 
-                } else {
-                    $databaseLog = new DatabaseLog();
-                    $databaseLog->database = [
-                        "_id" => DataComponent::initializeObjectId($database->_id),
-                        "name" => $database->name
-                    ];
-                    $databaseLog->status = "FollowUp";
-                    $databaseLog->user = [
-                        "_id" => DataComponent::initializeObjectId($account->_id),
-                        "avatar" => $account->avatar,
-                        "name" => $account->name,
-                        "username" => $account->username
-                    ];
-                    $databaseLog->website = [
-                        "_id" => DataComponent::initializeObjectId($websitebyId->_id),
-                        "name" => $val['website']['name']
-                    ];
-                    DatabaseLogModel::insert($account, $databaseLog, $websitebyId->_id);
+                    $databaseLog = DatabaseLogModel::findLastByDatabaseIdUserId($database->_id, $account->_id, $websitebyId->_id);
 
-                } 
+                    if(!empty($databaseLog)) {
 
-                self::generateReport($account, new UTCDateTime(Carbon::now()->setHour(0)->setMinute(0)->setSecond(0)->setMicrosecond(0)), "FollowUp", $websitebyId);
+                        $databaseLog->status = "FollowUp";
+                        DatabaseLogModel::update($account, $databaseLog, $websitebyId->_id);
 
-                //remove queue
-                EmailQueue::destroy($val['_id']);
-            }    
-        }else{
-            Log::info("No Email Queue Found");    
+                    } else {
+                        $databaseLog = new DatabaseLog();
+                        $databaseLog->database = [
+                            "_id" => DataComponent::initializeObjectId($database->_id),
+                            "name" => $database->name
+                        ];
+                        $databaseLog->status = "FollowUp";
+                        $databaseLog->user = [
+                            "_id" => DataComponent::initializeObjectId($account->_id),
+                            "avatar" => $account->avatar,
+                            "name" => $account->name,
+                            "username" => $account->username
+                        ];
+                        $databaseLog->website = [
+                            "_id" => DataComponent::initializeObjectId($websitebyId->_id),
+                            "name" => $val['website']['name']
+                        ];
+                        DatabaseLogModel::insert($account, $databaseLog, $websitebyId->_id);
+
+                    } 
+
+                    self::generateReport($account, new UTCDateTime(Carbon::now()->setHour(0)->setMinute(0)->setSecond(0)->setMicrosecond(0)), "FollowUp", $websitebyId);
+
+                    //remove queue
+                    EmailQueue::destroy($val['_id']);
+                }    
+            }else{
+                Log::info("No Email Queue Found");    
+            }
         }
     }
 

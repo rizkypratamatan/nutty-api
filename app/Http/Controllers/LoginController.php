@@ -36,15 +36,16 @@ class LoginController extends Controller
                     'username' => $user['username'],
                     'role' => $user['role'],
                     'group' => $user['group'],
-                    'website' => $user['group'],
+                    'website' => "",
                     'privilege' => $user['privilege'],
                     'type' => $user['type'],
-                    'nucode' => $user['nucode']
+                    'nucode' => $user['nucode'],
                 ];
                 
 
                 if((!empty($user['group']) and strtolower($user['group']['name']) != "system")){
                     $data['group'] = $groupModel->findOneById($user['group']['_id']);
+                    $data['website'] = $data['group']['website'];
                 }
 
                 $userLog = new UserLogModel();

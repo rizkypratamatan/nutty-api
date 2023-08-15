@@ -5,14 +5,31 @@ namespace App\Services\Gateway;
 use App\Mail\EmailBroadcast;
 use App\Models\Email;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class EmailService {
 
-    public function sendEmail($recipient, $data)
+    public function sendEmail($recipient, $data, $setting)
     {
+        // 'mailgun' => [
+        //     'domain' => env('MAILGUN_DOMAIN'),
+        //     'secret' => env('MAILGUN_SECRET'),
+        //     'endpoint' => env('MAILGUN_ENDPOINT'),
+        //     'scheme' => 'https',
+        // ],
+
+        $config = [
+                'domain' => $setting->mailgun_domain,
+                'secret' => $setting->mailgun_domain,
+                'endpoint' => env('MAILGUN_ENDPOINT'),
+                'scheme' => 'https',
+        ];
+    
+        Config::set('mailgun', $config);
+
         if($data['schedule_status'] == "now"){
             Mail::to($recipient)
             // ->cc($moreUsers)
@@ -39,10 +56,10 @@ class EmailService {
         return $chat;
     }
 
-    public function initializeDataEmail($subject, $message, $email, $attc="", $initiated_time="", $schedule_status="now"){
+    public function initializeDataEmail($subject, $message, $email, $from_name = "Nutty CRM", $from_email = "system@nutty.com", $attc="", $initiated_time="", $schedule_status="now"){
         $data = new Email();
-        $data->from_name = "Nutty CRM";
-        $data->from_email = "system@nutty.com";
+        $data->from_name = $from_name;
+        $data->from_email = $from_email;
         $data->to_email = $email;
         $data->subject = $subject;
         $data->message = $message;

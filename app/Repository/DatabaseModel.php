@@ -11,9 +11,10 @@ use DB;
 class DatabaseModel {
 
 
-    public static function getAll($request, $limit, $offset){
+    public static function getAll($request){
 
         $account = AuthenticationComponent::toUser($request);
+
         $database = new Database();
         $database->setTable("database_" . $request->website);
         $database = $database->orderBy('created.timestamp', 'desc');
@@ -32,7 +33,7 @@ class DatabaseModel {
         }
         
         $recordsTotal = $database->count("_id");
-        $data = $database->take($limit)->skip($offset)->get();        
+        $data = $database->take($request->limit)->skip($request->offset)->get();        
 
         $response['data'] = $data;
         $response['total_data'] = $recordsTotal;

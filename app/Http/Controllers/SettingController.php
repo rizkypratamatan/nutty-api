@@ -13,7 +13,6 @@ class SettingController extends Controller
 {
     public function getAll(Request $request)
     {
-        // print_r($request->all());die();
         $validation = AuthenticationComponent::validate($request);
         LogComponent::response($request, $validation);
 
@@ -21,8 +20,9 @@ class SettingController extends Controller
             //check privilege
             DataComponent::checkPrivilege($request, "user", "view");
 
+            $account = AuthenticationComponent::toUser($request);
             $settingModel =  new SettingModel();
-            $setting = $settingModel->getAll();
+            $setting = $settingModel->getAll($account->nucode);
 
             $response = [
                 'result' => true,

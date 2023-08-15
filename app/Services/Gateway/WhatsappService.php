@@ -9,12 +9,11 @@ use Illuminate\Support\Facades\Log;
 class WhatsappService {
 
     protected $base_url = "https://gateway.yakuzahost.com";
-    protected $secret = "cb30d41b49b621ddb6eb5fa551e06933b6737e48";
 
-    public function processSingleChat($chat)
+    public function processSingleChat($chat, $secret)
     {
         //send to gateway
-        $chat['secret'] = $this->secret;
+        $chat['secret'] = $secret;
         $end_point = "/api/send/whatsapp";
         Log::info("Request Send WA Single : ". json_encode($chat));
         // $response = Http::post($this->base_url.$end_point, $chat);
@@ -39,9 +38,9 @@ class WhatsappService {
         return $resp;
     }
 
-    public function processBulkChat($chat)
+    public function processBulkChat($chat, $secret)
     {
-        $chat['secret'] = $this->secret;
+        $chat['secret'] = $secret;
 
         $end_point = "/api/send/whatsapp.bulk";
         // $response = Http::post($this->base_url.$end_point, $chat);
@@ -70,11 +69,11 @@ class WhatsappService {
         return $resp;
     }
 
-    public function getAccounts($limit=100, $page=1)
+    public function getAccounts($secret, $limit=100, $page=1)
     {   
         $end_point = "/api/get/wa.accounts";
         $response = Http::get($this->base_url.$end_point, [
-            'secret' => $this->secret,
+            'secret' => $secret,
             'limit' => $limit,
             'page' => $page,
         ]);
@@ -154,7 +153,7 @@ class WhatsappService {
         return $data;
     }
 
-    public function send($data)
+    public function send($data, $secret)
     {
         //send to gateway
         $chat = [
@@ -162,7 +161,7 @@ class WhatsappService {
             "recipient" => $data->recipient,
             "type" => $data->type,
             "message" => $data->message,
-            "secret" => $this->secret
+            "secret" => $secret
         ];
         
         $end_point = "/api/send/whatsapp";

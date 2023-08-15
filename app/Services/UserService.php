@@ -20,7 +20,6 @@ use stdClass;
 class UserService 
 {
 
-
     public static function delete($request) 
     {
 
@@ -46,7 +45,6 @@ class UserService
         return $result;
 
     }
-
 
     public static function findData($request) 
     {
@@ -76,7 +74,6 @@ class UserService
 
     }
 
-
     public static function findTable($request) 
     {
 
@@ -102,7 +99,6 @@ class UserService
         return $result;
 
     }
-
 
     public static function initializeData($request) 
     {
@@ -139,7 +135,6 @@ class UserService
 
     }
 
-
     public static function insert($request) 
     {
 
@@ -163,7 +158,6 @@ class UserService
         return $result;
 
     }
-
 
     public static function register($request) 
     {
@@ -323,7 +317,6 @@ class UserService
 
     }
 
-
     public static function update($request) 
     {
 
@@ -345,7 +338,6 @@ class UserService
         return $result;
 
     }
-
 
     public static function updatePassword($request, $id) 
     {
@@ -382,7 +374,6 @@ class UserService
 
     }
 
-
     public static function validateChangePassword($request, $id) 
     {
 
@@ -412,7 +403,6 @@ class UserService
 
         return $result;
     }
-
 
     public static function validateData($request) 
     {
@@ -567,7 +557,6 @@ class UserService
 
             $result->response = "User data validated";
             $result->result = true;
-
         }
 
         return $result;

@@ -116,9 +116,10 @@ class SmsLogController extends Controller
 
             //check privilege
             DataComponent::checkPrivilege($request, "tools", "add");
+            $account = DataComponent::initializeAccount($request);
 
             $model = new SmsLogModel($request);
-            $response = $model->sendBulk();
+            $response = $model->sendBulk($account->nucode);
 
         } else {
             $response = $validation;
@@ -136,9 +137,10 @@ class SmsLogController extends Controller
 
             //check privilege
             DataComponent::checkPrivilege($request, "tools", "add");
+            $account = DataComponent::initializeAccount($request);
 
             $model = new SmsLogModel($request);
-            $resp = $model->sendSingle();
+            $resp = $model->sendSingle($account->nucode);
 
             $response = $resp;
             
@@ -158,9 +160,10 @@ class SmsLogController extends Controller
 
             //check privilege
             // DataComponent::checkPrivilege($request, "sms", "add");
+            $account = DataComponent::initializeAccount($request);
 
             $model = new SmsLogModel($request);
-            $response = $model->sendTestBulk();
+            $response = $model->sendTestBulk($account->nucode);
 
         // } else {
         //     $response = $validation;
@@ -179,8 +182,10 @@ class SmsLogController extends Controller
             //check privilege
             // DataComponent::checkPrivilege($request, "sms", "add");
 
+            $account = DataComponent::initializeAccount($request);
+
             $model = new SmsLogModel($request);
-            $resp = $model->sendTestSingle();
+            $resp = $model->sendTestSingle($account->nucode);
 
             $response = $resp;
             

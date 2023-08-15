@@ -29,8 +29,10 @@ class RoleController extends Controller
             $filter['status'] = !empty($request->status)?$request->status:0;
             $filter['nucode'] = !empty($request->nucode)?$request->nucode:0;
 
+            $account = DataComponent::initializeAccount($request);
+
             $model =  new UserRoleModel();
-            $data = $model->getRole($limit, $offset, $filter);
+            $data = $model->getRole($account->nucode, $limit, $offset, $filter);
 
             $response = [
                 'result' => true,

@@ -100,9 +100,11 @@ Route::group(["middleware" => ["authentication"]], function () {
     // Route::post("/worksheet/result-user", [WorksheetController::class, "resultUser"]);
 
     Route::post("/worksheet/crm", [WorksheetController::class, "getCrmData"]);
+    Route::post("/worksheet/call/initialize-data", [WorksheetController::class, "callInitializeData"]);
+
     Route::post("/worksheet/result", [WorksheetController::class, "resultTable"]);
     Route::post("/worksheet/initializeData", [WorksheetController::class, "initializeData"]);
-    Route::post("/worksheet/call/initialize-data", [WorksheetController::class, "callInitializeData"]);
+    Route::post("/worksheet/start/initializeData", [WorksheetController::class, "startInitializeData"]);
     Route::post("/worksheet/update", [WorksheetController::class, "update"]);
 
     Route::post("/worksheet/process-wa", [WorksheetController::class, "processWa"]);

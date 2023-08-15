@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Components\AuthenticationComponent;
 use App\Components\DataComponent;
+use App\Http\Middleware\Authentication;
 use App\Models\Setting;
 use App\Repository\SettingModel;
 use Illuminate\Support\Facades\Schema;
@@ -106,20 +108,21 @@ class SettingService
 
         // $validation = self::validateData($request);
 
+        $account = AuthenticationComponent::toUser($request);
+
         $old_data = $request->all();
         unset($old_data['platform']);
         unset($old_data['timestamp']);
         unset($old_data['token']);
 
         foreach ($old_data as $key => $val) {
-            $validation = self::validateData($request, $key, $val);
-
+            $validation = self::validateData($request, $key, $val, $account->nucode);
             if ($validation->result) {
 
                 if ($validation->flag == 'update') {
-                    SettingModel::update(DataComponent::initializeAccount($request), $validation->setting);
+                    SettingModel::update($account, $validation->setting);
                 } else {
-                    SettingModel::insert(DataComponent::initializeAccount($request), $validation->setting);
+                    SettingModel::insert($account, $validation->setting);
                 }
             }
         }
@@ -131,7 +134,7 @@ class SettingService
     }
 
 
-    public static function validateData($request, $key, $value)
+    public static function validateData($request, $key, $value, $nucode)
     {
 
         $result = new stdClass();
@@ -139,18 +142,22 @@ class SettingService
         $result->result = false;
         $result->flag = 'update';
 
-        $validation = DataComponent::checkNucode($request, "system", []);
+        $validation = DataComponent::checkNucode($request, $nucode, []);
 
         // $result->setting = new Setting();
 
-        $check_setting = Setting::where('name', $key);
+        $setting = new Setting();
+        $setting->setTable("settings_".$nucode);
+        $check_setting = $setting->where('name', $key);
 
         if ($check_setting->count() > 0) {
             $result->setting = $check_setting->first();
             $result->setting->name = $key;
             $result->setting->value = $value;
+
         } else {
             $result->setting = new Setting();
+            $result->setting->setTable("settings_".$nucode);
             $result->setting->name = $key;
             $result->setting->value = $value;
             $result->flag = 'new';
