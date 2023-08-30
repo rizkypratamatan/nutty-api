@@ -29,8 +29,10 @@ class UserGroupController extends Controller
             $filter['status'] = !empty($request->status)?$request->status:0;
             $filter['nucode'] = !empty($request->nucode)?$request->nucode:0;
 
+            $account = DataComponent::initializeAccount($request);
+
             $userModel =  new UserGroupModel();
-            $data = $userModel->getAllUserGroup($limit, $offset, $filter);
+            $data = $userModel->getAllUserGroup($account->nucode, $limit, $offset, $filter);
 
             $response = [
                 'result' => true,

@@ -183,6 +183,29 @@ class DataComponent
                 self::createReportIndex($table);
             });
         }
+
+        if (!Schema::hasTable("settings_" . $nucode)) {
+
+            Schema::create("settings_" . $nucode, function (Blueprint $table) {
+
+                self::createReportIndex($table);
+            });
+        } else {
+
+            Schema::table("settings_" . $nucode, function (Blueprint $table) {
+
+                self::createReportIndex($table);
+            });
+        }
+    }
+
+    public static function createSettingIndex($table)
+    {
+        $table->date("display_name")->index();
+        $table->date("name")->index();
+        $table->integer("value")->index();
+        $table->date("created.timestamp")->index();
+        $table->date("modified.timestamp")->index();
     }
 
     public static function createReportIndex($table)

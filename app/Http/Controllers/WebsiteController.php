@@ -27,8 +27,9 @@ class WebsiteController extends Controller
             $filter['type'] = !empty($request->type)?$request->type:0;
             $filter['status'] = !empty($request->status)?$request->status:0;
             
+            $account = DataComponent::initializeAccount($request);
             $model =  new WebsiteModel($request);
-            $data = $model->getAllWebsite($limit, $offset, $filter);
+            $data = $model->getAllWebsite($account->nucode, $limit, $offset, $filter);
 
             $response = [
                 'result' => true,

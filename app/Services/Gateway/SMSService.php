@@ -10,12 +10,11 @@ use Illuminate\Support\Facades\Log;
 class SMSService {
 
     protected $base_url = "https://gateway.yakuzahost.com";
-    protected $secret = "cb30d41b49b621ddb6eb5fa551e06933b6737e48";
 
-    public function processSingleChat($message)
+    public function processSingleChat($message, $secret)
     {
         //send to gateway
-        $message['secret'] = $this->secret;
+        $message['secret'] = $secret;
         $end_point = "/api/send/sms";
         // $response = Http::post($this->base_url.$end_point, $message);
 
@@ -42,9 +41,9 @@ class SMSService {
         return $resp;
     }
 
-    public function processBulkChat($message)
+    public function processBulkChat($message, $secret)
     {
-        $message['secret'] = $this->secret;
+        $message['secret'] = $secret;
 
         $end_point = "/api/send/sms.bulk";
         // $response = Http::post($this->base_url.$end_point, $message);
@@ -68,11 +67,11 @@ class SMSService {
         return $resp;
     }
 
-    public function getDevices($limit=100, $page=1)
+    public function getDevices($secret, $limit=100, $page=1)
     {   
         $end_point = "/api/get/devices";
         $response = Http::get($this->base_url.$end_point, [
-            'secret' => $this->secret,
+            'secret' => $secret,
             'limit' => $limit,
             'page' => $page,
         ]);

@@ -8,11 +8,16 @@ use App\Models\UserGroup;
 
 class UserGroupModel {
 
-    public function getAllUserGroup($limit=10, $offset=0, $filter = [])
+    public function getAllUserGroup($nucode, $limit=10, $offset=0, $filter = [])
     {   
-        $data = UserGroup::take($limit)->skip($offset);
-        $countData = new UserGroup();
-
+        if($nucode == 'system'){
+            $data = UserGroup::take($limit)->skip($offset);
+            $countData = new UserGroup();
+        }else{
+            $data = UserGroup::take($limit)->skip($offset)->where('nucode', $nucode);
+            $countData = UserGroup::where('nucode', $nucode);
+        }
+        
         $response = [
             "data" => null,
             "total_data" => 0

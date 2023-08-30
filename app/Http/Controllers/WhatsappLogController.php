@@ -119,7 +119,8 @@ class WhatsappLogController extends Controller
             DataComponent::checkPrivilege($request, "tools", "add");
 
             $model = new WhatsappLogModel($request);
-            $resp = $model->sendBulkChat();
+            $account = DataComponent::initializeAccount($request);
+            $resp = $model->sendBulkChat($account->nucode);
 
             $response = [
                 'result' => true,
@@ -145,7 +146,8 @@ class WhatsappLogController extends Controller
             DataComponent::checkPrivilege($request, "tools", "add");
 
             $model = new WhatsappLogModel($request);
-            $resp = $model->sendSingleChat();
+            $account = DataComponent::initializeAccount($request);
+            $resp = $model->sendSingleChat($account->nucode);
 
             $response = $resp;
         } else {
@@ -194,7 +196,8 @@ class WhatsappLogController extends Controller
         // DataComponent::checkPrivilege($request, "whatsapp", "add");
 
         $model = new WhatsappLogModel($request);
-        $resp = $model->testSendSingleChat();
+        $account = DataComponent::initializeAccount($request);
+        $resp = $model->testSendSingleChat($account->nucode);
 
         $response = $resp;
 

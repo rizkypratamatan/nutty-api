@@ -31,7 +31,7 @@ class WorksheetController extends Controller
 
 
 
-    public function callInitializeData(Request $request) {
+    public function CallInitializeData(Request $request) {
 
         $validation = AuthenticationComponent::validate($request);
         LogComponent::response($request, $validation);
@@ -68,6 +68,24 @@ class WorksheetController extends Controller
 
     }
 
+    public function startInitializeData(Request $request) {
+
+        $validation = AuthenticationComponent::validate($request);
+        LogComponent::response($request, $validation);
+
+        if ($validation->result) {
+            //check privilege
+            DataComponent::checkPrivilege($request, "worksheet", "view");
+            return response()->json(WorksheetService::initializeData($request), 200);
+            
+        } else {
+            $response = $validation;
+        }
+
+        return response()->json($response, 200);
+
+    }
+
     public function resultTable(Request $request) {
 
         $validation = AuthenticationComponent::validate($request);
@@ -87,19 +105,19 @@ class WorksheetController extends Controller
     }
 
 
-    // public function start(Request $request) {
+    public function start(Request $request) {
 
-    //     if(DataComponent::checkPrivilege($request, "worksheet", "edit")) {
+        if(DataComponent::checkPrivilege($request, "worksheet", "edit")) {
 
-    //         return response()->json(WorksheetService::start($request), 200);
+            return response()->json(WorksheetService::start($request), 200);
 
-    //     } else {
+        } else {
 
-    //         return response()->json(DataComponent::initializeAccessDenied(), 200);
+            return response()->json(DataComponent::initializeAccessDenied(), 200);
 
-    //     }
+        }
 
-    // }
+    }
 
 
     // public function startCrm(Request $request) {

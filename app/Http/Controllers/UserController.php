@@ -35,8 +35,10 @@ class UserController extends Controller
             $filter['role'] = !empty($request->role)?$request->role:"";
             $filter['status'] = !empty($request->status)?$request->status:"";
 
+            $account = DataComponent::initializeAccount($request);
+
             $userModel =  new UserModel();
-            $user = $userModel->getAllUser($limit, $offset, $filter);
+            $user = $userModel->getAllUser($account->nucode, $limit, $offset, $filter);
 
             $response = [
                 'result' => true,

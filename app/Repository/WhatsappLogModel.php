@@ -72,13 +72,14 @@ class WhatsappLogModel
             ->first();
     }
 
-    public function sendSingleChat()
+    public function sendSingleChat($nucode)
     {
-        $account = $this->service->getAccounts();
+        $setting = SettingModel::getSettingByNucode($nucode);
+        $account = $this->service->getAccounts($setting->gateway_apikey);
 
         if ($account['status'] == 200) {
             $chat = $this->service->initializeSingleChat($this->request, $account['data'][0]['id'], $this->request->recipient);
-            $resp = $this->service->processSingleChat($chat);
+            $resp = $this->service->processSingleChat($chat, $setting->gateway_apikey);
             $this->insertDB($chat);
 
             $response = $resp;
@@ -93,10 +94,11 @@ class WhatsappLogModel
         return $response;
     }
 
-    public function sendBulkChat()
+    public function sendBulkChat($nucode)
     {
+        $setting = SettingModel::getSettingByNucode($nucode);   
         //get wa accounts
-        $account = $this->service->getAccounts();
+        $account = $this->service->getAccounts($setting->gateway_apikey);
 
         if ($account['status'] == 200) {
             $accountCount = count($account['data']);
@@ -122,7 +124,7 @@ class WhatsappLogModel
                 if (is_array($numbers[$i])) {
                     $bulk = $this->service->initializeBulkChat($this->request, $device_id, implode(",", $numbers[$i]));
                     //proses chat
-                    $this->service->processBulkChat($bulk);
+                    $this->service->processBulkChat($bulk, $setting->gateway_apikey);
 
                     //save DB
                     foreach ($numbers[$i] as $recepient) {
@@ -132,7 +134,7 @@ class WhatsappLogModel
                 } else {
                     $bulk = $this->service->initializeBulkChat($this->request, $device_id, implode(",", $numbers));
                     //proses chat
-                    $this->service->processBulkChat($bulk);
+                    $this->service->processBulkChat($bulk, $setting->gateway_apikey);
 
                     //save DB
                     foreach ($numbers as $recepient) {
@@ -172,14 +174,15 @@ class WhatsappLogModel
         return DB::table('whatsappLogs_' . $user->_id)->insert($data);
     }
 
-    public function testSendSingleChat()
+    public function testSendSingleChat($nucode)
     {
         $user = AuthenticationComponent::systemUser();
-        $account = $this->service->getAccounts();
+        $setting = SettingModel::getSettingByNucode($nucode);
+        $account = $this->service->getAccounts($setting->gateway_apikey);
 
         if ($account['status'] == 200) {
             $chat = $this->service->initializeSingleChat($this->request, $account['data'][0]['id'], $this->request->recipient);
-            $resp = $this->service->processSingleChat($chat);
+            $resp = $this->service->processSingleChat($chat, $setting->gateway_apikey);
             // $this->insertDB($chat);
 
             $response = $resp;
@@ -198,7 +201,8 @@ class WhatsappLogModel
     {
         //get wa accounts
         $user = AuthenticationComponent::systemUser();
-        $account = $this->service->getAccounts();
+        $setting = SettingModel::getSettingByNucode($nucode);
+        $account = $this->service->getAccounts($setting->gateway_apikey);
 
         if ($account['status'] == 200) {
             $accountCount = count($account['data']);
@@ -225,7 +229,7 @@ class WhatsappLogModel
                 if (is_array($numbers[$i])) {
                     $bulk = $this->service->initializeBulkChat($this->request, $device_id, implode(",", $numbers[$i]));
                     //proses chat
-                    $this->service->processBulkChat($bulk);
+                    $this->service->processBulkChat($bulk, $setting->gateway_apikey);
 
                     //save DB
                     foreach ($numbers[$i] as $recepient) {
@@ -235,7 +239,7 @@ class WhatsappLogModel
                 } else {
                     $bulk = $this->service->initializeBulkChat($this->request, $device_id, implode(",", $numbers));
                     //proses chat
-                    $this->service->processBulkChat($bulk);
+                    $this->service->processBulkChat($bulk, $setting->gateway_apikey);
 
                     //save DB
                     foreach ($numbers as $recepient) {

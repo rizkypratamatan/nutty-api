@@ -9,6 +9,7 @@ class Setting extends Model
 {
     use HasFactory;
     protected $attributes = [
+        "display_name" => "",
         "name" => "",
         "value" => "",
         "created" => [
@@ -28,6 +29,7 @@ class Setting extends Model
     ];
 
     protected $fillable = [
+        "display_name",
         "name",
         "value",
         "created->timestamp",
@@ -39,13 +41,5 @@ class Setting extends Model
     ];
 
     protected $table = "settings";
-
     public $timestamps = false;
-
-    // protected $casts = ['created.timestamp' => 'datetime:d.m.Y'];
-
-    // public function createdDate()
-    // {
-    //     return $this->embedsOne(Address::class);
-    // }
 }
