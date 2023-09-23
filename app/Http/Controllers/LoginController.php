@@ -25,45 +25,52 @@ class LoginController extends Controller
         if ($validation->result) {
             
             $userModel =  new UserModel();
-            $user = $userModel->getUserByUsername($request->username);            
+            $user = $userModel->getUserByUsername($request->username);     
             
-            $pass =  Crypt::decryptString($user['password']['main']);
-            $groupModel = new UserGroupModel();
-            if ($request->password == $pass) {
-                $data = [
-                    'id' => (string)$user['_id'],
-                    'name' => $user['name'],
-                    'username' => $user['username'],
-                    'role' => $user['role'],
-                    'group' => $user['group'],
-                    'website' => "",
-                    'privilege' => $user['privilege'],
-                    'type' => $user['type'],
-                    'nucode' => $user['nucode'],
-                ];
-                
+            if($user){
+                $pass =  Crypt::decryptString($user['password']['main']);
+                $groupModel = new UserGroupModel();
+                if ($request->password == $pass) {
+                    $data = [
+                        'id' => (string)$user['_id'],
+                        'name' => $user['name'],
+                        'username' => $user['username'],
+                        'role' => $user['role'],
+                        'group' => $user['group'],
+                        'website' => "",
+                        'privilege' => $user['privilege'],
+                        'type' => $user['type'],
+                        'nucode' => $user['nucode'],
+                    ];
+                    
 
-                if((!empty($user['group']) and strtolower($user['group']['name']) != "system")){
-                    $data['group'] = $groupModel->findOneById($user['group']['_id']);
-                    $data['website'] = $data['group']['website'];
-                }
+                    if((!empty($user['group']) and strtolower($user['group']['name']) != "system")){
+                        $data['group'] = $groupModel->findOneById($user['group']['_id']);
+                        $data['website'] = $data['group']['website'];
+                    }
 
-                $userLog = new UserLogModel();
-                $tokenAuth = $userLog->insertToLog($user, "Login", null);
+                    $userLog = new UserLogModel();
+                    $tokenAuth = $userLog->insertToLog($user, "Login", null);
 
-                $data["token-auth"] = $tokenAuth;
+                    $data["token-auth"] = $tokenAuth;
 
-                $response = [
-                    'result' => true,
-                    'response' => 'Login successful',
-                    'dataUser' => $data
-                ];
+                    $response = [
+                        'result' => true,
+                        'response' => 'Login successful',
+                        'dataUser' => $data
+                    ];
+                } else {
+                    $response = [
+                        'result' => false,
+                        'response' => 'Login failed!, Invalid Credential'
+                    ];
+                }   
             } else {
                 $response = [
                     'result' => false,
                     'response' => 'Login failed!, Invalid Credential'
                 ];
-            }
+            }   
         } else {
             $response = $validation;
         }

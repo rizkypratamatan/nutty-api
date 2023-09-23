@@ -59,6 +59,15 @@ class DatabaseModel {
 
     }
 
+    public static function findListInId($ids, $websiteId) {
+
+        $database = new Database();
+        $database->setTable("database_" . $websiteId);
+
+        return $database->whereIn("_id", $ids)->get();
+
+    }
+
 
     public static function findOneByContactPhone($contactPhone, $websiteId) {
 
@@ -180,7 +189,7 @@ class DatabaseModel {
     }
     
     public static function findListWorksheetTelemarketer($telemarketerId, $status, $limit, $offset, $websiteId) {
-
+        
         $database = new Database();
         $database->setTable("database_" . $websiteId);
         $data = $database->where([
@@ -192,7 +201,7 @@ class DatabaseModel {
                         ->skip($offset)
                         ->orderBy('created.timestamp', 'desc')
                         ->get();
-        
+
         $total_data = $database->where([
                             ["crm._id", "=", "0"],
                             ["status", "=", $status],
@@ -200,9 +209,7 @@ class DatabaseModel {
                         ])
                         ->count();
             
-
         return ["data" => $data, "total_data" => $total_data];
-
     }
 
 
