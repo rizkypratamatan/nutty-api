@@ -490,33 +490,31 @@ class UserService
 
         }
 
-        //remove check license
-        
-        // if(config("app.nucode") == "PUBLIC") {
+        if(config("app.nucode") == "PUBLIC") {
 
-        //     $licenseByNucode = LicenseModel::findOneByNucode($account->nucode);
+            $licenseByNucode = LicenseModel::findOneByNucode($account->nucode);
 
-        //     if(!empty($licenseByNucode)) {
+            if(!empty($licenseByNucode)) {
 
-        //         $countUsersByNucode = UserModel::countByNucode($account->nucode);
+                $countUsersByNucode = UserModel::countByNucode($account->nucode);
 
-        //         if($licenseByNucode->user["total"] < $countUsersByNucode) {
+                if($licenseByNucode->user["total"] < $countUsersByNucode) {
 
-        //             array_push($validation, false);
+                    array_push($validation, false);
 
-        //             $result->response = "Not enough seat";
+                    $result->response = "Not enough seat";
 
-        //         }
+                }
 
-        //     } else {
+            } else {
 
-        //         array_push($validation, false);
+                array_push($validation, false);
 
-        //         $result->response = "Nucode doesn't exist";
+                $result->response = "Nucode doesn't exist";
 
-        //     }
+            }
 
-        // }
+        }
 
         $userByNucodeUsername = UserModel::findOneByNucodeUsername($request->nucode, $request->name);
 
