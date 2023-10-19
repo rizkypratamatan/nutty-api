@@ -63,9 +63,18 @@ class ReportUserService
         $result->draw = $request->draw;
         $result->recordsTotal = 0;
 
-        $account = DataComponent::initializeAccount($request);
+        
 
-        $countUserTable = ReportUserModel::countUserTable($request->date, $request->name, $account->nucode, $request->username);
+        $account = DataComponent::initializeAccount($request);
+        $result->nucode = $account->nucode;
+
+        if ($account->nucode == "system") {
+            if($request->nucode){
+                $result->nucode = $request->nucode;
+            }
+        }
+
+        $countUserTable = ReportUserModel::countUserTable($request->date, $request->name, $result->nucode, $request->username);
 
         if (!$countUserTable->isEmpty()) {
 
@@ -74,15 +83,14 @@ class ReportUserService
 
         $result->recordsFiltered = $result->recordsTotal;
 
-        $result->data = ReportUserModel::findUserTable($request->date, $request->limit, $request->name, $account->nucode, $request->offset, $request->username);
+        $result->data = ReportUserModel::findUserTable($request->date, $request->limit, $request->name, $result->nucode, $request->offset, $request->username);
 
         if ($account->nucode != "system") {
-
             $result->userGroups = UserGroupModel::findByNucodeStatus($account->nucode, "Active");
         } else {
-
             $result->userGroups = UserGroupModel::findByStatus("Active");
         }
+
 
         return $result;
     }
