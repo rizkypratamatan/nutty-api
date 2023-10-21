@@ -213,7 +213,13 @@ class DatabaseService {
 
         $account = AuthenticationComponent::toUser($request);
 
-        $website = WebsiteModel::findOneByIdNucodeStatus($request->website, $account->nucode, "Active");
+        if($account->nucode != "system"){
+            $website = WebsiteModel::findOneByIdNucodeStatus($request->website, $account->nucode, "Active");
+        }else{
+            $website = WebsiteModel::findOneById($request->website);
+        }
+
+        
 
         if(!empty($website)) {
 
