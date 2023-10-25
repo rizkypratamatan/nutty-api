@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Components\DataComponent;
 use App\Models\DatabaseAccount;
+use App\Models\DatabaseAttempt;
 use App\Models\DatabaseLog;
 use App\Models\EmailQueue;
 use App\Models\MessageTemplate;
@@ -620,6 +621,7 @@ class WorksheetService {
 
         $result = new stdClass();
         $result->response = "Failed to update worksheet data";
+        $result->data = "";
         $result->result = false;
 
         $account = DataComponent::initializeAccount($request);
@@ -627,13 +629,29 @@ class WorksheetService {
         $databaseById = DatabaseModel::findOneById($request->id, $request->websiteId);
 
         if(!empty($databaseById)) {
-
             $databaseAttemptByContactPhone = DatabaseAttemptModel::findOneByContactPhone($databaseById->contact["phone"], $account->nucode);
 
             if(!empty($databaseAttemptByContactPhone)) {
-
                 $result = self::updateDatabase($request, $databaseById, $databaseAttemptByContactPhone);
 
+            }else{
+                $databaseAttempt = new DatabaseAttempt();
+                $databaseAttempt->contact = $databaseById->contact["phone"];
+                $databaseAttempt->total = 0;
+                $databaseAttempt->status = [
+                    "names" => [], 
+                    "totals" => []
+                ];
+                $databaseAttempt->website = [
+                    "ids" => [],
+                    "names" => [],
+                    "totals" => []
+                ];
+
+                $databaseAttempt = DatabaseAttemptModel::insert($account, $databaseAttempt);
+
+                // $result->response = $databaseAttempt;
+                $result = self::updateDatabase($request, $databaseById, $databaseAttempt);
             }
 
         }
@@ -751,7 +769,6 @@ class WorksheetService {
                         ];
                         $databaseAccount->username = $request->account["username"];
                         DatabaseAccountModel::insert($account, $databaseAccount, $websiteById->_id);
-
                     }
 
                     $playerAttemptByUsername = PlayerAttemptModel::findOneByUsername($account->nucode, $request->account["username"]);
