@@ -149,6 +149,26 @@ class UserModel
         return $response;
     }
 
+    public function getAllNucode()
+    {
+        //$username, $name, $nucode, $type, $group, $role, $status
+        $response = [
+            "data" => null,
+            "total_data" => 0
+        ];
+
+        $users = User::groupBy('nucode')->orderBy('nucode', 'asc')->pluck('nucode');
+        $countData = $users->count();
+
+        $response = [
+            "data" => $users,
+            "total_data" => $countData
+        ];
+        
+
+        return $response;
+    }
+
     public function addUser($data)
     {
         $user = new User();
