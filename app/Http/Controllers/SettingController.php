@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 
 class SettingController extends Controller
 {
+
     public function getAll(Request $request)
     {
         $validation = AuthenticationComponent::validate($request);
@@ -22,7 +23,7 @@ class SettingController extends Controller
 
             $account = AuthenticationComponent::toUser($request);
             $settingModel =  new SettingModel();
-            $setting = $settingModel->getAll($account->nucode);
+            $setting = $settingModel->getAll($request->nucode);
 
             $response = [
                 'result' => true,

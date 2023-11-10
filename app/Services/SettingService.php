@@ -116,7 +116,12 @@ class SettingService
         unset($old_data['token']);
 
         foreach ($old_data as $key => $val) {
-            $validation = self::validateData($request, $key, $val, $account->nucode);
+            if($account->nucode == "system"){
+                $validation = self::validateData($request, $key, $val, $request->nucode);
+            }else{
+                $validation = self::validateData($request, $key, $val, $account->nucode);
+            }
+            
             if ($validation->result) {
 
                 if ($validation->flag == 'update') {
@@ -142,7 +147,8 @@ class SettingService
         $result->result = false;
         $result->flag = 'update';
 
-        $validation = DataComponent::checkNucode($request, $nucode, []);
+        // $validation = DataComponent::checkNucode($request, $nucode, []);
+        $validation = [];
 
         // $result->setting = new Setting();
 

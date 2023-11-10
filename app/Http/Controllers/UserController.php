@@ -12,6 +12,36 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
+
+    public function getAllNucode(Request $request){
+        // print_r($request->all());die();
+
+        $validation = AuthenticationComponent::validate($request);
+        LogComponent::response($request, $validation);
+        
+        if ($validation->result) {
+            
+            // DataComponent::checkPrivilege($request, "user", "view");
+            
+            $account = DataComponent::initializeAccount($request);
+            
+            $userModel =  new UserModel();
+            $user = $userModel->getAllNucode();
+            $response = [
+                'result' => true,
+                'response' => 'Get All Nucode',
+                'data' => $user['data'],
+                'total_data' => $user['total_data']
+            ];
+           
+            
+        } else {
+            $response = $validation;
+        }
+
+        return response()->json($response, 200);
+    }
+
     public function getAllUser(Request $request)
     
     {

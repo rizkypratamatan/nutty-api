@@ -58,7 +58,6 @@ Route::group(['prefix' => 'sms'], function () {
 });
 
 
-
 Route::group(["middleware" => ["authentication"]], function () {
     //Setting
     Route::group(['prefix' => 'setting'], function () {
@@ -132,6 +131,7 @@ Route::group(["middleware" => ["authentication"]], function () {
     Route::post('/get-user-by-id', [UserController::class, 'getUserById'])->name('get-user-by-id');
     Route::post('/get-all-user', [UserController::class, 'getAllUser'])->name('get-all-user');
     Route::post('/user/initialize-data', [UserController::class, 'initializeData'])->name('user.initializeData');
+    Route::post('/get-all-nucode', [UserController::class, 'getAllNucode'])->name('get-all-nucode');
 
 
     //license
