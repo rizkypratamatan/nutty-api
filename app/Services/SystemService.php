@@ -502,13 +502,13 @@ class SystemService {
 
         foreach($nucodes as $nucode){
             //get secret key gateway
-            $gw_secret = SettingModel::getSettingByName('gateway_secret', $nucode);
+            $gw_secret = SettingModel::getSettingByName('gateway_apikey', $nucode);
             if($gw_secret){
                 $smsQueueCount = SmsQueue::where('status', 'queue')->where('nucode', $nucode)->count();
                 if($smsQueueCount > 0){
                     //get device
                     $service = new SMSService();
-                    $device = $service->getDevices($gw_secret);
+                    $device = $service->getDevices($gw_secret['value']);
 
                     if($device['status'] == 200){
                         $accountCount = count($device['data']);
@@ -543,7 +543,7 @@ class SystemService {
                                     foreach($smsQueue[$i] as $val){
                                         $account = UserModel::findOneById($val['created']['user']['_id']->__toString());
                                         $message = $service->initializeData($val['message'], $device_id, $val['number']);
-                                        $response = $service->sendSms($message);
+                                        $response = $service->sendSms($message, $gw_secret['value']);
                                         $result = SMSModel::insert($message, $account);
 
                                         $websitebyId = WebsiteModel::findOneById($val['website']['_id']->__toString());
@@ -589,7 +589,7 @@ class SystemService {
                                 }else{
                                     $account = UserModel::findOneById($smsQueue[$i]['created']['user']['_id']->__toString());
                                     $message = $service->initializeData($smsQueue[$i]['message'], $device_id, $smsQueue[$i]['number']);
-                                    $response = $service->sendSms($message);
+                                    $response = $service->sendSms($message, $gw_secret['value']);
                                     $result = SMSModel::insert($message, $account);
 
                                     $websitebyId = WebsiteModel::findOneById($smsQueue[$i]['website']['_id']->__toString());
@@ -654,15 +654,15 @@ class SystemService {
         $nucodes = UserModel::getAvailableNucode();
 
         foreach($nucodes as $nucode){
+            
             $dataQueueCount = WaQueue::where('status', 'queue')
                                         ->where('nucode', $nucode)
                                         ->count();
-            $gw_secret = SettingModel::getSettingByName('gateway_secret', $nucode);
+            $gw_secret = SettingModel::getSettingByName('gateway_apikey', $nucode);
             if($dataQueueCount > 0){
-
                 //get device
                 $service = new WhatsappService();
-                $waAccount = $service->getAccounts($gw_secret);
+                $waAccount = $service->getAccounts($gw_secret['value']);
                 
                 if($waAccount['status'] == 200){
                     $accountCount = count($waAccount['data']);
@@ -694,7 +694,7 @@ class SystemService {
                                 foreach($dataQueue[$i] as $val){
                                     $account = UserModel::findOneById($val['created']['user']['_id']->__toString());
                                     $message = $service->initializeData($val['message'], $device_id, $val['number']);
-                                    $response = $service->send($message, $gw_secret);
+                                    $response = $service->send($message, $gw_secret['value']);
                                     $result = WhatsappModel::insert($message, $account);
 
                                     $websitebyId = WebsiteModel::findOneById($val['website']['_id']->__toString());
