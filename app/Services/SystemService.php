@@ -803,7 +803,13 @@ class SystemService {
         $nucodes = UserModel::getAvailableNucode();
         foreach($nucodes as $nucode){
 
-            $setting = SettingModel::getSettingByNucode($nucode);
+            // $setting = SettingModel::getSettingByNucode($nucode);
+            $from_name = SettingModel::getSettingByName('from_name', $nucode);
+            $from_email = SettingModel::getSettingByName('from_email', $nucode);
+            $emailSetting = [
+                "mailgun_domain" =>SettingModel::getSettingByName('mailgun_domain', $nucode),
+                "mailgun_secret" =>SettingModel::getSettingByName('mailgun_secret', $nucode),
+            ];
 
             $service = new EmailService();
             $dataQueueCount = EmailQueue::where('status', 'queue')
@@ -821,8 +827,8 @@ class SystemService {
 
                 foreach($dataQueue as $val){
                     $account = UserModel::findOneById($val['created']['user']['_id']->__toString());
-                    $message = $service->initializeDataEmail($val['subject'], $val['body'], $val['email'], $setting->from_name, $setting->from_email);
-                    $response = $service->sendEmail($val['email'], $message->toArray(), $setting);
+                    $message = $service->initializeDataEmail($val['subject'], $val['body'], $val['email'], $from_name['value'], $from_email['value']);
+                    $response = $service->sendEmail($val['email'], $message->toArray(), $emailSetting);
                     $result = EmailModel::insert($message, $account);
 
                     $websitebyId = WebsiteModel::findOneById($val['website']['_id']->__toString());
