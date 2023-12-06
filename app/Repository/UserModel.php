@@ -392,7 +392,7 @@ class UserModel
     }
 
     public static function getAvailableNucode(){
-        return User::distinct('nucode')->get();
+        return User::groupBy('nucode')->orderBy('nucode', 'asc')->pluck('nucode');
 
 
     }

@@ -183,7 +183,7 @@ class SMSService {
         return $sms;
     }
 
-    public function sendSms($sms)
+    public function sendSms($sms, $secret)
     {
         //send to gateway
         $message = [
@@ -193,7 +193,7 @@ class SMSService {
             "device" => $sms->device,
             "sim" => 1,
             "priority" => 1,
-            "secret" => $this->secret,
+            "secret" => $secret,
         ];
         $end_point = "/api/send/sms";
         Log::info("Request Send SMS Single : ". json_encode($message));

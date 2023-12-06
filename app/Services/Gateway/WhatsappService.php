@@ -150,6 +150,7 @@ class WhatsappService {
         $data->recipient = $recipient;
         $data->type = "text";
         $data->message = $message;
+        
         return $data;
     }
 

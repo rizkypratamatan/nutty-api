@@ -20,15 +20,15 @@ class EmailService {
         //     'endpoint' => env('MAILGUN_ENDPOINT'),
         //     'scheme' => 'https',
         // ],
-
+    
         $config = [
-                'domain' => $setting->mailgun_domain,
-                'secret' => $setting->mailgun_domain,
+                'domain' => $setting['mailgun_domain']['value'],
+                'secret' => $setting['mailgun_secret']['value'],
                 'endpoint' => env('MAILGUN_ENDPOINT'),
                 'scheme' => 'https',
         ];
     
-        Config::set('mailgun', $config);
+        Config::set('services.mailgun', $config);
 
         if($data['schedule_status'] == "now"){
             Mail::to($recipient)
