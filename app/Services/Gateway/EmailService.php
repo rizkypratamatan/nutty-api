@@ -30,15 +30,18 @@ class EmailService {
     
         Config::set('services.mailgun', $config);
 
-        if($data['schedule_status'] == "now"){
-            Mail::to($recipient)
-            // ->cc($moreUsers)
-            // ->bcc($evenMoreUsers)
-            ->queue(new EmailBroadcast($data));
-        }else{
-            Mail::to($recipient)
-            ->later(Carbon::parse($data['initiated_time']), new EmailBroadcast($data));
-        }       
+        if($recipient){
+            if($data['schedule_status'] == "now"){
+                Mail::to($recipient)
+                // ->cc($moreUsers)
+                // ->bcc($evenMoreUsers)
+                ->send(new EmailBroadcast($data));
+            }else{
+                Mail::to($recipient)
+                ->later(Carbon::parse($data['initiated_time']), new EmailBroadcast($data));
+            }       
+        }
+        
     }
 
     public function initializeData($request, $email){
