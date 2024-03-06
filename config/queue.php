@@ -36,7 +36,7 @@ return [
 
         'database' => [
             'driver' => 'mongodb',
-            'connection' => 'mongodb-job',
+            'connection' => env('DB_CONNECTION', ''),
             'table' => 'jobs',
             'queue' => 'default',
             'retry_after' => 90,
@@ -89,7 +89,7 @@ return [
     'failed' => [
         // 'driver' => env('QUEUE_FAILED_DRIVER', 'database-uuids'),
         'driver' => 'mongodb',
-        'database' => env('DB_CONNECTION', 'mysql'),
+        'database' => env('DB_CONNECTION', ''),
         'table' => 'failed_jobs',
     ],
 
