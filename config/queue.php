@@ -36,7 +36,6 @@ return [
 
         'database' => [
             'driver' => 'mongodb',
-            'connection' => env('DB_CONNECTION', ''),
             'table' => 'jobs',
             'queue' => 'default',
             'retry_after' => 90,
